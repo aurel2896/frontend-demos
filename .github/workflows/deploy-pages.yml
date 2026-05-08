@@ -1,0 +1,52 @@
+name: Deploy Demos to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare site
+        run: |
+          mkdir -p _site
+
+          cat > _site/index.html << 'LANDING'
+          <!DOCTYPE html>
+          <html><head><meta charset="utf-8"><title>Twenty First Group</title>
+          <style>html,body{margin:0;padding:0;height:100%;font-family:system-ui,-apple-system,sans-serif;background:#0a0a1a;color:#666;display:flex;align-items:center;justify-content:center;letter-spacing:2px;text-transform:uppercase;font-size:0.8rem}</style></head>
+          <body>Twenty First Group &middot; Internal</body></html>
+          LANDING
+
+          # FSHF (n9w2) — Federation Intelligence Platform (e6r3)
+          mkdir -p _site/n9w2/e6r3
+          cp demos/FSHF_Federation_Demo.html _site/n9w2/e6r3/index.html
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
