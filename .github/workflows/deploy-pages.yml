@@ -46,6 +46,10 @@ jobs:
           mkdir -p _site/n9w2/e6r3
           cp demos/FSHF_Federation_Demo.html _site/n9w2/e6r3/index.html
 
+          # FFK / Kosovo (h4k7) — Federation Intelligence Platform (m2v8)
+          mkdir -p _site/h4k7/m2v8
+          cp demos/FFK_Federation_Demo.html _site/h4k7/m2v8/index.html
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
