@@ -49,6 +49,7 @@ jobs:
           # FFK / Kosovo (h4k7) — Federation Intelligence Platform (m2v8)
           mkdir -p _site/h4k7/m2v8
           cp demos/FFK_Federation_Demo.html _site/h4k7/m2v8/index.html
+          cp demos/assets/ffk-crest.svg _site/h4k7/m2v8/ffk-crest.svg
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
