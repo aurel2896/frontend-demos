@@ -1,0 +1,2539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<title>FFK · Intelligence Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+<style>
+:root {
+  --ffk-blue: #1B3A8A;
+  --ffk-blue-dark: #0F2356;
+  --charcoal: #1a1a1a;
+  --ink: #18181b;
+  --bg: #faf9f6;
+  --bg-warm: #f3f1ec;
+  --border: #e5e3dc;
+  --muted: #6b7280;
+  --gold: #b08440;
+}
+html, body { background: var(--bg); color: var(--ink); }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, system-ui, sans-serif; min-width: 0; }
+.font-serif { font-family: 'Fraunces', 'Times New Roman', serif; font-feature-settings: 'ss01'; }
+.font-mono { font-family: 'JetBrains Mono', monospace; }
+.text-ffk { color: var(--ffk-blue); }
+.bg-ffk { background: var(--ffk-blue); }
+
+.display-num {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  font-feature-settings: 'lnum', 'tnum';
+}
+
+.section-pad { padding: 5rem 4rem; }
+.container-max { max-width: 1440px; margin: 0 auto; }
+
+.blue-rule { width: 48px; height: 2px; background: var(--ffk-blue); }
+
+.eyebrow {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--charcoal);
+}
+.eyebrow-en { color: #9ca3af; font-style: italic; font-weight: 400; letter-spacing: 0.06em; text-transform: none; font-size: 12px; }
+
+.section-title { font-family: 'Fraunces', serif; font-weight: 500; letter-spacing: -0.02em; font-size: 44px; line-height: 1.05; }
+
+.kpi-tile { background: white; border: 1px solid var(--border); transition: border-color 0.2s; }
+.kpi-tile:hover { border-color: var(--charcoal); }
+
+.row-hover { transition: background 0.15s; }
+.row-hover:hover { background: rgba(27,58,138,0.04); }
+
+.spark-bar { fill: #d1d5db; }
+.spark-bar-active { fill: var(--ffk-blue); }
+
+.tier-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 12px; font-size: 11px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  border: 1px solid var(--border); border-radius: 999px;
+  background: white; cursor: pointer; transition: all 0.15s;
+  color: var(--charcoal);
+}
+.tier-chip.active { background: var(--charcoal); color: white; border-color: var(--charcoal); }
+.tier-chip .dot { width:6px; height:6px; border-radius:999px; display:inline-block; }
+
+.pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px; font-size: 12px;
+  background: var(--bg-warm); border: 1px solid var(--border);
+  border-radius: 999px; color: var(--charcoal);
+}
+
+.prob-bar { height: 6px; background: #e5e7eb; border-radius: 999px; overflow: hidden; }
+.prob-bar-fill { height: 100%; background: linear-gradient(90deg, var(--ffk-blue-dark), var(--ffk-blue)); }
+
+.fade-up { opacity: 0; transform: translateY(20px); transition: all 0.9s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.fade-up.visible { opacity: 1; transform: translateY(0); }
+
+.ffk-crest svg, svg.ffk-crest { display: block; }
+
+/* Map */
+.eu-map { width: 100%; height: auto; }
+.map-country { fill: #ece9e1; stroke: #d4d0c4; stroke-width: 0.5; }
+.map-country.albania { fill: rgba(27,58,138,0.16); stroke: var(--ffk-blue); stroke-width: 1; }
+.map-country.kosovo { fill: rgba(27,58,138,0.10); stroke: var(--ffk-blue); stroke-width: 0.6; }
+.map-country.macedonia { fill: rgba(27,58,138,0.06); stroke: var(--ffk-blue); stroke-width: 0.4; }
+.map-dot { fill: var(--ffk-blue); cursor: pointer; transition: all 0.15s; }
+.city-marker:hover .map-dot { fill: var(--ffk-blue-dark); }
+.map-dot-halo { fill: var(--ffk-blue); fill-opacity: 0.18; pointer-events: none; }
+.city-marker:hover .map-dot-halo { fill-opacity: 0.32; }
+.map-tooltip {
+  position: absolute; pointer-events: none; background: var(--charcoal); color: white;
+  font-size: 11px; padding: 6px 10px; border-radius: 4px; transform: translate(-50%, -130%);
+  font-family: 'Inter', sans-serif; white-space: nowrap; opacity: 0; transition: opacity 0.15s;
+}
+.map-tooltip.visible { opacity: 1; }
+
+.divider-rule { border-top: 1px solid var(--border); }
+
+table.ffk-table { width: 100%; border-collapse: collapse; }
+table.ffk-table thead th { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); text-align: left; padding: 8px 12px 8px 4px; border-bottom: 1px solid var(--border); }
+
+.atlas-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+.signal-rail { background: white; border: 1px solid var(--border); }
+
+button.filter-pill {
+  padding: 4px 10px; font-size: 11px; font-weight: 500; letter-spacing: 0.04em;
+  border: 1px solid var(--border); border-radius: 999px; background: white;
+  cursor: pointer; transition: all 0.15s; color: var(--charcoal);
+}
+button.filter-pill:hover { border-color: var(--charcoal); }
+button.filter-pill.active { background: var(--ffk-blue); color: white; border-color: var(--ffk-blue); }
+
+.intro-stat { font-family: 'Fraunces', serif; font-weight: 400; letter-spacing: -0.04em; line-height: 0.95; }
+
+.next-fixture-card {
+  background: var(--charcoal); color: white; padding: 28px 32px;
+  display: grid; grid-template-columns: 1fr auto 1fr auto; gap: 24px; align-items: center;
+}
+
+.fade-rule-down::after {
+  content: ''; display: block; width: 1px; height: 60px; margin: 24px auto 0;
+  background: linear-gradient(180deg, var(--border), transparent);
+}
+
+.scroll-hint {
+  position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+  font-size: 11px; letter-spacing: 0.16em; color: var(--muted); text-transform: uppercase;
+}
+
+
+/* ============================================================
+   Mobile / tablet usable pass (≤1023px)
+   ============================================================ */
+@media (max-width: 1023px) {
+  body { min-width: 0; }
+  .container-max { max-width: 100%; }
+  .section-pad { padding: 2.75rem 1rem; }
+
+  /* Stack all grids by default */
+  .grid { grid-template-columns: 1fr !important; }
+
+  /* Override the next-fixture-card custom grid */
+  .next-fixture-card {
+    grid-template-columns: 1fr !important;
+    padding: 22px 18px;
+    gap: 14px;
+    text-align: left;
+  }
+  .next-fixture-card > div { text-align: left !important; }
+  .next-fixture-card > div.border-l {
+    border-left: none !important;
+    padding-left: 0 !important;
+    border-top: 1px solid rgba(255,255,255,0.15);
+    padding-top: 14px;
+  }
+
+  /* Header */
+  header > .container-max { padding-left: 1rem; padding-right: 1rem; }
+  header nav { display: none !important; }
+  header .font-mono.flex { display: none !important; }
+
+  /* Section openers wrap */
+  .section-pad > .container-max > .flex.items-end.justify-between {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .section-pad > .container-max > .flex.items-end.justify-between > div.text-right { text-align: left; }
+
+  /* Section title scale */
+  .section-title { font-size: 30px !important; line-height: 1.1 !important; }
+
+  /* Hero intro */
+  .intro-stat { font-size: 44px !important; line-height: 1 !important; }
+  #hero-crest { display: none !important; }
+  .scroll-hint { display: none !important; }
+
+  /* KPI tiles */
+  .kpi-tile { padding: 1.25rem !important; }
+  .kpi-tile .display-num { font-size: 44px !important; }
+
+  /* Probability hero card big % display */
+  .display-num[style*="120px"] { font-size: 72px !important; }
+  .display-num[style*="120px"] > span[style*="56px"] { font-size: 36px !important; }
+
+  /* Section / profile names */
+  h3.font-serif.text-6xl { font-size: 36px !important; }
+  h3.font-serif.text-5xl { font-size: 32px !important; }
+
+  /* Avatar boxes (diaspora hero, broja profile) */
+  div.col-span-3[style*="min-height: 360px"],
+  div.col-span-3[style*="min-height: 320px"],
+  div.col-span-3[style*="min-height: 280px"] { min-height: 240px !important; }
+
+  /* Tables: scroll horizontally inside their container */
+  div:has(> table.ffk-table) { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table.ffk-table { min-width: 640px; }
+
+  /* Atlas map cap */
+  #eu-map { max-height: 420px; }
+
+  /* Footer stack */
+  footer .container-max > div.flex.items-center.justify-between {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.25rem;
+  }
+  footer .text-right, footer .text-center { text-align: left !important; }
+
+  /* Tier chips wrap */
+  .tier-chip-row { flex-wrap: wrap; gap: 0.5rem !important; }
+
+  /* Signal rail padding */
+  .signal-rail { padding: 1.25rem !important; }
+
+  /* Diaspora hero card silhouette */
+  div.col-span-3 svg[width="180"] { width: 120px; height: 150px; }
+}
+
+/* Tablet: keep some 2-up density */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .grid.grid-cols-4.gap-4 { grid-template-columns: 1fr 1fr !important; }
+  .grid.grid-cols-6.gap-3 { grid-template-columns: 1fr 1fr 1fr !important; }
+  .grid.grid-cols-4.gap-2 { grid-template-columns: 1fr 1fr !important; }
+  .grid.grid-cols-2.gap-2 { grid-template-columns: 1fr 1fr !important; }
+}
+
+/* Phone tightening */
+@media (max-width: 639px) {
+  .section-pad { padding: 2.25rem 0.875rem; }
+  .intro-stat { font-size: 36px !important; }
+  .section-title { font-size: 26px !important; }
+
+  .grid.grid-cols-6.gap-3 { grid-template-columns: 1fr 1fr !important; }
+  .grid.grid-cols-4.gap-2 { grid-template-columns: 1fr 1fr !important; }
+  .grid.grid-cols-2.gap-2 { grid-template-columns: 1fr 1fr !important; }
+
+  .kpi-tile .display-num { font-size: 38px !important; }
+  .display-num[style*="120px"] { font-size: 60px !important; }
+  .display-num[style*="120px"] > span[style*="56px"] { font-size: 28px !important; }
+  h3.font-serif.text-6xl { font-size: 30px !important; }
+  h3.font-serif.text-5xl { font-size: 28px !important; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- =================== STICKY HEADER (light) =================== -->
+<header class="sticky top-0 z-30 bg-[var(--bg)]/85 backdrop-blur border-b border-[var(--border)]">
+  <div class="container-max flex items-center justify-between h-16 px-8">
+    <div class="flex items-center gap-3">
+      <img src="ffk-crest.svg" alt="FFK" class="h-10 w-auto">
+      <div class="leading-tight">
+        <!--EN--><div class="text-[10px] tracking-[0.18em] font-semibold text-[var(--charcoal)]">FOOTBALL FEDERATION OF KOSOVO</div>
+        <!--EN--><div class="text-[11px] text-[var(--muted)] -mt-0.5">Intelligence Platform</div>
+      </div>
+    </div>
+    <nav class="flex items-center gap-8 text-[12px] font-medium text-[var(--charcoal)]">
+      <a href="#pasqyra" class="hover:text-[var(--ffk-blue)]">Dashboard</a>
+      <a href="#trashegimia" class="hover:text-[var(--ffk-blue)]">Succession</a>
+      <a href="#pozicionimi" class="hover:text-[var(--ffk-blue)]">Positioning</a>
+      <a href="#kabina" class="hover:text-[var(--ffk-blue)]">Cockpit</a>
+      <a href="#atlasi" class="hover:text-[var(--ffk-blue)]">Atlas</a>
+      <a href="#profili" class="hover:text-[var(--ffk-blue)]">Profile</a>
+    </nav>
+    <div class="text-[11px] text-[var(--muted)] font-mono flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500" style="box-shadow: 0 0 0 3px rgba(16,185,129,0.18)"></span><!--EN--><span>Updated 9 May · 14:32</span></div>
+  </div>
+</header>
+
+<!-- =================== SECTION 1: HERO / INTRO =================== -->
+<section class="relative" style="min-height: calc(100vh - 64px); display:flex; align-items:center;">
+  <div class="container-max grid grid-cols-12 gap-8 section-pad w-full">
+    <div class="col-span-7 fade-up" id="hero-text">
+      <div class="flex items-center gap-3 mb-12">
+        <div class="blue-rule"></div>
+        <!--EN--><span class="eyebrow">Intelligence Platform</span>
+      </div>
+      <h1 class="intro-stat" style="font-size: 96px;">
+        <!--EN--><span class="text-ffk">5</span> starters<br>
+        <!--EN--><span class="text-[var(--charcoal)]">at the end of the cycle</span><br>
+        <!--EN--><span class="text-[var(--muted)] italic" style="font-weight:300">before EURO 2028.</span>
+      </h1>
+      <div class="mt-10 max-w-xl text-[18px] leading-snug text-[var(--charcoal)] font-serif italic">
+        <!--EN-->What comes after them?
+      </div>
+      <div class="mt-6 max-w-xl text-[14px] leading-relaxed text-[var(--muted)]">
+        <!--EN-->The Intelligence Platform unites senior, U21, U19 and academy planning under a single strategic horizon. The squad we will have tomorrow — not the squad we have today.
+      </div>
+      <div class="mt-12 flex items-center gap-6 text-[12px] text-[var(--muted)]">
+        <!--EN--><div class="flex items-center gap-2"><i data-lucide="users" class="w-3.5 h-3.5"></i><span>Avg starting XI age: 29.7</span></div>
+        <!--EN--><div class="flex items-center gap-2"><i data-lucide="trending-up" class="w-3.5 h-3.5"></i><span>U21 watchlist: 14 prospects</span></div>
+        <!--EN--><div class="flex items-center gap-2"><i data-lucide="git-branch" class="w-3.5 h-3.5"></i><span>U21→Senior conversion: 34%</span></div>
+      </div>
+    </div>
+    <div class="col-span-5 flex items-center justify-end fade-up" id="hero-crest">
+      <img src="ffk-crest.svg" alt="FFK" style="width:260px; height:auto;">
+    </div>
+  </div>
+  <div class="scroll-hint"><!--EN-->Continue ↓</div>
+</section>
+
+<!-- =================== SECTION 2: PASQYRA / DASHBOARD =================== -->
+<section id="pasqyra" class="section-pad border-t border-[var(--border)]">
+  <div class="container-max">
+    <div class="flex items-end justify-between mb-12">
+      <div>
+        <div class="flex items-center gap-3 mb-3">
+          <div class="blue-rule"></div>
+          <!--EN--><span class="eyebrow">Section 01</span>
+        </div>
+        <!--EN--><h2 class="section-title">Dashboard</h2>
+        <div class="eyebrow-en mt-1">Dashboard</div>
+      </div>
+      <div class="text-right text-[13px] text-[var(--muted)] max-w-md">
+        <!--EN-->Weekly state of the squad — prospects, in-form players, upcoming fixtures, global coverage.
+      </div>
+    </div>
+
+    <!-- KPI strip -->
+    <div class="grid grid-cols-4 gap-4 mb-12">
+      <div class="kpi-tile p-6">
+        <div class="flex items-start justify-between">
+          <!--EN--><div class="eyebrow">Readiness index ≥ 80</div>
+          <i data-lucide="shield-check" class="w-4 h-4 text-[var(--ffk-blue)]"></i>
+        </div>
+        <div class="display-num text-ffk mt-3" style="font-size: 64px; line-height:1">14</div>
+        <!--EN--><div class="text-[11px] text-[var(--muted)] mt-2">+2 vs last week</div>
+      </div>
+      <div class="kpi-tile p-6">
+        <div class="flex items-start justify-between">
+          <!--EN--><div class="eyebrow">In form this week</div>
+          <i data-lucide="trending-up" class="w-4 h-4 text-[var(--charcoal)]"></i>
+        </div>
+        <div class="display-num text-[var(--charcoal)] mt-3" style="font-size: 64px; line-height:1">11</div>
+        <!--EN--><div class="text-[11px] text-[var(--muted)] mt-2">≥60 minutes · rating &gt; 7.0</div>
+      </div>
+      <div class="kpi-tile p-6">
+        <div class="flex items-start justify-between">
+          <!--EN--><div class="eyebrow">Upcoming fixtures</div>
+          <i data-lucide="calendar" class="w-4 h-4 text-[var(--charcoal)]"></i>
+        </div>
+        <div class="display-num text-[var(--charcoal)] mt-3" style="font-size: 64px; line-height:1">9</div>
+        <!--EN--><div class="text-[11px] text-[var(--muted)] mt-2">Senior squad · 7 days</div>
+      </div>
+      <div class="kpi-tile p-6">
+        <div class="flex items-start justify-between">
+          <!--EN--><div class="eyebrow">Players tracked</div>
+          <i data-lucide="globe" class="w-4 h-4 text-[var(--charcoal)]"></i>
+        </div>
+        <div class="display-num text-[var(--charcoal)] mt-3" style="font-size: 64px; line-height:1">52</div>
+        <!--EN--><div class="text-[11px] text-[var(--muted)] mt-2">13 countries · 38 clubs</div>
+      </div>
+    </div>
+
+    <!-- Lower dashboard: distribution + week feed -->
+    <div class="grid grid-cols-12 gap-6">
+      <!-- Distribution -->
+      <div class="col-span-7 bg-white border border-[var(--border)] p-6">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <!--EN--><div class="eyebrow">Readiness distribution</div>
+            <!--EN--><div class="text-[13px] text-[var(--muted)] mt-1">52 players tracked · index 0–100</div>
+          </div>
+          <div class="flex items-center gap-3 text-[11px]">
+            <div class="flex items-center gap-1.5"><div class="w-2.5 h-2.5" style="background:#1B3A8A"></div><span><!--EN-->Tier A</span></div>
+            <div class="flex items-center gap-1.5"><div class="w-2.5 h-2.5" style="background:#b08440"></div><span><!--EN-->Tier B</span></div>
+            <div class="flex items-center gap-1.5"><div class="w-2.5 h-2.5" style="background:#9ca3af"></div><span><!--EN-->Tier C</span></div>
+          </div>
+        </div>
+        <svg viewBox="0 0 800 320" class="w-full" style="display: block; height: auto" preserveAspectRatio="xMidYMid meet">
+          <g stroke="#e5e3dc" stroke-width="0.5" shape-rendering="crispEdges">
+            <line x1="68" x2="780" y1="240" y2="240"/>
+            <line x1="68" x2="780" y1="190" y2="190"/>
+            <line x1="68" x2="780" y1="140" y2="140"/>
+            <line x1="68" x2="780" y1="90" y2="90"/>
+            <line x1="68" x2="780" y1="40" y2="40"/>
+          </g>
+          <g font-family="JetBrains Mono, monospace" font-size="10" fill="#9ca3af" letter-spacing="0.04em">
+            <text x="60" y="244" text-anchor="end">0</text>
+            <text x="60" y="194" text-anchor="end">5</text>
+            <text x="60" y="144" text-anchor="end">10</text>
+            <text x="60" y="94" text-anchor="end">15</text>
+            <text x="60" y="44" text-anchor="end">20</text>
+          </g>
+          <line x1="68" x2="780" y1="240" y2="240" stroke="#1a1a1a" stroke-width="1" shape-rendering="crispEdges"/>
+          <rect x="98" y="60" width="92" height="180" fill="#c8c2b3"/>
+          <text x="144" y="50" text-anchor="middle" font-family="Fraunces, serif" font-size="22" font-weight="500" fill="#1a1a1a" letter-spacing="-0.01em">18</text>
+          <rect x="240" y="120" width="92" height="120" fill="#c8c2b3"/>
+          <text x="286" y="110" text-anchor="middle" font-family="Fraunces, serif" font-size="22" font-weight="500" fill="#1a1a1a" letter-spacing="-0.01em">12</text>
+          <rect x="382" y="160" width="92" height="80" fill="#b08440"/>
+          <text x="428" y="150" text-anchor="middle" font-family="Fraunces, serif" font-size="22" font-weight="500" fill="#b08440" letter-spacing="-0.01em">8</text>
+          <rect x="524" y="150" width="92" height="90" fill="#1B3A8A"/>
+          <text x="570" y="140" text-anchor="middle" font-family="Fraunces, serif" font-size="22" font-weight="500" fill="#1B3A8A" letter-spacing="-0.01em">9</text>
+          <rect x="666" y="190" width="92" height="50" fill="#1B3A8A"/>
+          <text x="712" y="180" text-anchor="middle" font-family="Fraunces, serif" font-size="22" font-weight="500" fill="#1B3A8A" letter-spacing="-0.01em">5</text>
+          <g font-family="JetBrains Mono, monospace" font-size="11" fill="#6b7280" letter-spacing="0.02em">
+            <text x="144" y="265" text-anchor="middle">50&#8211;60</text>
+            <text x="286" y="265" text-anchor="middle">60&#8211;70</text>
+            <text x="428" y="265" text-anchor="middle">70&#8211;80</text>
+            <text x="570" y="265" text-anchor="middle">80&#8211;90</text>
+            <text x="712" y="265" text-anchor="middle">90+</text>
+          </g>
+          <g>
+            <line x1="524" y1="120" x2="758" y2="120" stroke="#1B3A8A" stroke-width="0.8" shape-rendering="crispEdges"/>
+            <line x1="524" y1="120" x2="524" y2="126" stroke="#1B3A8A" stroke-width="0.8" shape-rendering="crispEdges"/>
+            <line x1="758" y1="120" x2="758" y2="126" stroke="#1B3A8A" stroke-width="0.8" shape-rendering="crispEdges"/>
+            <text x="641" y="111" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#1B3A8A" letter-spacing="0.06em">14 IN TIER A</text>
+            <text x="641" y="300" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" fill="#6b7280" font-style="italic">likely starters</text>
+          </g>
+        </svg>
+      </div>
+      <!-- Week feed -->
+      <div class="col-span-5 bg-white border border-[var(--border)] p-6">
+        <div class="flex items-center justify-between mb-2">
+          <!--EN--><div class="eyebrow">This week</div>
+          <!--EN--><div class="text-[11px] text-[var(--muted)] font-mono">Week 19</div>
+        </div>
+        
+        <div class="flex items-start gap-3 py-3 border-b border-[var(--border)] last:border-b-0">
+          <div class="w-7 h-7 rounded-full bg-[var(--bg-warm)] flex items-center justify-center flex-shrink-0">
+            <i data-lucide="trophy" class="w-3.5 h-3.5 text-[var(--charcoal)]"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="font-medium text-sm leading-tight">Muriqi · 90' v. Real Madrid</div>
+            <div class="text-xs text-[var(--muted)] mt-0.5">Rating 7.5 · goal</div>
+          </div>
+          <div class="text-xs font-mono text-[var(--muted)] flex-shrink-0">2 days</div>
+        </div>
+        <div class="flex items-start gap-3 py-3 border-b border-[var(--border)] last:border-b-0">
+          <div class="w-7 h-7 rounded-full bg-[var(--bg-warm)] flex items-center justify-center flex-shrink-0">
+            <i data-lucide="zap" class="w-3.5 h-3.5 text-[var(--charcoal)]"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="font-medium text-sm leading-tight">Zhegrova · 'Player of the Week'</div>
+            <div class="text-xs text-[var(--muted)] mt-0.5">Ligue 1 · 2 goals & 1 assist v. Marseille</div>
+          </div>
+          <div class="text-xs font-mono text-[var(--muted)] flex-shrink-0">3 days</div>
+        </div>
+        <div class="flex items-start gap-3 py-3 border-b border-[var(--border)] last:border-b-0">
+          <div class="w-7 h-7 rounded-full bg-[var(--bg-warm)] flex items-center justify-center flex-shrink-0">
+            <i data-lucide="calendar" class="w-3.5 h-3.5 text-[var(--charcoal)]"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="font-medium text-sm leading-tight">Date confirmed</div>
+            <div class="text-xs text-[var(--muted)] mt-0.5">Kosovo vs. Slovenia · 8 September 2026</div>
+          </div>
+          <div class="text-xs font-mono text-[var(--muted)] flex-shrink-0">4 days</div>
+        </div>
+        <div class="flex items-start gap-3 py-3 border-b border-[var(--border)] last:border-b-0">
+          <div class="w-7 h-7 rounded-full bg-[var(--bg-warm)] flex items-center justify-center flex-shrink-0">
+            <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-[var(--charcoal)]"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="font-medium text-sm leading-tight">Hadergjonaj — minor injury</div>
+            <div class="text-xs text-[var(--muted)] mt-0.5">Westerlo · 7-10 days out</div>
+          </div>
+          <div class="text-xs font-mono text-[var(--muted)] flex-shrink-0">5 days</div>
+        </div>
+        <div class="flex items-start gap-3 py-3 border-b border-[var(--border)] last:border-b-0">
+          <div class="w-7 h-7 rounded-full bg-[var(--bg-warm)] flex items-center justify-center flex-shrink-0">
+            <i data-lucide="trending-up" class="w-3.5 h-3.5 text-[var(--charcoal)]"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="font-medium text-sm leading-tight">Rrahmani · Champions League debut</div>
+            <div class="text-xs text-[var(--muted)] mt-0.5">Napoli · 90' clean sheet v. PSG</div>
+          </div>
+          <div class="text-xs font-mono text-[var(--muted)] flex-shrink-0">5 days</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== SECTION 2.5: TRASHËGIMIA / SUCCESSION =================== -->
+<section id="trashegimia" class="section-pad border-t border-[var(--border)]" style="background: var(--bg-warm);">
+  <div class="container-max">
+    <!-- Section header -->
+    <div class="flex items-end justify-between mb-12">
+      <div>
+        <div class="flex items-center gap-3 mb-3">
+          <div class="blue-rule"></div>
+          <!--EN--><span class="eyebrow">Section 02</span>
+        </div>
+        <!--EN--><h2 class="section-title">Succession</h2>
+        <div class="eyebrow-en mt-1">Squad Succession · 2026–2030 horizon</div>
+      </div>
+      <!--EN--><div class="text-right text-[13px] text-[var(--muted)] max-w-md">
+        The squad we will have tomorrow — position by position. Effective international career window. The U21 → Senior pipeline.
+      </div>
+    </div>
+
+    <!-- KPI strip -->
+    <div class="grid grid-cols-4 gap-4 mb-12">
+      <div class="kpi-tile p-6">
+        <div class="flex items-start justify-between">
+          <!--EN--><div class="eyebrow">Avg starting XI age</div>
+          <i data-lucide="users" class="w-4 h-4 text-[var(--charcoal)]"></i>
+        </div>
+        <div class="display-num text-[var(--charcoal)] mt-3" style="font-size: 64px; line-height:1">29.7</div>
+        <!--EN--><div class="text-[11px] text-[var(--muted)] mt-2">UEFA tier-4 avg.: 27.4</div>
+      </div>
+      <div class="kpi-tile p-6">
+        <div class="flex items-start justify-between">
+          <!--EN--><div class="eyebrow">Near exit (age ≥31)</div>
+          <i data-lucide="hourglass" class="w-4 h-4 text-[var(--ffk-blue)]"></i>
+        </div>
+        <div class="display-num text-ffk mt-3" style="font-size: 64px; line-height:1">6</div>
+        <!--EN--><div class="text-[11px] text-[var(--muted)] mt-2">5 of them regular starters</div>
+      </div>
+      <div class="kpi-tile p-6">
+        <div class="flex items-start justify-between">
+          <!--EN--><div class="eyebrow">Positions without U21 deputy</div>
+          <i data-lucide="alert-triangle" class="w-4 h-4 text-[var(--charcoal)]"></i>
+        </div>
+        <div class="display-num text-[var(--charcoal)] mt-3" style="font-size: 64px; line-height:1">3</div>
+        <!--EN--><div class="text-[11px] text-[var(--muted)] mt-2">RB, LB, AM</div>
+      </div>
+      <div class="kpi-tile p-6">
+        <div class="flex items-start justify-between">
+          <!--EN--><div class="eyebrow">U21 → Senior · 12 months</div>
+          <i data-lucide="git-branch" class="w-4 h-4 text-[var(--charcoal)]"></i>
+        </div>
+        <div class="display-num text-[var(--charcoal)] mt-3" style="font-size: 64px; line-height:1">4</div>
+        <!--EN--><div class="text-[11px] text-[var(--muted)] mt-2">call-ups converted from U21</div>
+      </div>
+    </div>
+
+    <!-- Position depth chart -->
+    <div class="bg-white border border-[var(--border)] mb-10">
+      <div class="px-6 py-4 border-b border-[var(--border)] flex items-center justify-between">
+        <div>
+          <!--EN--><div class="eyebrow">Squad depth · position by position</div>
+          <!--EN--><div class="text-[12px] text-[var(--muted)] mt-0.5">Starter · deputy · third choice · U21 prospect — with risk signal</div>
+        </div>
+        <div class="flex items-center gap-3 text-[11px] text-[var(--muted)]">
+          <!--EN--><span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background:#10b981"></span>Stable</span>
+          <!--EN--><span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background:#f59e0b"></span>Watch</span>
+          <!--EN--><span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background:#ef4444"></span>Urgent</span>
+        </div>
+      </div>
+      <div class="divide-y divide-[var(--border)]">
+        <div class="px-6 py-4 grid grid-cols-12 gap-4 items-stretch">
+          <div class="col-span-2 flex flex-col justify-center">
+            <div class="font-mono text-[11px] text-[var(--muted)] tracking-wider">GK</div>
+            <div class="text-[13px] font-medium mt-0.5 leading-tight">Goalkeeper</div>
+            <div class="text-[11px] text-[var(--muted)] mt-1 italic leading-tight">Muric a secure starter; U21 generation is thin</div>
+          </div>
+          <div class="col-span-9 grid grid-cols-4 gap-2">
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">Starter</div><div class="text-[13px] font-medium leading-tight">Muric</div><div class="text-[11px] font-mono mt-0.5" style="color:#15803d;font-weight:600;">27 y/o</div></div>
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">Deputy</div><div class="text-[13px] font-medium leading-tight">Bekaj</div><div class="text-[11px] font-mono mt-0.5" style="color:#9f1239;font-weight:600;">33 y/o</div></div>
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">Third</div><div class="text-[13px] font-medium leading-tight">Maliqi</div><div class="text-[11px] font-mono mt-0.5" style="color:#15803d;font-weight:600;">24 y/o</div></div>
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">U21</div><div class="text-[13px] font-medium leading-tight">Loshaj</div><div class="text-[11px] font-mono mt-0.5" style="color:#15803d;font-weight:600;">19 y/o</div></div>
+          </div>
+          <div class="col-span-1 flex items-center justify-end">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full" style="background:#f59e0b"></span>
+              <span class="text-[11px] uppercase tracking-wider" style="color:#f59e0b">Watch</span>
+            </div>
+          </div>
+        </div>
+        <div class="px-6 py-4 grid grid-cols-12 gap-4 items-stretch">
+          <div class="col-span-2 flex flex-col justify-center">
+            <div class="font-mono text-[11px] text-[var(--muted)] tracking-wider">RB</div>
+            <div class="text-[13px] font-medium mt-0.5 leading-tight">Right back</div>
+            <div class="text-[11px] text-[var(--muted)] mt-1 italic leading-tight">All three 30+ · no confirmed U21</div>
+          </div>
+          <div class="col-span-9 grid grid-cols-4 gap-2">
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">Starter</div><div class="text-[13px] font-medium leading-tight">Vojvoda</div><div class="text-[11px] font-mono mt-0.5" style="color:#9f1239;font-weight:600;">31 y/o</div></div>
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">Deputy</div><div class="text-[13px] font-medium leading-tight">Hadergjonaj</div><div class="text-[11px] font-mono mt-0.5" style="color:#9f1239;font-weight:600;">31 y/o</div></div>
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">Third</div><div class="text-[13px] font-medium leading-tight">Aliti</div><div class="text-[11px] font-mono mt-0.5" style="color:#9f1239;font-weight:600;">32 y/o</div></div>
+            <div class="px-3 py-2 border border-dashed border-[var(--border)] rounded text-center"><div class="text-[11px] text-[var(--muted)]">— no candidate —</div></div>
+          </div>
+          <div class="col-span-1 flex items-center justify-end">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full" style="background:#ef4444"></span>
+              <span class="text-[11px] uppercase tracking-wider" style="color:#ef4444">Urgent</span>
+            </div>
+          </div>
+        </div>
+        <div class="px-6 py-4 grid grid-cols-12 gap-4 items-stretch">
+          <div class="col-span-2 flex flex-col justify-center">
+            <div class="font-mono text-[11px] text-[var(--muted)] tracking-wider">CB-1</div>
+            <div class="text-[13px] font-medium mt-0.5 leading-tight">Centre back</div>
+            <div class="text-[11px] text-[var(--muted)] mt-1 italic leading-tight">Rrahmani aging but pipeline solid</div>
+          </div>
+          <div class="col-span-9 grid grid-cols-4 gap-2">
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">Starter</div><div class="text-[13px] font-medium leading-tight">Rrahmani</div><div class="text-[11px] font-mono mt-0.5" style="color:#9f1239;font-weight:600;">32 y/o</div></div>
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">Deputy</div><div class="text-[13px] font-medium leading-tight">Dresevic</div><div class="text-[11px] font-mono mt-0.5" style="color:#15803d;font-weight:600;">28 y/o</div></div>
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">Third</div><div class="text-[13px] font-medium leading-tight">Hajrizi</div><div class="text-[11px] font-mono mt-0.5" style="color:#15803d;font-weight:600;">26 y/o</div></div>
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">U21</div><div class="text-[13px] font-medium leading-tight">Pruti</div><div class="text-[11px] font-mono mt-0.5" style="color:#15803d;font-weight:600;">24 y/o</div></div>
+          </div>
+          <div class="col-span-1 flex items-center justify-end">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full" style="background:#10b981"></span>
+              <span class="text-[11px] uppercase tracking-wider" style="color:#10b981">Stable</span>
+            </div>
+          </div>
+        </div>
+        <div class="px-6 py-4 grid grid-cols-12 gap-4 items-stretch">
+          <div class="col-span-2 flex flex-col justify-center">
+            <div class="font-mono text-[11px] text-[var(--muted)] tracking-wider">CB-2</div>
+            <div class="text-[13px] font-medium mt-0.5 leading-tight">Mbrojtës qendror</div>
+            <div class="text-[11px] text-[var(--muted)] mt-1 italic leading-tight">No confirmed U21</div>
+          </div>
+          <div class="col-span-9 grid grid-cols-4 gap-2">
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">Starter</div><div class="text-[13px] font-medium leading-tight">Dresevic</div><div class="text-[11px] font-mono mt-0.5" style="color:#15803d;font-weight:600;">28 y/o</div></div>
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">Deputy</div><div class="text-[13px] font-medium leading-tight">Hajrizi</div><div class="text-[11px] font-mono mt-0.5" style="color:#15803d;font-weight:600;">26 y/o</div></div>
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">Third</div><div class="text-[13px] font-medium leading-tight">Pruti</div><div class="text-[11px] font-mono mt-0.5" style="color:#15803d;font-weight:600;">24 y/o</div></div>
+            <div class="px-3 py-2 border border-dashed border-[var(--border)] rounded text-center"><div class="text-[11px] text-[var(--muted)]">— no candidate —</div></div>
+          </div>
+          <div class="col-span-1 flex items-center justify-end">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full" style="background:#f59e0b"></span>
+              <span class="text-[11px] uppercase tracking-wider" style="color:#f59e0b">Watch</span>
+            </div>
+          </div>
+        </div>
+        <div class="px-6 py-4 grid grid-cols-12 gap-4 items-stretch">
+          <div class="col-span-2 flex flex-col justify-center">
+            <div class="font-mono text-[11px] text-[var(--muted)] tracking-wider">LB</div>
+            <div class="text-[13px] font-medium mt-0.5 leading-tight">Left back</div>
+            <div class="text-[11px] text-[var(--muted)] mt-1 italic leading-tight">Three 30+ · one prospect</div>
+          </div>
+          <div class="col-span-9 grid grid-cols-4 gap-2">
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">Starter</div><div class="text-[13px] font-medium leading-tight">Hadergjonaj</div><div class="text-[11px] font-mono mt-0.5" style="color:#9f1239;font-weight:600;">31 y/o</div></div>
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">Deputy</div><div class="text-[13px] font-medium leading-tight">Vojvoda</div><div class="text-[11px] font-mono mt-0.5" style="color:#9f1239;font-weight:600;">31 y/o</div></div>
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">Third</div><div class="text-[13px] font-medium leading-tight">Aliti</div><div class="text-[11px] font-mono mt-0.5" style="color:#9f1239;font-weight:600;">32 y/o</div></div>
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">U21</div><div class="text-[13px] font-medium leading-tight">Limaj</div><div class="text-[11px] font-mono mt-0.5" style="color:#15803d;font-weight:600;">19 y/o</div></div>
+          </div>
+          <div class="col-span-1 flex items-center justify-end">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full" style="background:#ef4444"></span>
+              <span class="text-[11px] uppercase tracking-wider" style="color:#ef4444">Urgent</span>
+            </div>
+          </div>
+        </div>
+        <div class="px-6 py-4 grid grid-cols-12 gap-4 items-stretch">
+          <div class="col-span-2 flex flex-col justify-center">
+            <div class="font-mono text-[11px] text-[var(--muted)] tracking-wider">DM</div>
+            <div class="text-[13px] font-medium mt-0.5 leading-tight">Defensive midfield</div>
+            <div class="text-[11px] text-[var(--muted)] mt-1 italic leading-tight">Berisha winding down; pipeline in watch</div>
+          </div>
+          <div class="col-span-9 grid grid-cols-4 gap-2">
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">Starter</div><div class="text-[13px] font-medium leading-tight">Kryeziu</div><div class="text-[11px] font-mono mt-0.5" style="color:#a16207;font-weight:600;">30 y/o</div></div>
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">Deputy</div><div class="text-[13px] font-medium leading-tight">Berisha</div><div class="text-[11px] font-mono mt-0.5" style="color:#9f1239;font-weight:600;">32 y/o</div></div>
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">Third</div><div class="text-[13px] font-medium leading-tight">Sahiti</div><div class="text-[11px] font-mono mt-0.5" style="color:#15803d;font-weight:600;">27 y/o</div></div>
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">U21</div><div class="text-[13px] font-medium leading-tight">Kelmendi</div><div class="text-[11px] font-mono mt-0.5" style="color:#15803d;font-weight:600;">20 y/o</div></div>
+          </div>
+          <div class="col-span-1 flex items-center justify-end">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full" style="background:#f59e0b"></span>
+              <span class="text-[11px] uppercase tracking-wider" style="color:#f59e0b">Watch</span>
+            </div>
+          </div>
+        </div>
+        <div class="px-6 py-4 grid grid-cols-12 gap-4 items-stretch">
+          <div class="col-span-2 flex flex-col justify-center">
+            <div class="font-mono text-[11px] text-[var(--muted)] tracking-wider">CM</div>
+            <div class="text-[13px] font-medium mt-0.5 leading-tight">Centre midfield</div>
+            <div class="text-[11px] text-[var(--muted)] mt-1 italic leading-tight">Berisha 32; pipeline thin</div>
+          </div>
+          <div class="col-span-9 grid grid-cols-4 gap-2">
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">Starter</div><div class="text-[13px] font-medium leading-tight">Berisha</div><div class="text-[11px] font-mono mt-0.5" style="color:#9f1239;font-weight:600;">32 y/o</div></div>
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">Deputy</div><div class="text-[13px] font-medium leading-tight">Celina</div><div class="text-[11px] font-mono mt-0.5" style="color:#15803d;font-weight:600;">28 y/o</div></div>
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">Third</div><div class="text-[13px] font-medium leading-tight">Krasniqi</div><div class="text-[11px] font-mono mt-0.5" style="color:#15803d;font-weight:600;">27 y/o</div></div>
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">U21</div><div class="text-[13px] font-medium leading-tight">Tahiri</div><div class="text-[11px] font-mono mt-0.5" style="color:#15803d;font-weight:600;">21 y/o</div></div>
+          </div>
+          <div class="col-span-1 flex items-center justify-end">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full" style="background:#f59e0b"></span>
+              <span class="text-[11px] uppercase tracking-wider" style="color:#f59e0b">Watch</span>
+            </div>
+          </div>
+        </div>
+        <div class="px-6 py-4 grid grid-cols-12 gap-4 items-stretch">
+          <div class="col-span-2 flex flex-col justify-center">
+            <div class="font-mono text-[11px] text-[var(--muted)] tracking-wider">AM</div>
+            <div class="text-[13px] font-medium mt-0.5 leading-tight">Attacking midfield</div>
+            <div class="text-[11px] text-[var(--muted)] mt-1 italic leading-tight">No depth beyond top two</div>
+          </div>
+          <div class="col-span-9 grid grid-cols-4 gap-2">
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">Starter</div><div class="text-[13px] font-medium leading-tight">Celina</div><div class="text-[11px] font-mono mt-0.5" style="color:#15803d;font-weight:600;">28 y/o</div></div>
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">Deputy</div><div class="text-[13px] font-medium leading-tight">Krasniqi</div><div class="text-[11px] font-mono mt-0.5" style="color:#15803d;font-weight:600;">27 y/o</div></div>
+            <div class="px-3 py-2 border border-dashed border-[var(--border)] rounded text-center"><div class="text-[11px] text-[var(--muted)]">— no candidate —</div></div>
+            <div class="px-3 py-2 border border-dashed border-[var(--border)] rounded text-center"><div class="text-[11px] text-[var(--muted)]">— no candidate —</div></div>
+          </div>
+          <div class="col-span-1 flex items-center justify-end">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full" style="background:#ef4444"></span>
+              <span class="text-[11px] uppercase tracking-wider" style="color:#ef4444">Urgent</span>
+            </div>
+          </div>
+        </div>
+        <div class="px-6 py-4 grid grid-cols-12 gap-4 items-stretch">
+          <div class="col-span-2 flex flex-col justify-center">
+            <div class="font-mono text-[11px] text-[var(--muted)] tracking-wider">RW</div>
+            <div class="text-[13px] font-medium mt-0.5 leading-tight">Right wing</div>
+            <div class="text-[11px] text-[var(--muted)] mt-1 italic leading-tight">Zhegrova in peak — pipeline solid</div>
+          </div>
+          <div class="col-span-9 grid grid-cols-4 gap-2">
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">Starter</div><div class="text-[13px] font-medium leading-tight">Zhegrova</div><div class="text-[11px] font-mono mt-0.5" style="color:#15803d;font-weight:600;">27 y/o</div></div>
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">Deputy</div><div class="text-[13px] font-medium leading-tight">Rashica</div><div class="text-[11px] font-mono mt-0.5" style="color:#a16207;font-weight:600;">30 y/o</div></div>
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">Third</div><div class="text-[13px] font-medium leading-tight">Kastrati</div><div class="text-[11px] font-mono mt-0.5" style="color:#15803d;font-weight:600;">27 y/o</div></div>
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">U21</div><div class="text-[13px] font-medium leading-tight">Maxhuni</div><div class="text-[11px] font-mono mt-0.5" style="color:#15803d;font-weight:600;">26 y/o</div></div>
+          </div>
+          <div class="col-span-1 flex items-center justify-end">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full" style="background:#10b981"></span>
+              <span class="text-[11px] uppercase tracking-wider" style="color:#10b981">Stable</span>
+            </div>
+          </div>
+        </div>
+        <div class="px-6 py-4 grid grid-cols-12 gap-4 items-stretch">
+          <div class="col-span-2 flex flex-col justify-center">
+            <div class="font-mono text-[11px] text-[var(--muted)] tracking-wider">LW</div>
+            <div class="text-[13px] font-medium mt-0.5 leading-tight">Left wing</div>
+            <div class="text-[11px] text-[var(--muted)] mt-1 italic leading-tight">Pa U21 të konfirmuar</div>
+          </div>
+          <div class="col-span-9 grid grid-cols-4 gap-2">
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">Starter</div><div class="text-[13px] font-medium leading-tight">Rashica</div><div class="text-[11px] font-mono mt-0.5" style="color:#a16207;font-weight:600;">30 y/o</div></div>
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">Deputy</div><div class="text-[13px] font-medium leading-tight">Zhegrova</div><div class="text-[11px] font-mono mt-0.5" style="color:#15803d;font-weight:600;">27 y/o</div></div>
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">Third</div><div class="text-[13px] font-medium leading-tight">Kastrati</div><div class="text-[11px] font-mono mt-0.5" style="color:#15803d;font-weight:600;">27 y/o</div></div>
+            <div class="px-3 py-2 border border-dashed border-[var(--border)] rounded text-center"><div class="text-[11px] text-[var(--muted)]">— no candidate —</div></div>
+          </div>
+          <div class="col-span-1 flex items-center justify-end">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full" style="background:#f59e0b"></span>
+              <span class="text-[11px] uppercase tracking-wider" style="color:#f59e0b">Watch</span>
+            </div>
+          </div>
+        </div>
+        <div class="px-6 py-4 grid grid-cols-12 gap-4 items-stretch">
+          <div class="col-span-2 flex flex-col justify-center">
+            <div class="font-mono text-[11px] text-[var(--muted)] tracking-wider">ST</div>
+            <div class="text-[13px] font-medium mt-0.5 leading-tight">Striker</div>
+            <div class="text-[11px] text-[var(--muted)] mt-1 italic leading-tight">Hodža ready for transition</div>
+          </div>
+          <div class="col-span-9 grid grid-cols-4 gap-2">
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">Starter</div><div class="text-[13px] font-medium leading-tight">Muriqi</div><div class="text-[11px] font-mono mt-0.5" style="color:#9f1239;font-weight:600;">31 y/o</div></div>
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">Deputy</div><div class="text-[13px] font-medium leading-tight">Hodža</div><div class="text-[11px] font-mono mt-0.5" style="color:#15803d;font-weight:600;">26 y/o</div></div>
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">Third</div><div class="text-[13px] font-medium leading-tight">Nuhiu</div><div class="text-[11px] font-mono mt-0.5" style="color:#9f1239;font-weight:600;">36 y/o</div></div>
+            <div class="px-3 py-2 border border-[var(--border)] rounded"><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-0.5">U21</div><div class="text-[13px] font-medium leading-tight">A. Rrahmani</div><div class="text-[11px] font-mono mt-0.5" style="color:#15803d;font-weight:600;">25 y/o</div></div>
+          </div>
+          <div class="col-span-1 flex items-center justify-end">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full" style="background:#f59e0b"></span>
+              <span class="text-[11px] uppercase tracking-wider" style="color:#f59e0b">Watch</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Effective career window Gantt -->
+    <div class="bg-white border border-[var(--border)] p-6 mb-10">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <!--EN--><div class="eyebrow">Effective career window · 2024–2032</div>
+          <!--EN--><div class="text-[12px] text-[var(--muted)] mt-0.5">Productive international years by age · 14 core players</div>
+        </div>
+        <div class="flex items-center gap-3 text-[11px]">
+          <!--EN--><span class="flex items-center gap-1.5"><span class="w-3 h-2" style="background:#1B3A8A"></span>Peak (≤29)</span>
+          <!--EN--><span class="flex items-center gap-1.5"><span class="w-3 h-2" style="background:rgba(27,58,138,0.42)"></span>Decline (30–33)</span>
+          <!--EN--><span class="flex items-center gap-1.5"><span class="w-3 h-2" style="background:#d1d5db"></span>Post-peak (34+)</span>
+        </div>
+      </div>
+      <svg viewBox="0 0 880 460" class="w-full" style="display:block;height:auto" preserveAspectRatio="xMidYMid meet">
+  <g font-family="JetBrains Mono, monospace" font-size="10" fill="#9ca3af" letter-spacing="0.04em">
+    <text x="180.0" y="46" text-anchor="middle">2024</text>
+    <text x="264.5" y="46" text-anchor="middle">2025</text>
+    <text x="349.0" y="46" text-anchor="middle">2026</text>
+    <text x="433.5" y="46" text-anchor="middle">2027</text>
+    <text x="518.0" y="46" text-anchor="middle">2028</text>
+    <text x="602.5" y="46" text-anchor="middle">2029</text>
+    <text x="687.0" y="46" text-anchor="middle">2030</text>
+    <text x="771.5" y="46" text-anchor="middle">2031</text>
+    <text x="856.0" y="46" text-anchor="middle">2032</text>
+  </g>
+  <g stroke="#eee9da" stroke-width="0.5" shape-rendering="crispEdges">
+    <line x1="180.0" x2="180.0" y1="50" y2="448"/>
+    <line x1="264.5" x2="264.5" y1="50" y2="448"/>
+    <line x1="349.0" x2="349.0" y1="50" y2="448"/>
+    <line x1="433.5" x2="433.5" y1="50" y2="448"/>
+    <line x1="518.0" x2="518.0" y1="50" y2="448"/>
+    <line x1="602.5" x2="602.5" y1="50" y2="448"/>
+    <line x1="687.0" x2="687.0" y1="50" y2="448"/>
+    <line x1="771.5" x2="771.5" y1="50" y2="448"/>
+    <line x1="856.0" x2="856.0" y1="50" y2="448"/>
+  </g>
+  <text x="168" y="76.0" text-anchor="end" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" fill="#1a1a1a">Atdhe Nuhiu <tspan fill="#9ca3af" font-size="11">· 36</tspan></text>
+  <rect x="180.0" y="66" width="760.5" height="14" fill="#d1d5db" rx="2"/>
+  <text x="168" y="102.0" text-anchor="end" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" fill="#1a1a1a">Berat Berisha (V.) <tspan fill="#9ca3af" font-size="11">· 32</tspan></text>
+  <rect x="180.0" y="92" width="338.0" height="14" fill="rgba(27,58,138,0.42)" rx="2"/>
+  <rect x="518.0" y="92" width="422.5" height="14" fill="#d1d5db" rx="2"/>
+  <text x="168" y="128.0" text-anchor="end" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" fill="#1a1a1a">Amir Rrahmani <tspan fill="#9ca3af" font-size="11">· 32</tspan></text>
+  <rect x="180.0" y="118" width="338.0" height="14" fill="rgba(27,58,138,0.42)" rx="2"/>
+  <rect x="518.0" y="118" width="422.5" height="14" fill="#d1d5db" rx="2"/>
+  <text x="168" y="154.0" text-anchor="end" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" fill="#1a1a1a">Mergim Vojvoda <tspan fill="#9ca3af" font-size="11">· 31</tspan></text>
+  <rect x="180.0" y="144" width="84.5" height="14" fill="#1B3A8A" rx="2"/>
+  <rect x="264.5" y="144" width="338.0" height="14" fill="rgba(27,58,138,0.42)" rx="2"/>
+  <rect x="602.5" y="144" width="338.0" height="14" fill="#d1d5db" rx="2"/>
+  <text x="168" y="180.0" text-anchor="end" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" fill="#1a1a1a">Florent Hadergjonaj <tspan fill="#9ca3af" font-size="11">· 31</tspan></text>
+  <rect x="180.0" y="170" width="84.5" height="14" fill="#1B3A8A" rx="2"/>
+  <rect x="264.5" y="170" width="338.0" height="14" fill="rgba(27,58,138,0.42)" rx="2"/>
+  <rect x="602.5" y="170" width="338.0" height="14" fill="#d1d5db" rx="2"/>
+  <text x="168" y="206.0" text-anchor="end" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" fill="#1a1a1a">Vedat Muriqi <tspan fill="#9ca3af" font-size="11">· 31</tspan></text>
+  <rect x="180.0" y="196" width="84.5" height="14" fill="#1B3A8A" rx="2"/>
+  <rect x="264.5" y="196" width="338.0" height="14" fill="rgba(27,58,138,0.42)" rx="2"/>
+  <rect x="602.5" y="196" width="338.0" height="14" fill="#d1d5db" rx="2"/>
+  <text x="168" y="232.0" text-anchor="end" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" fill="#1a1a1a">Hekuran Kryeziu <tspan fill="#9ca3af" font-size="11">· 30</tspan></text>
+  <rect x="180.0" y="222" width="169.0" height="14" fill="#1B3A8A" rx="2"/>
+  <rect x="349.0" y="222" width="338.0" height="14" fill="rgba(27,58,138,0.42)" rx="2"/>
+  <rect x="687.0" y="222" width="253.5" height="14" fill="#d1d5db" rx="2"/>
+  <text x="168" y="258.0" text-anchor="end" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" fill="#1a1a1a">Milot Rashica <tspan fill="#9ca3af" font-size="11">· 30</tspan></text>
+  <rect x="180.0" y="248" width="169.0" height="14" fill="#1B3A8A" rx="2"/>
+  <rect x="349.0" y="248" width="338.0" height="14" fill="rgba(27,58,138,0.42)" rx="2"/>
+  <rect x="687.0" y="248" width="253.5" height="14" fill="#d1d5db" rx="2"/>
+  <text x="168" y="284.0" text-anchor="end" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" fill="#1a1a1a">Bersant Celina <tspan fill="#9ca3af" font-size="11">· 28</tspan></text>
+  <rect x="180.0" y="274" width="338.0" height="14" fill="#1B3A8A" rx="2"/>
+  <rect x="518.0" y="274" width="338.0" height="14" fill="rgba(27,58,138,0.42)" rx="2"/>
+  <rect x="856.0" y="274" width="84.5" height="14" fill="#d1d5db" rx="2"/>
+  <text x="168" y="310.0" text-anchor="end" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" fill="#1a1a1a">Ibrahim Dresevic <tspan fill="#9ca3af" font-size="11">· 28</tspan></text>
+  <rect x="180.0" y="300" width="338.0" height="14" fill="#1B3A8A" rx="2"/>
+  <rect x="518.0" y="300" width="338.0" height="14" fill="rgba(27,58,138,0.42)" rx="2"/>
+  <rect x="856.0" y="300" width="84.5" height="14" fill="#d1d5db" rx="2"/>
+  <text x="168" y="336.0" text-anchor="end" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" fill="#1a1a1a">Ermal Krasniqi <tspan fill="#9ca3af" font-size="11">· 27</tspan></text>
+  <rect x="180.0" y="326" width="422.5" height="14" fill="#1B3A8A" rx="2"/>
+  <rect x="602.5" y="326" width="338.0" height="14" fill="rgba(27,58,138,0.42)" rx="2"/>
+  <text x="168" y="362.0" text-anchor="end" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" fill="#1a1a1a">Arijanet Muric <tspan fill="#9ca3af" font-size="11">· 27</tspan></text>
+  <rect x="180.0" y="352" width="422.5" height="14" fill="#1B3A8A" rx="2"/>
+  <rect x="602.5" y="352" width="338.0" height="14" fill="rgba(27,58,138,0.42)" rx="2"/>
+  <text x="168" y="388.0" text-anchor="end" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" fill="#1a1a1a">Edon Zhegrova <tspan fill="#9ca3af" font-size="11">· 27</tspan></text>
+  <rect x="180.0" y="378" width="422.5" height="14" fill="#1B3A8A" rx="2"/>
+  <rect x="602.5" y="378" width="338.0" height="14" fill="rgba(27,58,138,0.42)" rx="2"/>
+  <text x="168" y="414.0" text-anchor="end" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" fill="#1a1a1a">Veldin Hodža <tspan fill="#9ca3af" font-size="11">· 26</tspan></text>
+  <rect x="180.0" y="404" width="507.0" height="14" fill="#1B3A8A" rx="2"/>
+  <rect x="687.0" y="404" width="253.5" height="14" fill="rgba(27,58,138,0.42)" rx="2"/>
+  <line x1="391.2" x2="391.2" y1="50" y2="448" stroke="#1a1a1a" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="391.2" y="458" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="600" fill="#1a1a1a" letter-spacing="0.16em">TODAY</text>
+  <line x1="560.2" x2="560.2" y1="50" y2="448" stroke="#1B3A8A" stroke-width="1.2"/>
+  <text x="560.2" y="458" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="600" fill="#1B3A8A" letter-spacing="0.16em">EURO 2028</text>
+</svg>
+      <div class="mt-4 pt-4 border-t border-[var(--border)] text-[12px] text-[var(--muted)] italic max-w-3xl">
+        <!--EN-->Five starters (Muriqi, Rrahmani, Vojvoda, Hadergjonaj, Berisha) cross into post-peak during the EURO 2028 cycle. Three of them have no confirmed deputy from the next generation.
+      </div>
+    </div>
+
+    <!-- U21 → A pipeline (chart + prospect cards) -->
+    <div class="grid grid-cols-12 gap-6 mb-10">
+      <div class="col-span-7 bg-white border border-[var(--border)] p-6">
+        <!--EN--><div class="eyebrow mb-1">U21 → Senior conversion</div>
+        <!--EN--><div class="text-[12px] text-[var(--muted)] mb-6">4 U21 cycles (2018–2024) · % who earned a senior call-up within 2 years</div>
+        <svg viewBox="0 0 700 240" class="w-full" style="display:block;height:auto">
+  <line x1="60.0" x2="60.0" y1="20" y2="210" stroke="#eee9da" stroke-width="0.5"/>
+  <text x="60.0" y="224" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#9ca3af">0%</text>
+  <line x1="182.0" x2="182.0" y1="20" y2="210" stroke="#eee9da" stroke-width="0.5"/>
+  <text x="182.0" y="224" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#9ca3af">20%</text>
+  <line x1="304.0" x2="304.0" y1="20" y2="210" stroke="#eee9da" stroke-width="0.5"/>
+  <text x="304.0" y="224" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#9ca3af">40%</text>
+  <line x1="426.0" x2="426.0" y1="20" y2="210" stroke="#eee9da" stroke-width="0.5"/>
+  <text x="426.0" y="224" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#9ca3af">60%</text>
+  <line x1="548.0" x2="548.0" y1="20" y2="210" stroke="#eee9da" stroke-width="0.5"/>
+  <text x="548.0" y="224" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#9ca3af">80%</text>
+  <line x1="670.0" x2="670.0" y1="20" y2="210" stroke="#eee9da" stroke-width="0.5"/>
+  <text x="670.0" y="224" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#9ca3af">100%</text>
+  <text x="52" y="39.8" text-anchor="end" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="500" fill="#1a1a1a">PT</text>
+  <rect x="60" y="24.0" width="378.2" height="23.7" fill="#1B3A8A" fill-opacity="0.85" rx="2"/>
+  <text x="444.2" y="39.8" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#1B3A8A">62%</text>
+  <text x="52" y="71.5" text-anchor="end" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="500" fill="#1a1a1a">MB</text>
+  <rect x="60" y="55.7" width="311.1" height="23.7" fill="#1B3A8A" fill-opacity="0.85" rx="2"/>
+  <text x="377.1" y="71.5" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#1B3A8A">51%</text>
+  <text x="52" y="103.2" text-anchor="end" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="500" fill="#1a1a1a">MA</text>
+  <rect x="60" y="87.3" width="231.8" height="23.7" fill="#1B3A8A" fill-opacity="0.85" rx="2"/>
+  <text x="297.8" y="103.2" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#1B3A8A">38%</text>
+  <text x="52" y="134.8" text-anchor="end" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="500" fill="#1a1a1a">MQ</text>
+  <rect x="60" y="119.0" width="219.6" height="23.7" fill="#1B3A8A" fill-opacity="0.85" rx="2"/>
+  <text x="285.6" y="134.8" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#1B3A8A">36%</text>
+  <text x="52" y="166.5" text-anchor="end" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="500" fill="#1a1a1a">SK</text>
+  <rect x="60" y="150.7" width="146.4" height="23.7" fill="#9f1239" fill-opacity="0.7" rx="2"/>
+  <text x="212.4" y="166.5" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#9f1239">24%</text>
+  <text x="52" y="198.2" text-anchor="end" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="500" fill="#1a1a1a">SQ</text>
+  <rect x="60" y="182.3" width="109.8" height="23.7" fill="#9f1239" fill-opacity="0.7" rx="2"/>
+  <text x="175.8" y="198.2" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#9f1239">18%</text>
+  <line x1="267.4" x2="267.4" y1="16" y2="214" stroke="#1a1a1a" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="267.4" y="12" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="600" fill="#1a1a1a">AVG 34%</text>
+</svg>
+        <div class="text-[12px] text-[var(--muted)] mt-4 italic max-w-2xl leading-relaxed">
+          <!--EN-->Mean: 34%. Highest conversion in goalkeeping (62%) and centre-back (51%); lowest in striker (18%). Striker prospects need longer development windows.
+        </div>
+      </div>
+      <div class="col-span-5 bg-white border border-[var(--border)] p-6">
+        <div class="flex items-center justify-between mb-1">
+          <!--EN--><div class="eyebrow">High-probability U21 prospects</div>
+        </div>
+        <!--EN--><div class="text-[12px] text-[var(--muted)] mb-4">Sorted by readiness index (0–100)</div>
+        <div class="grid grid-cols-1 gap-2">
+            <div class="bg-white border border-[var(--border)] p-3">
+              <div class="flex items-center gap-3 mb-2">
+                <div class="w-9 h-9 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-xs font-medium text-[var(--charcoal)]">BL</div>
+                <div class="flex-1 min-w-0">
+                  <div class="font-medium text-sm leading-tight truncate">Bedri Loshaj</div>
+                  <div class="text-[11px] text-[var(--muted)] mt-0.5 truncate">20 y/o · GK · FC Drita · Superliga KOS</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 mt-2">
+                <div class="prob-bar flex-1"><div class="prob-bar-fill" style="width:78%; background:#15803d"></div></div>
+                <span class="font-mono font-medium text-[12px]" style="color:#15803d">78</span>
+              </div>
+            </div>
+            <div class="bg-white border border-[var(--border)] p-3">
+              <div class="flex items-center gap-3 mb-2">
+                <div class="w-9 h-9 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-xs font-medium text-[var(--charcoal)]">EP</div>
+                <div class="flex-1 min-w-0">
+                  <div class="font-medium text-sm leading-tight truncate">Edon Pelluqi</div>
+                  <div class="text-[11px] text-[var(--muted)] mt-0.5 truncate">20 y/o · CB · Sturm Graz II · 2.Liga AUT</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 mt-2">
+                <div class="prob-bar flex-1"><div class="prob-bar-fill" style="width:72%; background:#15803d"></div></div>
+                <span class="font-mono font-medium text-[12px]" style="color:#15803d">72</span>
+              </div>
+            </div>
+            <div class="bg-white border border-[var(--border)] p-3">
+              <div class="flex items-center gap-3 mb-2">
+                <div class="w-9 h-9 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-xs font-medium text-[var(--charcoal)]">LK</div>
+                <div class="flex-1 min-w-0">
+                  <div class="font-medium text-sm leading-tight truncate">Lirit Kelmendi</div>
+                  <div class="text-[11px] text-[var(--muted)] mt-0.5 truncate">21 y/o · MID · FC Lugano · Super League SUI</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 mt-2">
+                <div class="prob-bar flex-1"><div class="prob-bar-fill" style="width:68%; background:#a16207"></div></div>
+                <span class="font-mono font-medium text-[12px]" style="color:#a16207">68</span>
+              </div>
+            </div>
+            <div class="bg-white border border-[var(--border)] p-3">
+              <div class="flex items-center gap-3 mb-2">
+                <div class="w-9 h-9 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-xs font-medium text-[var(--charcoal)]">AL</div>
+                <div class="flex-1 min-w-0">
+                  <div class="font-medium text-sm leading-tight truncate">Albion Limaj</div>
+                  <div class="text-[11px] text-[var(--muted)] mt-0.5 truncate">19 y/o · FB · FC Drita · Superliga KOS</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 mt-2">
+                <div class="prob-bar flex-1"><div class="prob-bar-fill" style="width:62%; background:#a16207"></div></div>
+                <span class="font-mono font-medium text-[12px]" style="color:#a16207">62</span>
+              </div>
+            </div>
+        </div>
+        <div class="mt-4 pt-4 border-t border-[var(--border)] text-[11px] text-[var(--muted)] italic">
+          <!--EN-->Full list (14 prospects · filters: position, league tier, dual nationality) available in the full version.
+        </div>
+      </div>
+    </div>
+
+    <!-- Strategic priorities -->
+    <div class="p-10" style="background:var(--charcoal); color:white;">
+      <div class="flex items-end justify-between mb-8">
+        <div>
+          <!--EN--><div class="eyebrow" style="color:rgba(255,255,255,0.65)">Strategic priorities</div>
+          <!--EN--><div class="font-serif text-3xl mt-2">4 actions · generated by the model</div>
+        </div>
+        <!--EN--><div class="text-[11px] font-mono" style="color:rgba(255,255,255,0.45)">Refreshed after each camp</div>
+      </div>
+      <div class="grid grid-cols-2 gap-x-10 gap-y-8">
+        <div class="border-l-2 border-[var(--ffk-blue)] pl-5 pr-4 py-1">
+          <div class="flex items-baseline gap-3 mb-1">
+            <div class="font-mono text-[11px]" style="color:rgba(255,255,255,0.55); letter-spacing:0.06em">01</div>
+            <div class="text-[10px] uppercase tracking-wider font-semibold" style="color:#FAB81B; letter-spacing:0.16em">URGENT · 6 months</div>
+          </div>
+          <div class="font-serif text-2xl mb-2" style="color:#fff">Full-back depth</div>
+          <div class="text-[13px] leading-relaxed" style="color:rgba(255,255,255,0.75)">Three starters over 30 (Vojvoda, Hadergjonaj, Aliti). No confirmed U21 deputy. Recommendation: focused scouting on the 2005–2007 cohort, domestic and abroad.</div>
+        </div>
+        <div class="border-l-2 border-[var(--ffk-blue)] pl-5 pr-4 py-1">
+          <div class="flex items-baseline gap-3 mb-1">
+            <div class="font-mono text-[11px]" style="color:rgba(255,255,255,0.55); letter-spacing:0.06em">02</div>
+            <div class="text-[10px] uppercase tracking-wider font-semibold" style="color:#FAB81B; letter-spacing:0.16em">WATCH · 12 months</div>
+          </div>
+          <div class="font-serif text-2xl mb-2" style="color:#fff">Goalkeeper pipeline</div>
+          <div class="text-[13px] leading-relaxed" style="color:rgba(255,255,255,0.75)">Muric (27) secure through 2031, but the U21 GK pool is thin. Only 1 active prospect. Recommendation: assessment of 4 diaspora keepers by March 2027.</div>
+        </div>
+        <div class="border-l-2 border-[var(--ffk-blue)] pl-5 pr-4 py-1">
+          <div class="flex items-baseline gap-3 mb-1">
+            <div class="font-mono text-[11px]" style="color:rgba(255,255,255,0.55); letter-spacing:0.06em">03</div>
+            <div class="text-[10px] uppercase tracking-wider font-semibold" style="color:#FAB81B; letter-spacing:0.16em">PLAN · September 2026</div>
+          </div>
+          <div class="font-serif text-2xl mb-2" style="color:#fff">#9 succession</div>
+          <div class="text-[13px] leading-relaxed" style="color:rgba(255,255,255,0.75)">Hodža (26) is the natural successor to Muriqi (31). First independent cycle: EURO 2030. Active competition: A. Rrahmani 25, Maxhuni 26. Tactical decision: minutes in the autumn camps.</div>
+        </div>
+        <div class="border-l-2 border-[var(--ffk-blue)] pl-5 pr-4 py-1">
+          <div class="flex items-baseline gap-3 mb-1">
+            <div class="font-mono text-[11px]" style="color:rgba(255,255,255,0.55); letter-spacing:0.06em">04</div>
+            <div class="text-[10px] uppercase tracking-wider font-semibold" style="color:#FAB81B; letter-spacing:0.16em">LONG-TERM · 24 months+</div>
+          </div>
+          <div class="font-serif text-2xl mb-2" style="color:#fff">Centre midfield 2030+</div>
+          <div class="text-[13px] leading-relaxed" style="color:rgba(255,255,255,0.75)">The 2008–2009 cohort has few names being tracked. Without action, the gap surfaces around 2031–2033. Recommendation: place two prospects in European academies within 18 months.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- =================== SECTION 2.6: POZICIONIMI / FEDERATION SCORECARD =================== -->
+<section id="pozicionimi" class="section-pad border-t border-[var(--border)]">
+  <div class="container-max">
+    <!-- Section header -->
+    <div class="flex items-end justify-between mb-12">
+      <div>
+        <div class="flex items-center gap-3 mb-3">
+          <div class="blue-rule"></div>
+          <!--EN--><span class="eyebrow">Section 03</span>
+        </div>
+        <!--EN--><h2 class="section-title">Positioning</h2>
+        <div class="eyebrow-en mt-1">Federation Scorecard · peer benchmarking & trajectory</div>
+      </div>
+      <!--EN--><div class="text-right text-[13px] text-[var(--muted)] max-w-md">
+        Where we stand among peers, how we are trending, and what to say to those who ask — board, sponsors, federations.
+      </div>
+    </div>
+
+    <!-- KPI strip -->
+    <div class="grid grid-cols-4 gap-4 mb-12">
+      <div class="kpi-tile p-6">
+        <div class="flex items-start justify-between">
+          <!--EN--><div class="eyebrow">FIFA ranking</div>
+          <i data-lucide="trending-up" class="w-4 h-4 text-[var(--ffk-blue)]"></i>
+        </div>
+        <div class="display-num text-ffk mt-3" style="font-size: 64px; line-height:1">92</div>
+        <!--EN--><div class="text-[11px] text-[var(--muted)] mt-2">↑12 places in 24 months</div>
+      </div>
+      <div class="kpi-tile p-6">
+        <div class="flex items-start justify-between">
+          <!--EN--><div class="eyebrow">UEFA coefficient</div>
+          <i data-lucide="award" class="w-4 h-4 text-[var(--charcoal)]"></i>
+        </div>
+        <div class="display-num text-[var(--charcoal)] mt-3" style="font-size: 64px; line-height:1">Tier 4</div>
+        <!--EN--><div class="text-[11px] text-[var(--muted)] mt-2">Rank #34 in Europe</div>
+      </div>
+      <div class="kpi-tile p-6">
+        <div class="flex items-start justify-between">
+          <!--EN--><div class="eyebrow">Squad market value</div>
+          <i data-lucide="banknote" class="w-4 h-4 text-[var(--charcoal)]"></i>
+        </div>
+        <div class="display-num text-[var(--charcoal)] mt-3" style="font-size: 64px; line-height:1">€42m</div>
+        <!--EN--><div class="text-[11px] text-[var(--muted)] mt-2">+€4m in 12 months · Transfermarkt</div>
+      </div>
+      <div class="kpi-tile p-6">
+        <div class="flex items-start justify-between">
+          <!--EN--><div class="eyebrow">EURO 2028 probability</div>
+          <i data-lucide="target" class="w-4 h-4 text-[var(--charcoal)]"></i>
+        </div>
+        <div class="display-num text-[var(--charcoal)] mt-3" style="font-size: 64px; line-height:1">31%</div>
+        <!--EN--><div class="text-[11px] text-[var(--muted)] mt-2">Monte Carlo · 10,000 simulations</div>
+      </div>
+    </div>
+
+    <!-- Peer benchmarking table -->
+    <div class="bg-white border border-[var(--border)] mb-10">
+      <div class="px-6 py-4 border-b border-[var(--border)] flex items-center justify-between">
+        <div>
+          <!--EN--><div class="eyebrow">Peer benchmarking</div>
+          <!--EN--><div class="text-[12px] text-[var(--muted)] mt-0.5">FFK vs five peer federations · green = best, red = worst</div>
+        </div>
+        <!--EN--><div class="text-[11px] text-[var(--muted)] font-mono">Updated 9 May 2026</div>
+      </div>
+      <table class="w-full">
+        <thead>
+          <tr class="border-b border-[var(--border)]">
+            <th class="py-3 pl-4 pr-3 text-left text-[11px] font-semibold tracking-wider uppercase text-[var(--muted)]">Metric</th>
+          <th class="py-3 px-3 text-center text-[11px] font-semibold tracking-wider uppercase text-[var(--ffk-blue)]" style="background:rgba(27,58,138,0.06);">FFK</th>
+          <th class="py-3 px-3 text-center text-[11px] font-semibold tracking-wider uppercase text-[var(--muted)]" style="">ALB</th>
+          <th class="py-3 px-3 text-center text-[11px] font-semibold tracking-wider uppercase text-[var(--muted)]" style="">SVN</th>
+          <th class="py-3 px-3 text-center text-[11px] font-semibold tracking-wider uppercase text-[var(--muted)]" style="">SVK</th>
+          <th class="py-3 px-3 text-center text-[11px] font-semibold tracking-wider uppercase text-[var(--muted)]" style="">ISL</th>
+          <th class="py-3 px-3 text-center text-[11px] font-semibold tracking-wider uppercase text-[var(--muted)]" style="">MKD</th>
+          </tr>
+        </thead>
+        <tbody>
+      <tr class="border-b border-[var(--border)]">
+        <td class="py-3 pl-4 pr-3">
+          <div class="text-[13px] font-medium leading-tight">FIFA ranking</div>
+          <div class="text-[11px] text-[var(--muted)] mt-0.5">May 2026</div>
+        </td>
+          <td class="py-3 px-3 text-center font-mono text-sm" style="color:#9f1239; font-weight:600; background:rgba(27,58,138,0.06);">92</td>
+          <td class="py-3 px-3 text-center font-mono text-sm" style="color:#1a1a1a; font-weight:500; ">65</td>
+          <td class="py-3 px-3 text-center font-mono text-sm" style="color:#15803d; font-weight:500; background:#dcfce7;">47</td>
+          <td class="py-3 px-3 text-center font-mono text-sm" style="color:#1a1a1a; font-weight:500; ">51</td>
+          <td class="py-3 px-3 text-center font-mono text-sm" style="color:#1a1a1a; font-weight:500; ">70</td>
+          <td class="py-3 px-3 text-center font-mono text-sm" style="color:#1a1a1a; font-weight:500; ">78</td>
+      </tr>
+      <tr class="border-b border-[var(--border)]">
+        <td class="py-3 pl-4 pr-3">
+          <div class="text-[13px] font-medium leading-tight">Avg starting XI age</div>
+          <div class="text-[11px] text-[var(--muted)] mt-0.5">years</div>
+        </td>
+          <td class="py-3 px-3 text-center font-mono text-sm" style="color:#9f1239; font-weight:600; background:rgba(27,58,138,0.06);">29.7</td>
+          <td class="py-3 px-3 text-center font-mono text-sm" style="color:#1a1a1a; font-weight:500; ">27.1</td>
+          <td class="py-3 px-3 text-center font-mono text-sm" style="color:#1a1a1a; font-weight:500; ">26.8</td>
+          <td class="py-3 px-3 text-center font-mono text-sm" style="color:#15803d; font-weight:500; background:#dcfce7;">26.5</td>
+          <td class="py-3 px-3 text-center font-mono text-sm" style="color:#1a1a1a; font-weight:500; ">27.4</td>
+          <td class="py-3 px-3 text-center font-mono text-sm" style="color:#1a1a1a; font-weight:500; ">27.3</td>
+      </tr>
+      <tr class="border-b border-[var(--border)]">
+        <td class="py-3 pl-4 pr-3">
+          <div class="text-[13px] font-medium leading-tight">Players in top-5 leagues</div>
+          <div class="text-[11px] text-[var(--muted)] mt-0.5">EPL/LaLiga/SerieA/Bundes/Ligue1</div>
+        </td>
+          <td class="py-3 px-3 text-center font-mono text-sm" style="color:#1a1a1a; font-weight:600; background:rgba(27,58,138,0.06);">6</td>
+          <td class="py-3 px-3 text-center font-mono text-sm" style="color:#15803d; font-weight:500; background:#dcfce7;">12</td>
+          <td class="py-3 px-3 text-center font-mono text-sm" style="color:#1a1a1a; font-weight:500; ">9</td>
+          <td class="py-3 px-3 text-center font-mono text-sm" style="color:#1a1a1a; font-weight:500; ">7</td>
+          <td class="py-3 px-3 text-center font-mono text-sm" style="color:#9f1239; font-weight:500; background:#fee2e2;">3</td>
+          <td class="py-3 px-3 text-center font-mono text-sm" style="color:#1a1a1a; font-weight:500; ">6</td>
+      </tr>
+      <tr class="border-b border-[var(--border)]">
+        <td class="py-3 pl-4 pr-3">
+          <div class="text-[13px] font-medium leading-tight">U21 → Senior conversion</div>
+          <div class="text-[11px] text-[var(--muted)] mt-0.5">% within 2 years</div>
+        </td>
+          <td class="py-3 px-3 text-center font-mono text-sm" style="color:#1a1a1a; font-weight:600; background:rgba(27,58,138,0.06);">34</td>
+          <td class="py-3 px-3 text-center font-mono text-sm" style="color:#1a1a1a; font-weight:500; ">38</td>
+          <td class="py-3 px-3 text-center font-mono text-sm" style="color:#15803d; font-weight:500; background:#dcfce7;">41</td>
+          <td class="py-3 px-3 text-center font-mono text-sm" style="color:#1a1a1a; font-weight:500; ">39</td>
+          <td class="py-3 px-3 text-center font-mono text-sm" style="color:#1a1a1a; font-weight:500; ">35</td>
+          <td class="py-3 px-3 text-center font-mono text-sm" style="color:#9f1239; font-weight:500; background:#fee2e2;">33</td>
+      </tr>
+      <tr class="border-b border-[var(--border)]">
+        <td class="py-3 pl-4 pr-3">
+          <div class="text-[13px] font-medium leading-tight">Squad market value</div>
+          <div class="text-[11px] text-[var(--muted)] mt-0.5">€ millions (Transfermarkt)</div>
+        </td>
+          <td class="py-3 px-3 text-center font-mono text-sm" style="color:#1a1a1a; font-weight:600; background:rgba(27,58,138,0.06);">42</td>
+          <td class="py-3 px-3 text-center font-mono text-sm" style="color:#1a1a1a; font-weight:500; ">86</td>
+          <td class="py-3 px-3 text-center font-mono text-sm" style="color:#15803d; font-weight:500; background:#dcfce7;">118</td>
+          <td class="py-3 px-3 text-center font-mono text-sm" style="color:#1a1a1a; font-weight:500; ">92</td>
+          <td class="py-3 px-3 text-center font-mono text-sm" style="color:#9f1239; font-weight:500; background:#fee2e2;">28</td>
+          <td class="py-3 px-3 text-center font-mono text-sm" style="color:#1a1a1a; font-weight:500; ">54</td>
+      </tr>
+      <tr class="border-b border-[var(--border)]">
+        <td class="py-3 pl-4 pr-3">
+          <div class="text-[13px] font-medium leading-tight">Home wins · 24m</div>
+          <div class="text-[11px] text-[var(--muted)] mt-0.5">% of matches</div>
+        </td>
+          <td class="py-3 px-3 text-center font-mono text-sm" style="color:#1a1a1a; font-weight:600; background:rgba(27,58,138,0.06);">44</td>
+          <td class="py-3 px-3 text-center font-mono text-sm" style="color:#1a1a1a; font-weight:500; ">50</td>
+          <td class="py-3 px-3 text-center font-mono text-sm" style="color:#15803d; font-weight:500; background:#dcfce7;">55</td>
+          <td class="py-3 px-3 text-center font-mono text-sm" style="color:#1a1a1a; font-weight:500; ">47</td>
+          <td class="py-3 px-3 text-center font-mono text-sm" style="color:#1a1a1a; font-weight:500; ">48</td>
+          <td class="py-3 px-3 text-center font-mono text-sm" style="color:#9f1239; font-weight:500; background:#fee2e2;">38</td>
+      </tr>
+        </tbody>
+      </table>
+      <div class="px-6 py-3 border-t border-[var(--border)] text-[11px] text-[var(--muted)] italic flex items-start gap-2">
+        <i data-lucide="info" class="w-3.5 h-3.5 mt-0.5 flex-shrink-0"></i>
+        <!--EN--><span>Peers: federations with population 1.5–6m and UEFA coefficient tier-4. ALB = Albania, SVN = Slovenia, SVK = Slovakia, ISL = Iceland, MKD = North Macedonia.</span>
+      </div>
+    </div>
+
+    <!-- Dual trajectory charts -->
+    <div class="grid grid-cols-2 gap-6 mb-10">
+      <div class="bg-white border border-[var(--border)] p-6">
+        <!--EN--><div class="eyebrow">FIFA ranking trajectory</div>
+        <!--EN--><div class="text-[12px] text-[var(--muted)] mt-0.5 mb-4">2021–2026 actual · 2027–2029 projection (80% band)</div>
+        <svg viewBox="0 0 420 280" class="w-full" style="display:block;height:auto">
+  <line x1="44" x2="404" y1="55.8" y2="55.8" stroke="#eee9da" stroke-width="0.5"/>
+  <text x="38" y="58.8" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="9" fill="#9ca3af">60</text>
+  <line x1="44" x2="404" y1="111.2" y2="111.2" stroke="#eee9da" stroke-width="0.5"/>
+  <text x="38" y="114.2" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="9" fill="#9ca3af">80</text>
+  <line x1="44" x2="404" y1="166.8" y2="166.8" stroke="#eee9da" stroke-width="0.5"/>
+  <text x="38" y="169.8" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="9" fill="#9ca3af">100</text>
+  <line x1="44" x2="404" y1="222.2" y2="222.2" stroke="#eee9da" stroke-width="0.5"/>
+  <text x="38" y="225.2" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="9" fill="#9ca3af">120</text>
+  <text x="44.0" y="264" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#9ca3af">2021</text>
+  <text x="89.0" y="264" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#9ca3af">2022</text>
+  <text x="134.0" y="264" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#9ca3af">2023</text>
+  <text x="179.0" y="264" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#9ca3af">2024</text>
+  <text x="224.0" y="264" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#9ca3af">2025</text>
+  <text x="269.0" y="264" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#9ca3af">2026</text>
+  <text x="314.0" y="264" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#9ca3af">2027</text>
+  <text x="359.0" y="264" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#9ca3af">2028</text>
+  <text x="404.0" y="264" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#9ca3af">2029</text>
+  <line x1="269.0" x2="269.0" y1="28" y2="250" stroke="#1a1a1a" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <text x="269.0" y="22" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="9" fill="#1a1a1a" font-weight="600" letter-spacing="0.12em">TANI</text>
+  <polygon points="314.0,97.4 359.0,69.6 404.0,55.8 404.0,139.0 359.0,152.9 314.0,152.9" fill="#1B3A8A" fill-opacity="0.12" stroke="none"/>
+  <polyline points="44.0,222.2 89.0,180.6 134.0,166.8 179.0,177.9 224.0,161.2 269.0,144.6" fill="none" stroke="#1B3A8A" stroke-width="2"/>
+  <polyline points="269.0,144.6 314.0,125.1 359.0,105.7 404.0,89.1" fill="none" stroke="#1B3A8A" stroke-width="2" stroke-dasharray="4 3" stroke-opacity="0.7"/>
+  <circle cx="44.0" cy="222.2" r="3" fill="#1B3A8A"/>
+  <circle cx="89.0" cy="180.6" r="3" fill="#1B3A8A"/>
+  <circle cx="134.0" cy="166.8" r="3" fill="#1B3A8A"/>
+  <circle cx="179.0" cy="177.9" r="3" fill="#1B3A8A"/>
+  <circle cx="224.0" cy="161.2" r="3" fill="#1B3A8A"/>
+  <circle cx="269.0" cy="144.6" r="3" fill="#1B3A8A"/>
+  <circle cx="314.0" cy="125.1" r="3" fill="rgba(27,58,138,0.55)"/>
+  <circle cx="359.0" cy="105.7" r="3" fill="rgba(27,58,138,0.55)"/>
+  <circle cx="404.0" cy="89.1" r="3" fill="rgba(27,58,138,0.55)"/>
+  <circle cx="269.0" cy="144.6" r="5" fill="none" stroke="#1B3A8A" stroke-width="1.5"/>
+  <text x="277.0" y="140.6" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="600" fill="#1B3A8A">92</text>
+</svg>
+        <div class="text-[12px] text-[var(--muted)] italic mt-3 leading-relaxed">
+          <!--EN-->Steady upward trend since 2022. Projection: 78 by 2028 (band 65–95) if current U21→Senior conversion rate holds.
+        </div>
+      </div>
+      <div class="bg-white border border-[var(--border)] p-6">
+        <!--EN--><div class="eyebrow">Squad market value · €m</div>
+        <!--EN--><div class="text-[12px] text-[var(--muted)] mt-0.5 mb-4">2021–2026 actual · 2027–2029 projection (Transfermarkt)</div>
+        <svg viewBox="0 0 420 280" class="w-full" style="display:block;height:auto">
+  <line x1="44" x2="404" y1="250.0" y2="250.0" stroke="#eee9da" stroke-width="0.5"/>
+  <text x="38" y="253.0" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="9" fill="#9ca3af">€0m</text>
+  <line x1="44" x2="404" y1="194.5" y2="194.5" stroke="#eee9da" stroke-width="0.5"/>
+  <text x="38" y="197.5" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="9" fill="#9ca3af">€15m</text>
+  <line x1="44" x2="404" y1="139.0" y2="139.0" stroke="#eee9da" stroke-width="0.5"/>
+  <text x="38" y="142.0" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="9" fill="#9ca3af">€30m</text>
+  <line x1="44" x2="404" y1="83.5" y2="83.5" stroke="#eee9da" stroke-width="0.5"/>
+  <text x="38" y="86.5" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="9" fill="#9ca3af">€45m</text>
+  <line x1="44" x2="404" y1="28.0" y2="28.0" stroke="#eee9da" stroke-width="0.5"/>
+  <text x="38" y="31.0" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="9" fill="#9ca3af">€60m</text>
+  <text x="44.0" y="264" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#9ca3af">2021</text>
+  <text x="89.0" y="264" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#9ca3af">2022</text>
+  <text x="134.0" y="264" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#9ca3af">2023</text>
+  <text x="179.0" y="264" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#9ca3af">2024</text>
+  <text x="224.0" y="264" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#9ca3af">2025</text>
+  <text x="269.0" y="264" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#9ca3af">2026</text>
+  <text x="314.0" y="264" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#9ca3af">2027</text>
+  <text x="359.0" y="264" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#9ca3af">2028</text>
+  <text x="404.0" y="264" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#9ca3af">2029</text>
+  <rect x="33.0" y="168.6" width="22.0" height="81.4" fill="#1B3A8A" rx="1.5"/>
+  <rect x="78.0" y="146.4" width="22.0" height="103.6" fill="#1B3A8A" rx="1.5"/>
+  <rect x="123.0" y="131.6" width="22.0" height="118.4" fill="#1B3A8A" rx="1.5"/>
+  <rect x="168.0" y="116.8" width="22.0" height="133.2" fill="#1B3A8A" rx="1.5"/>
+  <rect x="213.0" y="109.4" width="22.0" height="140.6" fill="#1B3A8A" rx="1.5"/>
+  <rect x="258.0" y="94.6" width="22.0" height="155.4" fill="#1B3A8A" rx="1.5"/>
+  <rect x="303.0" y="83.5" width="22.0" height="166.5" fill="rgba(27,58,138,0.35)" rx="1.5"/>
+  <rect x="348.0" y="72.4" width="22.0" height="177.6" fill="rgba(27,58,138,0.35)" rx="1.5"/>
+  <rect x="393.0" y="61.3" width="22.0" height="188.7" fill="rgba(27,58,138,0.35)" rx="1.5"/>
+  <line x1="269.0" x2="269.0" y1="28" y2="250" stroke="#1a1a1a" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <text x="269.0" y="22" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="9" fill="#1a1a1a" font-weight="600" letter-spacing="0.12em">TANI</text>
+</svg>
+        <div class="text-[12px] text-[var(--muted)] italic mt-3 leading-relaxed">
+          <!--EN-->Value doubled since 2021. 2028 projection: €48m. Highest-valued player: Zhegrova (€18m).
+        </div>
+      </div>
+    </div>
+
+    <!-- Talking points -->
+    <div class="mb-2">
+      <div class="flex items-end justify-between mb-6">
+        <div>
+          <!--EN--><div class="eyebrow">Board talking points</div>
+          <!--EN--><div class="text-[12px] text-[var(--muted)] mt-0.5">Ready for use in presentations, annual reports, or press releases</div>
+        </div>
+        <!--EN--><div class="text-[11px] text-[var(--muted)] font-mono">4 / 12 available in full version</div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="bg-white border border-[var(--border)] p-6 relative">
+          <div class="flex items-start justify-between mb-3">
+            <div class="font-mono text-[10px] tracking-[0.16em] text-[var(--muted)]">01</div>
+            <i data-lucide="trending-up" class="w-4 h-4 text-[var(--ffk-blue)]"></i>
+          </div>
+          <div class="display-num text-ffk" style="font-size:48px; line-height:1; letter-spacing:-0.02em;">+12 places</div>
+          <div class="text-[11px] uppercase tracking-wider text-[var(--charcoal)] mt-2 font-semibold" style="letter-spacing:0.12em">FIFA · 24 months</div>
+          <div class="text-[13px] text-[var(--muted)] leading-relaxed mt-4">FIFA ranking improved from 104 to 92 — fastest movement in the peer group. The strongest communications asset for board and sponsors.</div>
+        </div>
+        <div class="bg-white border border-[var(--border)] p-6 relative">
+          <div class="flex items-start justify-between mb-3">
+            <div class="font-mono text-[10px] tracking-[0.16em] text-[var(--muted)]">02</div>
+            <i data-lucide="globe" class="w-4 h-4 text-[var(--ffk-blue)]"></i>
+          </div>
+          <div class="display-num text-ffk" style="font-size:48px; line-height:1; letter-spacing:-0.02em;">6 players</div>
+          <div class="text-[11px] uppercase tracking-wider text-[var(--charcoal)] mt-2 font-semibold" style="letter-spacing:0.12em">Top-5 European leagues</div>
+          <div class="text-[13px] text-[var(--muted)] leading-relaxed mt-4">Five regulars in Serie A, La Liga and Ligue 1 (Rrahmani, Muriqi, Vojvoda, Dresevic, Zhegrova) plus one in the Premier League (Muric). +2 vs 12 months ago.</div>
+        </div>
+        <div class="bg-white border border-[var(--border)] p-6 relative">
+          <div class="flex items-start justify-between mb-3">
+            <div class="font-mono text-[10px] tracking-[0.16em] text-[var(--muted)]">03</div>
+            <i data-lucide="hourglass" class="w-4 h-4 text-[var(--ffk-blue)]"></i>
+          </div>
+          <div class="display-num text-ffk" style="font-size:48px; line-height:1; letter-spacing:-0.02em;">29.7 years</div>
+          <div class="text-[11px] uppercase tracking-wider text-[var(--charcoal)] mt-2 font-semibold" style="letter-spacing:0.12em">Age — oldest in peer group</div>
+          <div class="text-[13px] text-[var(--muted)] leading-relaxed mt-4">Squad is two years older than the peer average (27.4). Legitimises the investment case in the U21 → Senior pipeline shown in the Succession section.</div>
+        </div>
+        <div class="bg-white border border-[var(--border)] p-6 relative">
+          <div class="flex items-start justify-between mb-3">
+            <div class="font-mono text-[10px] tracking-[0.16em] text-[var(--muted)]">04</div>
+            <i data-lucide="target" class="w-4 h-4 text-[var(--ffk-blue)]"></i>
+          </div>
+          <div class="display-num text-ffk" style="font-size:48px; line-height:1; letter-spacing:-0.02em;">31%</div>
+          <div class="text-[11px] uppercase tracking-wider text-[var(--charcoal)] mt-2 font-semibold" style="letter-spacing:0.12em">EURO 2028 qualification probability</div>
+          <div class="text-[13px] text-[var(--muted)] leading-relaxed mt-4">Monte Carlo with 10,000 simulations over Group G and available players. Comparison: ALB 38%, SVN 51%, MKD 24%. A realistic cycle for the first qualification push.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- =================== SECTION 4: KABINA / COCKPIT =================== -->
+<section id="kabina" class="section-pad border-t border-[var(--border)]">
+  <div class="container-max">
+    <div class="flex items-end justify-between mb-10">
+      <div>
+        <div class="flex items-center gap-3 mb-3">
+          <div class="blue-rule"></div>
+          <!--EN--><span class="eyebrow">Section 04</span>
+        </div>
+        <!--EN--><h2 class="section-title">National Team Cockpit</h2>
+        <div class="eyebrow-en mt-1">National Team Cockpit</div>
+      </div>
+      <!--EN--><div class="text-right text-[12px] text-[var(--muted)] uppercase tracking-wider">Readiness · form · availability</div>
+    </div>
+
+    <!-- Next fixture countdown -->
+    <div class="next-fixture-card mb-10">
+      <div>
+        <!--EN--><div class="text-[11px] tracking-[0.16em] uppercase opacity-70">Next match</div>
+        <div class="font-serif text-4xl mt-2"><!--EN-->Kosovo vs. Slovenia</div>
+        <!--EN--><div class="text-[12px] opacity-70 mt-1">Fadil Vokrri Stadium · Prishtina · 20:45 CET</div>
+      </div>
+      <div class="text-right">
+        <!--EN--><div class="text-[11px] tracking-[0.16em] uppercase opacity-70">Date</div>
+        <div class="font-serif text-3xl mt-2"><!--EN-->8 September 2026</div>
+        <!--EN--><div class="text-[12px] opacity-70 mt-1">UEFA EURO 2028 · Qualifier · Group G</div>
+      </div>
+      <div class="text-right">
+        <!--EN--><div class="text-[11px] tracking-[0.16em] uppercase opacity-70">Countdown</div>
+        <div class="display-num text-ffk mt-2" style="font-size:56px; line-height:1">124</div>
+        <!--EN--><div class="text-[12px] opacity-70">days</div>
+      </div>
+      <div class="border-l border-white/15 pl-6">
+        <!--EN--><div class="text-[11px] tracking-[0.16em] uppercase opacity-70 mb-2">Camp status</div>
+        <!--EN--><div class="text-[12px] flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> 22 available</div>
+        <!--EN--><div class="text-[12px] flex items-center gap-2 mt-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> 2 on yellow card</div>
+        <!--EN--><div class="text-[12px] flex items-center gap-2 mt-1"><span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span> 1 injured</div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-12 gap-6">
+      <!-- Squad table -->
+      <div class="col-span-8 bg-white border border-[var(--border)]">
+        <div class="px-6 py-4 border-b border-[var(--border)] flex items-center justify-between">
+          <div>
+            <!--EN--><div class="eyebrow">Squad · 26 players</div>
+            <!--EN--><div class="text-[12px] text-[var(--muted)] mt-0.5">Sorted by readiness index</div>
+          </div>
+          <div class="text-[11px] text-[var(--muted)] flex items-center gap-3">
+            <!--EN--><span class="flex items-center gap-1"><span class="text-emerald-700">●</span>Available</span>
+            <!--EN--><span class="flex items-center gap-1"><span class="text-amber-600">⚠</span>Yellow card</span>
+            <!--EN--><span class="flex items-center gap-1"><span class="text-rose-700">✕</span>Injured</span>
+          </div>
+        </div>
+        <table class="ffk-table">
+          <thead>
+            <tr>
+              <!--EN--><th class="pl-4">Player</th>
+              <!--EN--><th>Club</th>
+              <!--EN--><th>Form · 8 matches</th>
+              <!--EN--><th class="text-right">Rating</th>
+              <!--EN--><th class="text-center pr-4">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            
+        <tr class="row-hover border-b border-[var(--border)]">
+          <td class="py-3 pl-1 pr-3"><div class="font-medium">Bersant Celina</div><div class="text-xs text-[var(--muted)]">28 y/o · MID</div></td>
+          <td class="py-3 pr-3 text-sm">Çaykur Rizespor<div class="text-xs text-[var(--muted)]">Süper Lig · Turqi</div></td>
+          <td class="py-3 pr-3"><svg viewBox="0 0 64 30" width="80" height="30"><rect class="spark-bar-active" x="0" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="8" y="4.5" width="6" height="25.5" rx="1"/><rect class="spark-bar-active" x="16" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="24" y="9.900000000000002" width="6" height="20.099999999999998" rx="1"/><rect class="spark-bar-active" x="32" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="40" y="6.600000000000001" width="6" height="23.4" rx="1"/><rect class="spark-bar-active" x="48" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="56" y="3.0" width="6" height="27.0" rx="1"/></svg></td>
+          <td class="py-3 pr-3 text-right"><span class="font-mono font-medium" style="color:#15803d">7.6</span></td>
+          <td class="py-3 pr-1 text-center"><span class="text-emerald-700 text-xs font-medium">●</span></td>
+        </tr>
+        <tr class="row-hover border-b border-[var(--border)] cursor-pointer" data-broja="1">
+          <td class="py-3 pl-1 pr-3"><div class="font-medium">Vedat Muriqi</div><div class="text-xs text-[var(--muted)]">31 y/o · ST · Captain</div></td>
+          <td class="py-3 pr-3 text-sm">RCD Mallorca<div class="text-xs text-[var(--muted)]">La Liga · Spanjë</div></td>
+          <td class="py-3 pr-3"><svg viewBox="0 0 64 30" width="80" height="30"><rect class="spark-bar" x="0" y="13.5" width="6" height="16.5" rx="1"/><rect class="spark-bar" x="8" y="28" width="6" height="2" rx="1"/><rect class="spark-bar-active" x="16" y="8.400000000000002" width="6" height="21.599999999999998" rx="1"/><rect class="spark-bar-active" x="24" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="32" y="9.900000000000002" width="6" height="20.099999999999998" rx="1"/><rect class="spark-bar" x="40" y="28" width="6" height="2" rx="1"/><rect class="spark-bar-active" x="48" y="3.6000000000000014" width="6" height="26.4" rx="1"/><rect class="spark-bar-active" x="56" y="10.5" width="6" height="19.5" rx="1"/></svg></td>
+          <td class="py-3 pr-3 text-right"><span class="font-mono font-medium" style="color:#a16207">6.9</span></td>
+          <td class="py-3 pr-1 text-center"><span class="text-emerald-700 text-xs font-medium">●</span></td>
+        </tr>
+        <tr class="row-hover border-b border-[var(--border)]">
+          <td class="py-3 pl-1 pr-3"><div class="font-medium">Arijanet Muric</div><div class="text-xs text-[var(--muted)]">27 y/o · GK</div></td>
+          <td class="py-3 pr-3 text-sm">Ipswich Town<div class="text-xs text-[var(--muted)]">Premier League · Angli</div></td>
+          <td class="py-3 pr-3"><svg viewBox="0 0 64 30" width="80" height="30"><rect class="spark-bar" x="0" y="28" width="6" height="2" rx="1"/><rect class="spark-bar" x="8" y="28" width="6" height="2" rx="1"/><rect class="spark-bar-active" x="16" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="24" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="32" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="40" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="48" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar" x="56" y="28" width="6" height="2" rx="1"/></svg></td>
+          <td class="py-3 pr-3 text-right"><span class="font-mono font-medium" style="color:#a16207">7.1</span></td>
+          <td class="py-3 pr-1 text-center"><span class="text-emerald-700 text-xs font-medium">●</span></td>
+        </tr>
+        <tr class="row-hover border-b border-[var(--border)]">
+          <td class="py-3 pl-1 pr-3"><div class="font-medium">Amir Rrahmani</div><div class="text-xs text-[var(--muted)]">32 y/o · CB</div></td>
+          <td class="py-3 pr-3 text-sm">SSC Napoli<div class="text-xs text-[var(--muted)]">Serie A · Itali</div></td>
+          <td class="py-3 pr-3"><svg viewBox="0 0 64 30" width="80" height="30"><rect class="spark-bar-active" x="0" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="8" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="16" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="24" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar" x="32" y="28" width="6" height="2" rx="1"/><rect class="spark-bar-active" x="40" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="48" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="56" y="3.0" width="6" height="27.0" rx="1"/></svg></td>
+          <td class="py-3 pr-3 text-right"><span class="font-mono font-medium" style="color:#15803d">7.4</span></td>
+          <td class="py-3 pr-1 text-center"><span class="text-amber-600 text-xs font-medium" title="One booking from suspension">⚠</span></td>
+        </tr>
+        <tr class="row-hover border-b border-[var(--border)]">
+          <td class="py-3 pl-1 pr-3"><div class="font-medium">Mergim Vojvoda</div><div class="text-xs text-[var(--muted)]">31 y/o · FB</div></td>
+          <td class="py-3 pr-3 text-sm">Torino FC<div class="text-xs text-[var(--muted)]">Serie A · Itali</div></td>
+          <td class="py-3 pr-3"><svg viewBox="0 0 64 30" width="80" height="30"><rect class="spark-bar-active" x="0" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="8" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar" x="16" y="28" width="6" height="2" rx="1"/><rect class="spark-bar-active" x="24" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="32" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="40" y="9.900000000000002" width="6" height="20.099999999999998" rx="1"/><rect class="spark-bar" x="48" y="28" width="6" height="2" rx="1"/><rect class="spark-bar-active" x="56" y="3.0" width="6" height="27.0" rx="1"/></svg></td>
+          <td class="py-3 pr-3 text-right"><span class="font-mono font-medium" style="color:#a16207">6.8</span></td>
+          <td class="py-3 pr-1 text-center"><span class="text-emerald-700 text-xs font-medium">●</span></td>
+        </tr>
+        <tr class="row-hover border-b border-[var(--border)]">
+          <td class="py-3 pl-1 pr-3"><div class="font-medium">Ibrahim Dresevic</div><div class="text-xs text-[var(--muted)]">28 y/o · CB</div></td>
+          <td class="py-3 pr-3 text-sm">US Lecce<div class="text-xs text-[var(--muted)]">Serie A · Itali</div></td>
+          <td class="py-3 pr-3"><svg viewBox="0 0 64 30" width="80" height="30"><rect class="spark-bar-active" x="0" y="6.600000000000001" width="6" height="23.4" rx="1"/><rect class="spark-bar-active" x="8" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="16" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="24" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="32" y="9.900000000000002" width="6" height="20.099999999999998" rx="1"/><rect class="spark-bar-active" x="40" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar" x="48" y="28" width="6" height="2" rx="1"/><rect class="spark-bar-active" x="56" y="3.0" width="6" height="27.0" rx="1"/></svg></td>
+          <td class="py-3 pr-3 text-right"><span class="font-mono font-medium" style="color:#a16207">7.0</span></td>
+          <td class="py-3 pr-1 text-center"><span class="text-emerald-700 text-xs font-medium">●</span></td>
+        </tr>
+        <tr class="row-hover border-b border-[var(--border)]">
+          <td class="py-3 pl-1 pr-3"><div class="font-medium">Florent Hadergjonaj</div><div class="text-xs text-[var(--muted)]">31 y/o · FB</div></td>
+          <td class="py-3 pr-3 text-sm">KVC Westerlo<div class="text-xs text-[var(--muted)]">Pro League · Belgjikë</div></td>
+          <td class="py-3 pr-3"><svg viewBox="0 0 64 30" width="80" height="30"><rect class="spark-bar-active" x="0" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="8" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="16" y="9.900000000000002" width="6" height="20.099999999999998" rx="1"/><rect class="spark-bar-active" x="24" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="32" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="40" y="6.600000000000001" width="6" height="23.4" rx="1"/><rect class="spark-bar-active" x="48" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="56" y="3.0" width="6" height="27.0" rx="1"/></svg></td>
+          <td class="py-3 pr-3 text-right"><span class="font-mono font-medium" style="color:#a16207">7.2</span></td>
+          <td class="py-3 pr-1 text-center"><span class="text-emerald-700 text-xs font-medium">●</span></td>
+        </tr>
+        <tr class="row-hover border-b border-[var(--border)]">
+          <td class="py-3 pl-1 pr-3"><div class="font-medium">Valon Berisha</div><div class="text-xs text-[var(--muted)]">32 y/o · MID</div></td>
+          <td class="py-3 pr-3 text-sm">Cracovia<div class="text-xs text-[var(--muted)]">Ekstraklasa · Poloni</div></td>
+          <td class="py-3 pr-3"><svg viewBox="0 0 64 30" width="80" height="30"><rect class="spark-bar-active" x="0" y="9.900000000000002" width="6" height="20.099999999999998" rx="1"/><rect class="spark-bar-active" x="8" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="16" y="6.600000000000001" width="6" height="23.4" rx="1"/><rect class="spark-bar" x="24" y="28" width="6" height="2" rx="1"/><rect class="spark-bar-active" x="32" y="6.600000000000001" width="6" height="23.4" rx="1"/><rect class="spark-bar-active" x="40" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="48" y="9.900000000000002" width="6" height="20.099999999999998" rx="1"/><rect class="spark-bar-active" x="56" y="3.0" width="6" height="27.0" rx="1"/></svg></td>
+          <td class="py-3 pr-3 text-right"><span class="font-mono font-medium" style="color:#15803d">7.3</span></td>
+          <td class="py-3 pr-1 text-center"><span class="text-emerald-700 text-xs font-medium">●</span></td>
+        </tr>
+        <tr class="row-hover border-b border-[var(--border)]">
+          <td class="py-3 pl-1 pr-3"><div class="font-medium">Hekuran Kryeziu</div><div class="text-xs text-[var(--muted)]">30 y/o · MID</div></td>
+          <td class="py-3 pr-3 text-sm">FC Lugano<div class="text-xs text-[var(--muted)]">Super League · Zvicër</div></td>
+          <td class="py-3 pr-3"><svg viewBox="0 0 64 30" width="80" height="30"><rect class="spark-bar-active" x="0" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="8" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="16" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="24" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="32" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="40" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="48" y="9.900000000000002" width="6" height="20.099999999999998" rx="1"/><rect class="spark-bar-active" x="56" y="3.0" width="6" height="27.0" rx="1"/></svg></td>
+          <td class="py-3 pr-3 text-right"><span class="font-mono font-medium" style="color:#15803d">7.5</span></td>
+          <td class="py-3 pr-1 text-center"><span class="text-emerald-700 text-xs font-medium">●</span></td>
+        </tr>
+        <tr class="row-hover border-b border-[var(--border)]">
+          <td class="py-3 pl-1 pr-3"><div class="font-medium">Edon Zhegrova</div><div class="text-xs text-[var(--muted)]">27 y/o · W</div></td>
+          <td class="py-3 pr-3 text-sm">Lille OSC<div class="text-xs text-[var(--muted)]">Ligue 1 · Francë</div></td>
+          <td class="py-3 pr-3"><svg viewBox="0 0 64 30" width="80" height="30"><rect class="spark-bar-active" x="0" y="6.600000000000001" width="6" height="23.4" rx="1"/><rect class="spark-bar-active" x="8" y="9.900000000000002" width="6" height="20.099999999999998" rx="1"/><rect class="spark-bar-active" x="16" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="24" y="6.600000000000001" width="6" height="23.4" rx="1"/><rect class="spark-bar-active" x="32" y="3.6000000000000014" width="6" height="26.4" rx="1"/><rect class="spark-bar-active" x="40" y="9.900000000000002" width="6" height="20.099999999999998" rx="1"/><rect class="spark-bar-active" x="48" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="56" y="6.600000000000001" width="6" height="23.4" rx="1"/></svg></td>
+          <td class="py-3 pr-3 text-right"><span class="font-mono font-medium" style="color:#15803d">7.4</span></td>
+          <td class="py-3 pr-1 text-center"><span class="text-emerald-700 text-xs font-medium">●</span></td>
+        </tr>
+        <tr class="row-hover border-b border-[var(--border)]">
+          <td class="py-3 pl-1 pr-3"><div class="font-medium">Milot Rashica</div><div class="text-xs text-[var(--muted)]">30 y/o · W</div></td>
+          <td class="py-3 pr-3 text-sm">Spartak Moskva<div class="text-xs text-[var(--muted)]">Premier Liga · Rusi</div></td>
+          <td class="py-3 pr-3"><svg viewBox="0 0 64 30" width="80" height="30"><rect class="spark-bar-active" x="0" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="8" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="16" y="6.600000000000001" width="6" height="23.4" rx="1"/><rect class="spark-bar-active" x="24" y="9.900000000000002" width="6" height="20.099999999999998" rx="1"/><rect class="spark-bar-active" x="32" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="40" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="48" y="6.600000000000001" width="6" height="23.4" rx="1"/><rect class="spark-bar-active" x="56" y="3.0" width="6" height="27.0" rx="1"/></svg></td>
+          <td class="py-3 pr-3 text-right"><span class="font-mono font-medium" style="color:#15803d">7.7</span></td>
+          <td class="py-3 pr-1 text-center"><span class="text-emerald-700 text-xs font-medium">●</span></td>
+        </tr>
+        <tr class="row-hover border-b border-[var(--border)]">
+          <td class="py-3 pl-1 pr-3"><div class="font-medium">Veldin Hodža</div><div class="text-xs text-[var(--muted)]">26 y/o · ST</div></td>
+          <td class="py-3 pr-3 text-sm">Sturm Graz<div class="text-xs text-[var(--muted)]">Bundesliga · Austri</div></td>
+          <td class="py-3 pr-3"><svg viewBox="0 0 64 30" width="80" height="30"><rect class="spark-bar-active" x="0" y="6.600000000000001" width="6" height="23.4" rx="1"/><rect class="spark-bar" x="8" y="28" width="6" height="2" rx="1"/><rect class="spark-bar-active" x="16" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="24" y="6.600000000000001" width="6" height="23.4" rx="1"/><rect class="spark-bar-active" x="32" y="9.900000000000002" width="6" height="20.099999999999998" rx="1"/><rect class="spark-bar-active" x="40" y="6.600000000000001" width="6" height="23.4" rx="1"/><rect class="spark-bar-active" x="48" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="56" y="6.600000000000001" width="6" height="23.4" rx="1"/></svg></td>
+          <td class="py-3 pr-3 text-right"><span class="font-mono font-medium" style="color:#a16207">6.7</span></td>
+          <td class="py-3 pr-1 text-center"><span class="text-rose-700 text-xs font-medium" title="Injured">✕</span></td>
+        </tr>
+        <tr class="row-hover border-b border-[var(--border)]">
+          <td class="py-3 pl-1 pr-3"><div class="font-medium">Atdhe Nuhiu</div><div class="text-xs text-[var(--muted)]">36 y/o · ST</div></td>
+          <td class="py-3 pr-3 text-sm">Hannover 96<div class="text-xs text-[var(--muted)]">2. Bundesliga · Gjermani</div></td>
+          <td class="py-3 pr-3"><svg viewBox="0 0 64 30" width="80" height="30"><rect class="spark-bar-active" x="0" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="8" y="6.600000000000001" width="6" height="23.4" rx="1"/><rect class="spark-bar-active" x="16" y="9.900000000000002" width="6" height="20.099999999999998" rx="1"/><rect class="spark-bar-active" x="24" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="32" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="40" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="48" y="6.600000000000001" width="6" height="23.4" rx="1"/><rect class="spark-bar-active" x="56" y="9.900000000000002" width="6" height="20.099999999999998" rx="1"/></svg></td>
+          <td class="py-3 pr-3 text-right"><span class="font-mono font-medium" style="color:#a16207">7.1</span></td>
+          <td class="py-3 pr-1 text-center"><span class="text-emerald-700 text-xs font-medium">●</span></td>
+        </tr>
+        <tr class="row-hover border-b border-[var(--border)]">
+          <td class="py-3 pl-1 pr-3"><div class="font-medium">Ermal Krasniqi</div><div class="text-xs text-[var(--muted)]">27 y/o · MID</div></td>
+          <td class="py-3 pr-3 text-sm">Slavia Sofia<div class="text-xs text-[var(--muted)]">Parva Liga · Bullgari</div></td>
+          <td class="py-3 pr-3"><svg viewBox="0 0 64 30" width="80" height="30"><rect class="spark-bar-active" x="0" y="9.900000000000002" width="6" height="20.099999999999998" rx="1"/><rect class="spark-bar-active" x="8" y="6.600000000000001" width="6" height="23.4" rx="1"/><rect class="spark-bar-active" x="16" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="24" y="6.600000000000001" width="6" height="23.4" rx="1"/><rect class="spark-bar-active" x="32" y="9.900000000000002" width="6" height="20.099999999999998" rx="1"/><rect class="spark-bar-active" x="40" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="48" y="9.900000000000002" width="6" height="20.099999999999998" rx="1"/><rect class="spark-bar-active" x="56" y="6.600000000000001" width="6" height="23.4" rx="1"/></svg></td>
+          <td class="py-3 pr-3 text-right"><span class="font-mono font-medium" style="color:#a16207">6.9</span></td>
+          <td class="py-3 pr-1 text-center"><span class="text-amber-600 text-xs font-medium" title="One booking from suspension">⚠</span></td>
+        </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- Right rail: minutes profile -->
+      <div class="col-span-4">
+        <div class="bg-white border border-[var(--border)] p-6">
+          <!--EN--><div class="eyebrow mb-1">Player workload</div>
+          <div class="font-serif text-2xl">Vedat Muriqi</div>
+          <!--EN--><div class="text-[12px] text-[var(--muted)] mt-0.5">Last 12 weeks · RCD Mallorca</div>
+          <div class="mt-6">
+            <svg viewBox="0 0 600 180" class="w-full"><g><line x1="20" x2="25" y1="150.0" y2="150.0" stroke="#d1d5db"/><text x="18" y="153.0" text-anchor="end" font-size="9" font-family="JetBrains Mono, monospace" fill="#9ca3af">0'</text></g><g><line x1="20" x2="25" y1="90.0" y2="90.0" stroke="#d1d5db"/><text x="18" y="93.0" text-anchor="end" font-size="9" font-family="JetBrains Mono, monospace" fill="#9ca3af">45'</text></g><g><line x1="20" x2="25" y1="30.0" y2="30.0" stroke="#d1d5db"/><text x="18" y="33.0" text-anchor="end" font-size="9" font-family="JetBrains Mono, monospace" fill="#9ca3af">90'</text></g><rect x="32.0" y="150.0" width="42.7" height="0.0" fill="#d1d5db" rx="2"/><rect x="78.7" y="110.0" width="42.7" height="40.0" fill="#d1d5db" rx="2"/><rect x="125.3" y="150.0" width="42.7" height="0.0" fill="#d1d5db" rx="2"/><rect x="172.0" y="76.7" width="42.7" height="73.3" fill="#d1d5db" rx="2"/><rect x="218.7" y="60.7" width="42.7" height="89.3" fill="#1B3A8A" rx="2"/><rect x="265.3" y="54.0" width="42.7" height="96.0" fill="#1B3A8A" rx="2"/><rect x="312.0" y="30.0" width="42.7" height="120.0" fill="#1B3A8A" rx="2"/><rect x="358.7" y="150.0" width="42.7" height="0.0" fill="#d1d5db" rx="2"/><rect x="405.3" y="32.7" width="42.7" height="117.3" fill="#1B3A8A" rx="2"/><rect x="452.0" y="63.3" width="42.7" height="86.7" fill="#1B3A8A" rx="2"/><rect x="498.7" y="30.0" width="42.7" height="120.0" fill="#1B3A8A" rx="2"/><rect x="545.3" y="46.0" width="42.7" height="104.0" fill="#1B3A8A" rx="2"/><polyline points="100.0,54.0 193.3,49.5 240.0,46.5 286.7,45.0 333.3,39.0 426.7,40.5 473.3,48.0 520.0,37.5 566.7,42.0" fill="none" stroke="#1a1a1a" stroke-width="1.5" stroke-dasharray="3 3"/><circle cx="100.0" cy="54.0" r="2.5" fill="#1a1a1a"/><circle cx="193.3" cy="49.5" r="2.5" fill="#1a1a1a"/><circle cx="240.0" cy="46.5" r="2.5" fill="#1a1a1a"/><circle cx="286.7" cy="45.0" r="2.5" fill="#1a1a1a"/><circle cx="333.3" cy="39.0" r="2.5" fill="#1a1a1a"/><circle cx="426.7" cy="40.5" r="2.5" fill="#1a1a1a"/><circle cx="473.3" cy="48.0" r="2.5" fill="#1a1a1a"/><circle cx="520.0" cy="37.5" r="2.5" fill="#1a1a1a"/><circle cx="566.7" cy="42.0" r="2.5" fill="#1a1a1a"/><text x="53.3" y="170" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="#9ca3af">J1</text><text x="100.0" y="170" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="#9ca3af">J2</text><text x="146.7" y="170" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="#9ca3af">J3</text><text x="193.3" y="170" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="#9ca3af">J4</text><text x="240.0" y="170" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="#9ca3af">J5</text><text x="286.7" y="170" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="#9ca3af">J6</text><text x="333.3" y="170" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="#9ca3af">J7</text><text x="380.0" y="170" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="#9ca3af">J8</text><text x="426.7" y="170" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="#9ca3af">J9</text><text x="473.3" y="170" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="#9ca3af">J10</text><text x="520.0" y="170" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="#9ca3af">J11</text><text x="566.7" y="170" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="#9ca3af">J12</text></svg>
+          </div>
+          <div class="mt-4 grid grid-cols-3 gap-3 pt-4 border-t border-[var(--border)]">
+            <div>
+              <!--EN--><div class="eyebrow">Total minutes</div>
+              <div class="font-mono font-medium text-lg">635'</div>
+            </div>
+            <div>
+              <!--EN--><div class="eyebrow">Average</div>
+              <div class="font-mono font-medium text-lg">53'</div>
+            </div>
+            <div>
+              <!--EN--><div class="eyebrow">Avg rating</div>
+              <div class="font-mono font-medium text-lg" style="color:#a16207">6.9</div>
+            </div>
+          </div>
+          <div class="mt-4 pt-4 border-t border-[var(--border)] text-[11px] text-[var(--muted)] flex items-center justify-between">
+            <!--EN--><span>Click the Muriqi row for the full profile</span>
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== SECTION 5: ATLASI / ATLAS =================== -->
+<section id="atlasi" class="section-pad border-t border-[var(--border)]" style="background: var(--bg-warm);">
+  <div class="container-max">
+    <div class="flex items-end justify-between mb-10">
+      <div>
+        <div class="flex items-center gap-3 mb-3">
+          <div class="blue-rule"></div>
+          <!--EN--><span class="eyebrow">Section 05</span>
+        </div>
+        <!--EN--><h2 class="section-title">Player Atlas</h2>
+        <div class="eyebrow-en mt-1">Player Pool Atlas</div>
+      </div>
+      <!--EN--><div class="text-right text-[12px] text-[var(--muted)] uppercase tracking-wider">52 players · 13 countries</div>
+    </div>
+
+    <div class="grid grid-cols-12 gap-6 relative">
+      <!-- Map -->
+      <div class="col-span-7 bg-white border border-[var(--border)] p-6 relative" id="atlas-map-wrap">
+        <div class="flex items-center justify-between mb-4">
+          <!--EN--><div class="eyebrow">Global mapping</div>
+          <!--EN--><div class="text-[11px] text-[var(--muted)] font-mono">Hover dots for detail</div>
+        </div>
+        <div style="position:relative;">
+          <svg id="eu-map" viewBox="0 0 800 540" class="eu-map" style="width:100%; height:auto;">
+            <g id="eu-countries"></g>
+            <g id="eu-cities"></g>
+          </svg>
+          <div id="map-tooltip" class="map-tooltip"></div>
+        </div>
+        <div class="flex items-center gap-6 mt-6 pt-4 border-t border-[var(--border)] text-[11px] text-[var(--muted)]">
+          <div class="flex items-center gap-2">
+            <svg width="40" height="20" viewBox="0 0 40 20"><circle cx="6" cy="10" r="3" fill="#1B3A8A"/><circle cx="20" cy="10" r="6" fill="#1B3A8A"/><circle cx="34" cy="10" r="9" fill="#1B3A8A"/></svg>
+            <!--EN--><span>Size ∝ player count</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-3 h-3" style="background:rgba(27,58,138,0.16);border:1px solid var(--ffk-blue)"></div>
+            <!--EN--><span>Kosovo · Albania · N. Macedonia</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filterable card grid -->
+      <div class="col-span-5 bg-white border border-[var(--border)] p-6">
+        <div class="flex items-center justify-between mb-4">
+          <!--EN--><div class="eyebrow">Players surfaced</div>
+          <!--EN--><div class="text-[11px] text-[var(--muted)] font-mono"><span id="atlas-count">22</span>/52</div>
+        </div>
+        <!-- Filters -->
+        <div class="flex flex-wrap items-center gap-2 mb-4">
+          <!--EN--><div class="text-[11px] text-[var(--muted)] mr-2 uppercase tracking-wider">Position</div>
+          <button class="filter-pill active" data-pos="all"><!--EN-->All</button>
+          <!--EN--><button class="filter-pill" data-pos="PT" title="Goalkeeper">GK</button>
+          <!--EN--><button class="filter-pill" data-pos="MB" title="Centre back">CB</button>
+          <!--EN--><button class="filter-pill" data-pos="MA" title="Full back">FB</button>
+          <!--EN--><button class="filter-pill" data-pos="MQ" title="Midfielder">MID</button>
+          <!--EN--><button class="filter-pill" data-pos="SK" title="Winger">W</button>
+          <!--EN--><button class="filter-pill" data-pos="SQ" title="Striker">ST</button>
+        </div>
+        <div class="atlas-grid" id="atlas-grid">
+          
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="SQ" data-country="Spanjë">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">VM</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Vedat Muriqi</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--EN-->31 · ST · RCD Mallorca</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="MB" data-country="Itali">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">AR</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Amir Rrahmani</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--EN-->32 · CB · SSC Napoli</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="PT" data-country="Angli">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">AM</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Arijanet Muric</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--EN-->27 · GK · Ipswich Town</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="SK" data-country="Francë">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">EZ</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Edon Zhegrova</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--EN-->27 · W · Lille OSC</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="SK" data-country="Rusi">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">MR</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Milot Rashica</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--EN-->30 · W · Spartak Moskva</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="MQ" data-country="Turqi">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">BC</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Bersant Celina</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--EN-->28 · MID · Çaykur Rizespor</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="MB" data-country="Itali">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">ID</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Ibrahim Dresevic</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--EN-->28 · CB · US Lecce</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="MA" data-country="Itali">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">MV</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Mergim Vojvoda</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--EN-->31 · FB · Torino FC</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="MA" data-country="Belgjikë">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">FH</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Florent Hadergjonaj</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--EN-->31 · FB · KVC Westerlo</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="MA" data-country="Turqi">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">FA</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Fidan Aliti</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--EN-->32 · FB · Konyaspor</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="MQ" data-country="Poloni">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">VB</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Valon Berisha</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--EN-->32 · MID · Cracovia</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="MQ" data-country="Zvicër">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">HK</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Hekuran Kryeziu</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--EN-->30 · MID · FC Lugano</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="MQ" data-country="Bullgari">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">EK</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Ermal Krasniqi</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--EN-->27 · MID · Slavia Sofia</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="SQ" data-country="Austri">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">VH</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Veldin Hodža</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--EN-->26 · ST · Sturm Graz</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="SQ" data-country="Gjermani">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">AN</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Atdhe Nuhiu</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--EN-->36 · ST · Hannover 96</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="SK" data-country="Poloni">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">LK</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Lirim Kastrati</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--EN-->27 · W · Lechia Gdańsk</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="SQ" data-country="Rumani">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">AH</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Albion Rrahmani</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--EN-->25 · ST · Rapid București</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="MB" data-country="Zvicër">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">KH</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Kreshnik Hajrizi</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--EN-->26 · CB · FC Sion</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="MB" data-country="Sllovaki">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">EP</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Edon Pruti</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--EN-->24 · CB · Dunajská Streda</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="MQ" data-country="Kazakistan">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">MS</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Mirlind Sahiti</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--EN-->27 · MID · FK Tobol</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="SK" data-country="Kosovë">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">EM</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Edon Maxhuni</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--EN-->26 · W · FC Drita</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="MQ" data-country="Kosovë">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">LB</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Liridon Balaj</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--EN-->24 · MID · FC Ballkani</div>
+            </div>
+          </div>
+        </div>
+        </div>
+        <div class="mt-4 pt-4 border-t border-[var(--border)] text-[11px] text-[var(--muted)] italic">
+          <!--EN-->Additional filters (age, league tier, cap status) available in the full version.
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-8 text-center">
+      <!--EN--><div class="font-serif text-3xl text-[var(--charcoal)]">52 players <span class="text-[var(--muted)]">·</span> 13 countries <span class="text-[var(--muted)]">·</span> 23 clubs</div>
+      <!--EN--><div class="text-[12px] text-[var(--muted)] mt-1">Surfaced and assessed by the federation. Every week.</div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== SECTION 6: PROFILI / BROJA =================== -->
+<section id="profili" class="section-pad border-t border-[var(--border)]" style="background: var(--bg);">
+  <div class="container-max">
+    <div class="flex items-end justify-between mb-10">
+      <div>
+        <div class="flex items-center gap-3 mb-3">
+          <div class="blue-rule"></div>
+          <!--EN--><span class="eyebrow">Section 06</span>
+        </div>
+        <!--EN--><h2 class="section-title">Player Profile</h2>
+        <div class="eyebrow-en mt-1">Player Profile · single source of truth</div>
+        <!--EN--><div class="text-[13px] text-[var(--muted)] mt-3 italic max-w-xl">Every player in our base has a page like this. Featured: Vedat Muriqi.</div>
+      </div>
+    </div>
+
+    <!-- Identity hero strip -->
+    <div class="bg-white border border-[var(--border)] mb-6">
+      <div class="grid grid-cols-12 gap-0">
+        <!-- Avatar -->
+        <div class="col-span-3 bg-[var(--charcoal)] relative overflow-hidden" style="min-height: 320px;">
+          <img src="https://img.uefa.com/imgml/TP/players/17/2026/324x324/250059699.jpg" alt="Vedat Muriqi" style="width:100%; height:100%; object-fit:cover; object-position: center 20%; position:absolute; inset:0;">
+          <div style="position:absolute; inset:0; background: linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(0,0,0,0.55) 100%);"></div>
+          <div class="absolute" style="bottom: 14px; left: 16px; right: 16px;">
+            <div class="text-[10px] uppercase tracking-wider font-mono" style="color:rgba(255,255,255,0.75)">VM · 24.04.1994</div>
+            <!--EN--><div class="text-[11px] mt-0.5" style="color:rgba(255,255,255,0.6)">Photo: UEFA</div>
+          </div>
+        </div>
+        <!-- Identity -->
+        <div class="col-span-6 p-10 border-r border-[var(--border)]">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="pill" style="background:#1a1a1a; color:white; border-color:#1a1a1a;"><!--EN-->Senior Squad · Captain</span>
+            <!--EN--><span class="pill">31 y/o · Striker</span>
+            <!--EN--><span class="pill">1.94 m · Right-footed</span>
+          </div>
+          <h3 class="font-serif text-6xl leading-none mb-2">Vedat Muriqi</h3>
+          <div class="text-[14px] text-[var(--muted)]"><!--EN-->RCD Mallorca · La Liga · #9</div>
+          <div class="grid grid-cols-4 gap-6 mt-10 pt-6 border-t border-[var(--border)]">
+            <div>
+              <!--EN--><div class="eyebrow">National team caps</div>
+              <div class="display-num text-3xl mt-1">53</div>
+            </div>
+            <div>
+              <!--EN--><div class="eyebrow">Goals</div>
+              <div class="display-num text-3xl mt-1">26</div>
+            </div>
+            <div>
+              <!--EN--><div class="eyebrow">Birthplace</div>
+              <!--EN--><div class="text-[14px] mt-1.5">Prizren, Kosovo</div>
+            </div>
+            <div>
+              <!--EN--><div class="eyebrow">Nationality</div>
+              <!--EN--><div class="text-[14px] mt-1.5">KOS</div>
+            </div>
+          </div>
+        </div>
+        <!-- Eligibility -->
+        <div class="col-span-3 p-10 flex flex-col justify-center" style="background: linear-gradient(180deg, #faf9f6, #ece9e0);">
+          <!--EN--><div class="eyebrow mb-3">Selection status</div>
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-full bg-[var(--ffk-blue)] flex items-center justify-center"><i data-lucide="check" class="w-5 h-5 text-white"></i></div>
+            <div>
+              <!--EN--><div class="font-serif text-xl leading-tight">Captain</div>
+              <!--EN--><div class="text-[11px] text-[var(--muted)]">Debuted 24.03.2016 v. Faroe Islands</div>
+            </div>
+          </div>
+          <div class="text-[12px] text-[var(--muted)] leading-relaxed">
+            <!--EN-->Captain of the national team for 4 seasons running. Core squad for EURO 2028 qualifiers · 8 September v. Slovenia (Group G).
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Club stats + Signals row -->
+    <div class="grid grid-cols-12 gap-6 mb-6">
+      <div class="col-span-8 space-y-6">
+        <div class="bg-white border border-[var(--border)] p-6">
+          <div class="flex items-center justify-between mb-5">
+            <div>
+              <!--EN--><div class="eyebrow">Club stats · 12 months</div>
+              <!--EN--><div class="text-[12px] text-[var(--muted)] mt-0.5">RCD Mallorca · 2025/26 season</div>
+            </div>
+            <!--EN--><div class="text-[11px] text-[var(--muted)] font-mono">updated 9 May</div>
+          </div>
+          <div class="grid grid-cols-4 gap-2">
+        <div class="p-4 bg-white border border-[var(--border)]">
+          <!--EN--><div class="eyebrow">Minutes · 12 months</div>
+          <div class="display-num mt-1" style="font-size: 32px; line-height:1; color:var(--charcoal)">2 312'</div>
+          
+          <div class="text-[11px] text-[var(--muted)] mt-1"><!--EN-->RCD Mallorca · 28 matches</div>
+        </div>
+        <div class="p-4 bg-white border border-[var(--border)]">
+          <!--EN--><div class="eyebrow">% of club minutes</div>
+          <div class="display-num mt-1" style="font-size: 32px; line-height:1; color:var(--charcoal)">78%</div>
+          <div class="prob-bar mt-2"><div class="prob-bar-fill" style="width:78%"></div></div>
+          <div class="text-[11px] text-[var(--muted)] mt-1"><!--EN-->vs. team average</div>
+        </div>
+        <div class="p-4 bg-white border border-[var(--border)]">
+          <!--EN--><div class="eyebrow">Minutes · 2 months</div>
+          <div class="display-num mt-1" style="font-size: 32px; line-height:1; color:var(--charcoal)">635'</div>
+          
+          <div class="text-[11px] text-[var(--muted)] mt-1"><!--EN-->upward trend</div>
+        </div>
+        <div class="p-4 bg-white border border-[var(--border)]">
+          <!--EN--><div class="eyebrow">Average rating</div>
+          <div class="display-num mt-1" style="font-size: 32px; line-height:1; color:#15803d">7.2</div>
+          
+          <div class="text-[11px] text-[var(--muted)] mt-1"><!--EN-->12 months · WhoScored</div>
+        </div>
+        <div class="p-4 bg-white border border-[var(--border)]">
+          <!--EN--><div class="eyebrow">Goals</div>
+          <div class="display-num mt-1" style="font-size: 32px; line-height:1; color:var(--charcoal)">14</div>
+          
+          <div class="text-[11px] text-[var(--muted)] mt-1"><!--EN-->0.55 per 90 min</div>
+        </div>
+        <div class="p-4 bg-white border border-[var(--border)]">
+          <!--EN--><div class="eyebrow">Assists</div>
+          <div class="display-num mt-1" style="font-size: 32px; line-height:1; color:var(--charcoal)">4</div>
+          
+          <div class="text-[11px] text-[var(--muted)] mt-1"><!--EN-->0.16 per 90 min</div>
+        </div>
+        <div class="p-4 bg-white border border-[var(--border)]">
+          <!--EN--><div class="eyebrow">Starts / sub apps</div>
+          <div class="display-num mt-1" style="font-size: 32px; line-height:1; color:var(--charcoal)">24 / 4</div>
+          
+          <div class="text-[11px] text-[var(--muted)] mt-1"><!--EN-->28 matches total</div>
+        </div>
+        <div class="p-4 bg-white border border-[var(--border)]">
+          <!--EN--><div class="eyebrow">Discipline</div>
+          <div class="display-num mt-1" style="font-size: 32px; line-height:1; color:var(--charcoal)">✓</div>
+          
+          <div class="text-[11px] text-[var(--muted)] mt-1"><!--EN-->5 yellow cards · 0 red</div>
+        </div></div>
+        </div>
+      </div>
+      <div class="col-span-4 signal-rail p-6">
+        <!--EN--><div class="eyebrow mb-2">Signals this week</div>
+        <div class="flex items-start gap-3 py-3 border-b border-[var(--border)] last:border-b-0">
+          <div class="w-8 h-8 rounded-full bg-[var(--bg-warm)] flex items-center justify-center text-[var(--ffk-blue)] flex-shrink-0">
+            <i data-lucide="trending-up" class="w-4 h-4"></i>
+          </div>
+          <div class="flex-1">
+            <!--EN--><div class="font-medium text-sm">Form trending up</div>
+            <!--EN--><div class="text-xs text-[var(--muted)] mt-0.5">7 starts in a row · 4 goals</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-3 py-3 border-b border-[var(--border)] last:border-b-0">
+          <div class="w-8 h-8 rounded-full bg-[var(--bg-warm)] flex items-center justify-center text-[var(--ffk-blue)] flex-shrink-0">
+            <i data-lucide="shield-check" class="w-4 h-4"></i>
+          </div>
+          <div class="flex-1">
+            <!--EN--><div class="font-medium text-sm">No bookings</div>
+            <!--EN--><div class="text-xs text-[var(--muted)] mt-0.5">No bookings in last 5 NT matches</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-3 py-3 border-b border-[var(--border)] last:border-b-0">
+          <div class="w-8 h-8 rounded-full bg-[var(--bg-warm)] flex items-center justify-center text-[var(--ffk-blue)] flex-shrink-0">
+            <i data-lucide="activity" class="w-4 h-4"></i>
+          </div>
+          <div class="flex-1">
+            <!--EN--><div class="font-medium text-sm">Available for September</div>
+            <!--EN--><div class="text-xs text-[var(--muted)] mt-0.5">Competing with Hodža and Nuhiu for the #9 spot</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-3 py-3 border-b border-[var(--border)] last:border-b-0">
+          <div class="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center text-amber-700 flex-shrink-0">
+            <i data-lucide="alert-circle" class="w-4 h-4"></i>
+          </div>
+          <div class="flex-1">
+            <!--EN--><div class="font-medium text-sm">Secure club position</div>
+            <!--EN--><div class="text-xs text-[var(--muted)] mt-0.5">Starter in 24 of 28 matches · coach's preferred</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-3 py-3 last:border-b-0">
+          <div class="w-8 h-8 rounded-full bg-[var(--bg-warm)] flex items-center justify-center text-[var(--charcoal)] flex-shrink-0">
+            <i data-lucide="file-text" class="w-4 h-4"></i>
+          </div>
+          <div class="flex-1">
+            <!--EN--><div class="font-medium text-sm">Stable contract</div>
+            <!--EN--><div class="text-xs text-[var(--muted)] mt-0.5">RCD Mallorca through 30.06.2027 — no transfer risk</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- National team + Form summary + Availability row -->
+    <div class="grid grid-cols-12 gap-6 mb-6">
+      <div class="col-span-4 bg-white border border-[var(--border)] p-6">
+        <div class="flex items-center justify-between mb-4">
+          <!--EN--><div class="eyebrow">National team representation</div>
+          <i data-lucide="flag" class="w-4 h-4 text-[var(--ffk-blue)]"></i>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+        <div class="p-4 bg-white border border-[var(--border)]">
+          <!--EN--><div class="eyebrow">Caps · total</div>
+          <div class="display-num mt-1" style="font-size: 32px; line-height:1; color:var(--charcoal)">53</div>
+          
+          <div class="text-[11px] text-[var(--muted)] mt-1"><!--EN-->26 goals · 6 assists</div>
+        </div>
+        <div class="p-4 bg-white border border-[var(--border)]">
+          <!--EN--><div class="eyebrow">Caps · 12 months</div>
+          <div class="display-num mt-1" style="font-size: 32px; line-height:1; color:var(--charcoal)">9</div>
+          
+          <div class="text-[11px] text-[var(--muted)] mt-1"><!--EN-->9 of 9 camps · 4 goals</div>
+        </div>
+        <div class="p-4 bg-white border border-[var(--border)]">
+          <!--EN--><div class="eyebrow">Minutes · 12 months</div>
+          <div class="display-num mt-1" style="font-size: 32px; line-height:1; color:var(--charcoal)">758'</div>
+          
+          <div class="text-[11px] text-[var(--muted)] mt-1"><!--EN-->94% of available minutes</div>
+        </div>
+        <div class="p-4 bg-white border border-[var(--border)]">
+          <!--EN--><div class="eyebrow">Starts / sub apps</div>
+          <div class="display-num mt-1" style="font-size: 32px; line-height:1; color:var(--charcoal)">9 / 0</div>
+          
+          <div class="text-[11px] text-[var(--muted)] mt-1"><!--EN-->Last 12 months</div>
+        </div></div>
+        <div class="mt-4 pt-4 border-t border-[var(--border)] grid grid-cols-2 gap-3 text-[12px]">
+          <div>
+            <!--EN--><div class="text-[10px] uppercase tracking-wider text-[var(--muted)]">Avg rating</div>
+            <div class="font-mono font-medium mt-1" style="color:#15803d">7.4</div>
+          </div>
+          <div>
+            <!--EN--><div class="text-[10px] uppercase tracking-wider text-[var(--muted)]">Last match</div>
+            <!--EN--><div class="text-[12px] mt-1">31 Mar 2026 · v Slovenia</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-span-4 bg-white border border-[var(--border)] p-6">
+        <div class="flex items-center justify-between mb-4">
+          <!--EN--><div class="eyebrow">Form · 12 weeks</div>
+          <i data-lucide="line-chart" class="w-4 h-4 text-[var(--ffk-blue)]"></i>
+        </div>
+        
+      <div class="grid grid-cols-2 gap-2">
+        
+        <div class="p-4 bg-white border border-[var(--border)]">
+          <!--EN--><div class="eyebrow">Matches · 12 weeks</div>
+          <div class="display-num mt-1" style="font-size: 32px; line-height:1; color:var(--charcoal)">11</div>
+          
+          <div class="text-[11px] text-[var(--muted)] mt-1"><!--EN-->of 12 weeks</div>
+        </div>
+        
+        <div class="p-4 bg-white border border-[var(--border)]">
+          <!--EN--><div class="eyebrow">Goals + assists</div>
+          <div class="display-num mt-1" style="font-size: 32px; line-height:1; color:var(--charcoal)">5 + 2</div>
+          
+          <div class="text-[11px] text-[var(--muted)] mt-1"><!--EN-->Last 12 weeks</div>
+        </div>
+        
+        <div class="p-4 bg-white border border-[var(--border)]">
+          <!--EN--><div class="eyebrow">Avg minutes</div>
+          <div class="display-num mt-1" style="font-size: 32px; line-height:1; color:var(--charcoal)">81'</div>
+          
+          <div class="text-[11px] text-[var(--muted)] mt-1"><!--EN-->when played</div>
+        </div>
+        
+        <div class="p-4 bg-white border border-[var(--border)]">
+          <!--EN--><div class="eyebrow">Average rating</div>
+          <div class="display-num mt-1" style="font-size: 32px; line-height:1; color:#15803d">7.3</div>
+          
+          <div class="text-[11px] text-[var(--muted)] mt-1"><!--EN-->when played</div>
+        </div>
+      </div>
+      <div class="mt-3 p-3 bg-[var(--bg-warm)] border border-[var(--border)]">
+        <!--EN--><div class="text-[11px] uppercase tracking-wider text-[var(--muted)] mb-1">Best performance</div>
+        <!--EN--><div class="text-[12px] font-medium">vs Real Madrid · 90' · 8.1 · 1g 1a</div>
+      </div>
+      </div>
+      <div class="col-span-4 bg-white border border-[var(--border)] p-6">
+        <div class="flex items-center justify-between mb-4">
+          <!--EN--><div class="eyebrow">Availability & discipline</div>
+          <i data-lucide="shield" class="w-4 h-4 text-[var(--ffk-blue)]"></i>
+        </div>
+        
+      <div class="space-y-3">
+        <div class="flex items-center justify-between p-3 bg-emerald-50 border border-emerald-200">
+          <div class="flex items-center gap-3">
+            <div class="w-2 h-2 rounded-full bg-emerald-600"></div>
+            <!--EN--><div class="text-[13px] font-medium text-emerald-900">Available</div>
+          </div>
+          <!--EN--><div class="text-[11px] text-emerald-700">for September window</div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          
+        <div class="p-4 bg-white border border-[var(--border)]">
+          <!--EN--><div class="eyebrow">Yellow cards (club)</div>
+          <div class="display-num mt-1" style="font-size: 32px; line-height:1; color:var(--charcoal)">5</div>
+          
+          <div class="text-[11px] text-[var(--muted)] mt-1"><!--EN-->in 28 matches · 18% suspension risk</div>
+        </div>
+          
+        <div class="p-4 bg-white border border-[var(--border)]">
+          <!--EN--><div class="eyebrow">Red cards</div>
+          <div class="display-num mt-1" style="font-size: 32px; line-height:1; color:var(--charcoal)">0</div>
+          
+          <div class="text-[11px] text-[var(--muted)] mt-1"><!--EN-->none this season</div>
+        </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          
+        <div class="p-4 bg-white border border-[var(--border)]">
+          <!--EN--><div class="eyebrow">Suspensions · 12 months</div>
+          <div class="display-num mt-1" style="font-size: 32px; line-height:1; color:var(--charcoal)">0</div>
+          
+          
+        </div>
+          
+        <div class="p-4 bg-white border border-[var(--border)]">
+          <!--EN--><div class="eyebrow">Club contract</div>
+          <div class="display-num mt-1" style="font-size: 32px; line-height:1; color:var(--charcoal)">30.06.2027</div>
+          
+          <div class="text-[11px] text-[var(--muted)] mt-1"><!--EN-->1.5 years</div>
+        </div>
+        </div>
+        <div class="p-3 bg-white border border-[var(--border)]">
+          <!--EN--><div class="eyebrow mb-1">Injuries · 12 months</div>
+          <!--EN--><div class="text-[12px]">1 (thigh · 4 weeks · January 2026)</div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <!-- Last 6 caps -->
+    <div class="bg-white border border-[var(--border)] p-6 mb-6">
+      <div class="flex items-center justify-between mb-4">
+        <!--EN--><div class="eyebrow">Last 6 national team matches</div>
+        <!--EN--><div class="text-[11px] text-[var(--muted)] font-mono">October 2025 → March 2026</div>
+      </div>
+      <div class="grid grid-cols-6 gap-3">
+
+        <div class="bg-white border border-[var(--border)] p-3">
+          <div class="text-xs text-[var(--muted)] font-mono">31 Mar 2026</div>
+          <div class="font-medium text-sm mt-1"><!--EN-->vs Slovenia</div>
+          <div class="flex items-baseline gap-2 mt-1">
+            <span class="font-serif text-xl">2-1</span>
+            <!--EN--><span class="text-xs text-[var(--muted)]">Away · friendly</span>
+          </div>
+          <div class="mt-2 text-xs"><span class="text-[var(--ffk-blue)] font-mono font-medium">87'</span> <!--EN--><span class="text-[var(--muted)]">minutes</span></div>
+        </div>
+        <div class="bg-white border border-[var(--border)] p-3">
+          <div class="text-xs text-[var(--muted)] font-mono">26 Mar 2026</div>
+          <div class="font-medium text-sm mt-1"><!--EN-->vs Romania</div>
+          <div class="flex items-baseline gap-2 mt-1">
+            <span class="font-serif text-xl">1-1</span>
+            <!--EN--><span class="text-xs text-[var(--muted)]">Home · friendly</span>
+          </div>
+          <div class="mt-2 text-xs"><span class="text-[var(--ffk-blue)] font-mono font-medium">90'</span> <!--EN--><span class="text-[var(--muted)]">minutes · 1g</span></div>
+        </div>
+        <div class="bg-white border border-[var(--border)] p-3">
+          <div class="text-xs text-[var(--muted)] font-mono">17 Nën 2025</div>
+          <div class="font-medium text-sm mt-1"><!--EN-->vs Sweden</div>
+          <div class="flex items-baseline gap-2 mt-1">
+            <span class="font-serif text-xl">1-2</span>
+            <!--EN--><span class="text-xs text-[var(--muted)]">Away · NL group</span>
+          </div>
+          <div class="mt-2 text-xs"><span class="text-[var(--ffk-blue)] font-mono font-medium">82'</span> <!--EN--><span class="text-[var(--muted)]">minutes</span></div>
+        </div>
+        <div class="bg-white border border-[var(--border)] p-3">
+          <div class="text-xs text-[var(--muted)] font-mono">14 Nën 2025</div>
+          <div class="font-medium text-sm mt-1"><!--EN-->vs Switzerland</div>
+          <div class="flex items-baseline gap-2 mt-1">
+            <span class="font-serif text-xl">2-2</span>
+            <!--EN--><span class="text-xs text-[var(--muted)]">Home · NL group</span>
+          </div>
+          <div class="mt-2 text-xs"><span class="text-[var(--ffk-blue)] font-mono font-medium">90'</span> <!--EN--><span class="text-[var(--muted)]">minutes · 2g</span></div>
+        </div>
+        <div class="bg-white border border-[var(--border)] p-3">
+          <div class="text-xs text-[var(--muted)] font-mono">13 Tet 2025</div>
+          <div class="font-medium text-sm mt-1"><!--EN-->vs Belarus</div>
+          <div class="flex items-baseline gap-2 mt-1">
+            <span class="font-serif text-xl">3-0</span>
+            <!--EN--><span class="text-xs text-[var(--muted)]">Home · NL group</span>
+          </div>
+          <div class="mt-2 text-xs"><span class="text-[var(--ffk-blue)] font-mono font-medium">79'</span> <!--EN--><span class="text-[var(--muted)]">minutes · 1g 1a</span></div>
+        </div>
+        <div class="bg-white border border-[var(--border)] p-3">
+          <div class="text-xs text-[var(--muted)] font-mono">10 Tet 2025</div>
+          <div class="font-medium text-sm mt-1"><!--EN-->vs Iceland</div>
+          <div class="flex items-baseline gap-2 mt-1">
+            <span class="font-serif text-xl">1-1</span>
+            <!--EN--><span class="text-xs text-[var(--muted)]">Away · NL group</span>
+          </div>
+          <div class="mt-2 text-xs"><span class="text-[var(--ffk-blue)] font-mono font-medium">90'</span> <!--EN--><span class="text-[var(--muted)]">minutes · 1g</span></div>
+        </div>
+      </div>
+    </div>
+
+    
+    <!-- Squad competition / readiness comparison -->
+    <div class="bg-white border border-[var(--border)] p-6 mb-6">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <!--EN--><div class="eyebrow">Comparison · #9 position</div>
+          <!--EN--><div class="text-[12px] text-[var(--muted)] mt-0.5">Senior squad strikers · sorted by readiness index</div>
+        </div>
+        <!--EN--><div class="text-[11px] text-[var(--muted)] font-mono">Last 12 months</div>
+      </div>
+      
+      <table class="ffk-table">
+        <thead>
+          <tr>
+            <!--EN--><th class="pl-3">Player</th>
+            <!--EN--><th>Age</th>
+            <!--EN--><th>Club</th>
+            <!--EN--><th>Minutes · 12m</th>
+            <!--EN--><th>G · A</th>
+            <!--EN--><th>Rating</th>
+            <!--EN--><th>Readiness index</th>
+          </tr>
+        </thead>
+        <tbody>
+        <tr class="border-b border-[var(--border)] row-hover" style="background:rgba(27,58,138,0.04)">
+          <td class="py-3 pl-3 pr-3" style="color:var(--ffk-blue); font-weight:600"><span class="inline-block w-1 h-4 align-middle mr-2" style="background:var(--ffk-blue)"></span>Vedat Muriqi</td>
+          <td class="py-3 pr-3 text-sm text-[var(--muted)]"><!--EN-->31</td>
+          <td class="py-3 pr-3 text-sm">RCD Mallorca<div class="text-xs text-[var(--muted)]">La Liga · ESP</div></td>
+          <td class="py-3 pr-3 text-sm font-mono">2 312'</td>
+          <td class="py-3 pr-3 text-sm font-mono">14<span class="text-[var(--muted)]"> · 4</span></td>
+          <td class="py-3 pr-3 text-sm font-mono" style="color:#15803d">7.2</td>
+          <td class="py-3 pr-3">
+            <div class="flex items-center gap-2">
+              <div class="prob-bar w-24"><div class="prob-bar-fill" style="width:84%; background:#15803d"></div></div>
+              <span class="font-mono font-medium text-sm" style="color:#15803d">84</span>
+            </div>
+          </td>
+        </tr>
+        <tr class="border-b border-[var(--border)] row-hover">
+          <td class="py-3 pl-3 pr-3"><span class="inline-block w-1 h-4 align-middle mr-2"></span>Veldin Hodža</td>
+          <td class="py-3 pr-3 text-sm text-[var(--muted)]"><!--EN-->26</td>
+          <td class="py-3 pr-3 text-sm">Sturm Graz<div class="text-xs text-[var(--muted)]">Bundesliga · AUT</div></td>
+          <td class="py-3 pr-3 text-sm font-mono">2 104'</td>
+          <td class="py-3 pr-3 text-sm font-mono">11<span class="text-[var(--muted)]"> · 5</span></td>
+          <td class="py-3 pr-3 text-sm font-mono" style="color:#15803d">7.3</td>
+          <td class="py-3 pr-3">
+            <div class="flex items-center gap-2">
+              <div class="prob-bar w-24"><div class="prob-bar-fill" style="width:78%; background:#15803d"></div></div>
+              <span class="font-mono font-medium text-sm" style="color:#15803d">78</span>
+            </div>
+          </td>
+        </tr>
+        <tr class="border-b border-[var(--border)] row-hover">
+          <td class="py-3 pl-3 pr-3"><span class="inline-block w-1 h-4 align-middle mr-2"></span>Atdhe Nuhiu</td>
+          <td class="py-3 pr-3 text-sm text-[var(--muted)]"><!--EN-->36</td>
+          <td class="py-3 pr-3 text-sm">Hannover 96<div class="text-xs text-[var(--muted)]">2. Bundesliga · GER</div></td>
+          <td class="py-3 pr-3 text-sm font-mono">1 654'</td>
+          <td class="py-3 pr-3 text-sm font-mono">8<span class="text-[var(--muted)]"> · 2</span></td>
+          <td class="py-3 pr-3 text-sm font-mono" style="color:#a16207">6.9</td>
+          <td class="py-3 pr-3">
+            <div class="flex items-center gap-2">
+              <div class="prob-bar w-24"><div class="prob-bar-fill" style="width:68%; background:#a16207"></div></div>
+              <span class="font-mono font-medium text-sm" style="color:#a16207">68</span>
+            </div>
+          </td>
+        </tr>
+        <tr class="border-b border-[var(--border)] row-hover">
+          <td class="py-3 pl-3 pr-3"><span class="inline-block w-1 h-4 align-middle mr-2"></span>Albion Rrahmani</td>
+          <td class="py-3 pr-3 text-sm text-[var(--muted)]"><!--EN-->25</td>
+          <td class="py-3 pr-3 text-sm">Rapid București<div class="text-xs text-[var(--muted)]">SuperLiga · ROM</div></td>
+          <td class="py-3 pr-3 text-sm font-mono">1 928'</td>
+          <td class="py-3 pr-3 text-sm font-mono">12<span class="text-[var(--muted)]"> · 3</span></td>
+          <td class="py-3 pr-3 text-sm font-mono" style="color:#a16207">7.0</td>
+          <td class="py-3 pr-3">
+            <div class="flex items-center gap-2">
+              <div class="prob-bar w-24"><div class="prob-bar-fill" style="width:74%; background:#a16207"></div></div>
+              <span class="font-mono font-medium text-sm" style="color:#a16207">74</span>
+            </div>
+          </td>
+        </tr>
+        <tr class="border-b border-[var(--border)] row-hover">
+          <td class="py-3 pl-3 pr-3"><span class="inline-block w-1 h-4 align-middle mr-2"></span>Edon Maxhuni</td>
+          <td class="py-3 pr-3 text-sm text-[var(--muted)]"><!--EN-->26</td>
+          <td class="py-3 pr-3 text-sm">FC Drita<div class="text-xs text-[var(--muted)]">Superliga · KOS</div></td>
+          <td class="py-3 pr-3 text-sm font-mono">1 480'</td>
+          <td class="py-3 pr-3 text-sm font-mono">9<span class="text-[var(--muted)]"> · 2</span></td>
+          <td class="py-3 pr-3 text-sm font-mono" style="color:#a16207">6.8</td>
+          <td class="py-3 pr-3">
+            <div class="flex items-center gap-2">
+              <div class="prob-bar w-24"><div class="prob-bar-fill" style="width:62%; background:#a16207"></div></div>
+              <span class="font-mono font-medium text-sm" style="color:#a16207">62</span>
+            </div>
+          </td>
+        </tr>
+        <tr class="border-b border-[var(--border)] row-hover">
+          <td class="py-3 pl-3 pr-3"><span class="inline-block w-1 h-4 align-middle mr-2"></span>Liridon Krasniqi</td>
+          <td class="py-3 pr-3 text-sm text-[var(--muted)]"><!--EN-->32</td>
+          <td class="py-3 pr-3 text-sm">FC Ballkani<div class="text-xs text-[var(--muted)]">Superliga · KOS</div></td>
+          <td class="py-3 pr-3 text-sm font-mono">1 098'</td>
+          <td class="py-3 pr-3 text-sm font-mono">6<span class="text-[var(--muted)]"> · 1</span></td>
+          <td class="py-3 pr-3 text-sm font-mono" style="color:#9f1239">6.6</td>
+          <td class="py-3 pr-3">
+            <div class="flex items-center gap-2">
+              <div class="prob-bar w-24"><div class="prob-bar-fill" style="width:54%; background:#9f1239"></div></div>
+              <span class="font-mono font-medium text-sm" style="color:#9f1239">54</span>
+            </div>
+          </td>
+        </tr></tbody>
+      </table>
+      <div class="mt-4 pt-4 border-t border-[var(--border)] flex items-start gap-3 text-[11px] text-[var(--muted)]">
+        <i data-lucide="info" class="w-3.5 h-3.5 mt-0.5 flex-shrink-0"></i>
+        <!--EN--><div>The readiness index (0–100) blends minutes, rating, recent form and injury status. Refreshed weekly.</div>
+      </div>
+    </div>
+
+    <!-- Career timeline (slim, at bottom) -->
+    <div class="bg-white border border-[var(--border)] p-6 mb-6">
+      <div class="flex items-center justify-between mb-5">
+        <!--EN--><div class="eyebrow">Career trajectory · 2014–2026</div>
+        <!--EN--><div class="text-[11px] text-[var(--muted)] font-mono">8 stops</div>
+      </div>
+      <div class="flex items-stretch gap-1 relative">
+        <div class="flex flex-col items-center text-center" style="flex:1;min-width:0">
+          <div class="text-xs font-mono text-[var(--muted)] mb-1">2014</div>
+          <div class="w-3 h-3 rounded-full" style="background:#9ca3af"></div>
+          <div class="w-px flex-1 bg-[var(--border)] my-1" style="min-height:20px"></div>
+          <!--EN--><div class="text-xs font-medium leading-tight px-1">Lokomotiva Vushtrri</div>
+        </div>
+        <div class="flex flex-col items-center text-center" style="flex:1;min-width:0">
+          <div class="text-xs font-mono text-[var(--muted)] mb-1">2015</div>
+          <div class="w-3 h-3 rounded-full" style="background:#9ca3af"></div>
+          <div class="w-px flex-1 bg-[var(--border)] my-1" style="min-height:20px"></div>
+          <!--EN--><div class="text-xs font-medium leading-tight px-1">KF Liria</div>
+        </div>
+        <div class="flex flex-col items-center text-center" style="flex:1;min-width:0">
+          <div class="text-xs font-mono text-[var(--muted)] mb-1">2015</div>
+          <div class="w-3 h-3 rounded-full" style="background:#1a1a1a"></div>
+          <div class="w-px flex-1 bg-[var(--border)] my-1" style="min-height:20px"></div>
+          <!--EN--><div class="text-xs font-medium leading-tight px-1">Vllaznia Shkodër</div>
+        </div>
+        <div class="flex flex-col items-center text-center" style="flex:1;min-width:0">
+          <div class="text-xs font-mono text-[var(--muted)] mb-1">2016</div>
+          <div class="w-3 h-3 rounded-full" style="background:#1a1a1a"></div>
+          <div class="w-px flex-1 bg-[var(--border)] my-1" style="min-height:20px"></div>
+          <!--EN--><div class="text-xs font-medium leading-tight px-1">Giresunspor</div>
+        </div>
+        <div class="flex flex-col items-center text-center" style="flex:1;min-width:0">
+          <div class="text-xs font-mono text-[var(--muted)] mb-1">2017</div>
+          <div class="w-3 h-3 rounded-full" style="background:#1a1a1a"></div>
+          <div class="w-px flex-1 bg-[var(--border)] my-1" style="min-height:20px"></div>
+          <!--EN--><div class="text-xs font-medium leading-tight px-1">Çaykur Rizespor</div>
+        </div>
+        <div class="flex flex-col items-center text-center" style="flex:1;min-width:0">
+          <div class="text-xs font-mono text-[var(--muted)] mb-1">2019</div>
+          <div class="w-3 h-3 rounded-full" style="background:#1a1a1a"></div>
+          <div class="w-px flex-1 bg-[var(--border)] my-1" style="min-height:20px"></div>
+          <!--EN--><div class="text-xs font-medium leading-tight px-1">Fenerbahçe</div>
+        </div>
+        <div class="flex flex-col items-center text-center" style="flex:1;min-width:0">
+          <div class="text-xs font-mono text-[var(--muted)] mb-1">2021</div>
+          <div class="w-3 h-3 rounded-full" style="background:#b08440"></div>
+          <div class="w-px flex-1 bg-[var(--border)] my-1" style="min-height:20px"></div>
+          <!--EN--><div class="text-xs font-medium leading-tight px-1">Lazio (loan)</div>
+        </div>
+        <div class="flex flex-col items-center text-center" style="flex:1;min-width:0">
+          <div class="text-xs font-mono text-[var(--muted)] mb-1">2022</div>
+          <div class="w-3 h-3 rounded-full" style="background:var(--ffk-blue)"></div>
+          <div class="w-px flex-1 bg-[var(--border)] my-1" style="min-height:20px"></div>
+          <!--EN--><div class="text-xs font-medium leading-tight px-1">RCD Mallorca</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer note -->
+    <div class="text-center mt-10 pt-10 border-t border-[var(--border)]">
+      <!--EN--><div class="font-serif text-2xl italic text-[var(--muted)]">"One player. One source of truth. 52 times."</div>
+      <!--EN--><div class="text-[12px] text-[var(--muted)] mt-2">— Every national team player has a page like this, refreshed weekly.</div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== FOOTER =================== -->
+<footer class="border-t-2 border-[var(--ffk-blue)] mt-0">
+  <div class="container-max px-8 py-10 flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <img src="ffk-crest.svg" alt="FFK" class="h-12 w-auto">
+      <div>
+        <!--EN--><div class="text-[10px] tracking-[0.16em] font-semibold">FOOTBALL FEDERATION OF KOSOVO</div>
+        <!--EN--><div class="text-[11px] text-[var(--muted)]">Intelligence Platform · v0.1 · May 2026</div>
+      </div>
+    </div>
+    <div class="text-center">
+      <!--EN--><a href="mailto:aurel@twentyfirstgroup.com
+      .com" class="font-serif text-2xl hover:text-[var(--ffk-blue)]">Continue the conversation →</a>
+      <div class="text-[11px] text-[var(--muted)] mt-1 italic">aurel@twentyfirstgroup.com</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Lucide icons
+lucide.createIcons();
+
+// Hero fade-in
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('hero-text').classList.add('visible');
+    document.getElementById('hero-crest').classList.add('visible');
+  }, 60);
+});
+
+// Atlas position filter
+document.querySelectorAll('.filter-pill').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const p = btn.dataset.pos;
+    let count = 0;
+    document.querySelectorAll('#atlas-grid .atlas-card').forEach(c => {
+      const show = (p === 'all' || c.dataset.pos === p);
+      c.style.display = show ? '' : 'none';
+      if (show) count++;
+    });
+    document.getElementById('atlas-count').textContent = count;
+  });
+});
+
+// Atlas map: render Europe via d3 + topojson (world-atlas)
+const FFK_CITIES = [
+  {name:"Prishtina", lon:21.16, lat:42.67, count:8},
+  {name:"Tirana", lon:19.82, lat:41.33, count:3},
+  {name:"Skopje", lon:21.43, lat:41.99, count:2},
+  {name:"Zurich", lon:8.55, lat:47.38, count:4},
+  {name:"Bern", lon:7.45, lat:46.95, count:2},
+  {name:"Lugano", lon:8.95, lat:46.00, count:1},
+  {name:"Sion", lon:7.36, lat:46.23, count:1},
+  {name:"Vienna", lon:16.37, lat:48.21, count:2},
+  {name:"Graz", lon:15.44, lat:47.07, count:1},
+  {name:"Munich", lon:11.58, lat:48.14, count:2},
+  {name:"Hannover", lon:9.74, lat:52.37, count:1},
+  {name:"Frankfurt", lon:8.68, lat:50.11, count:2},
+  {name:"Stokholm", lon:18.07, lat:59.33, count:1},
+  {name:"Bruksel", lon:4.35, lat:50.85, count:2},
+  {name:"Lille", lon:3.06, lat:50.63, count:1},
+  {name:"London", lon:-0.13, lat:51.51, count:2},
+  {name:"Palma", lon:2.65, lat:39.57, count:1},
+  {name:"Napoli", lon:14.27, lat:40.85, count:1},
+  {name:"Torino", lon:7.69, lat:45.07, count:1},
+  {name:"Lecce", lon:18.17, lat:40.35, count:1},
+  {name:"Stamboll", lon:28.98, lat:41.01, count:2},
+  {name:"Konya", lon:32.50, lat:37.87, count:1},
+  {name:"Kraków", lon:19.94, lat:50.06, count:1},
+  {name:"Gdańsk", lon:18.65, lat:54.35, count:1},
+  {name:"Sofia", lon:23.32, lat:42.70, count:1},
+  {name:"Bucharest", lon:26.10, lat:44.43, count:1},
+  {name:"Bratislava", lon:17.65, lat:48.30, count:1},
+  {name:"Moscow", lon:37.62, lat:55.75, count:1},
+];
+
+const KOSOVO_HIGHLIGHT = new Set(['Kosovo','Republic of Kosovo']);
+const ALBANIA_SECONDARY = new Set(['Albania']);
+const NMK_HIGHLIGHT = new Set(['North Macedonia','Macedonia','The former Yugoslav Republic of Macedonia']);
+
+fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
+  .then(r => r.json())
+  .then(world => {
+    const countries = topojson.feature(world, world.objects.countries);
+    const projection = d3.geoMercator()
+      .center([16, 53])
+      .scale(720)
+      .translate([400, 270]);
+    const path = d3.geoPath(projection);
+
+    const cg = document.getElementById('eu-countries');
+    countries.features.forEach(f => {
+      const dStr = path(f);
+      if (!dStr) return;
+      const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      p.setAttribute('d', dStr);
+      let cls = 'map-country';
+      const n = f.properties.name;
+      if (KOSOVO_HIGHLIGHT.has(n)) cls += ' albania';
+      else if (ALBANIA_SECONDARY.has(n)) cls += ' kosovo';
+      else if (NMK_HIGHLIGHT.has(n)) cls += ' macedonia';
+      p.setAttribute('class', cls);
+      cg.appendChild(p);
+    });
+
+    const cityG = document.getElementById('eu-cities');
+    const tooltip = document.getElementById('map-tooltip');
+    const mapWrap = document.getElementById('atlas-map-wrap');
+    let pinnedCity = null; // tap-to-pin state for touch devices
+    function showTooltip(c, x, y) {
+      tooltip.innerHTML = `<strong>${c.name}</strong> · ${c.count} player${c.count === 1 ? '' : 's'}`;
+      tooltip.style.left = x + 'px';
+      tooltip.style.top = y + 'px';
+      tooltip.classList.add('visible');
+    }
+    function hideTooltip() { tooltip.classList.remove('visible'); }
+    FFK_CITIES.forEach(c => {
+      const xy = projection([c.lon, c.lat]);
+      if (!xy) return;
+      const [x, y] = xy;
+      const r = +(3 + Math.pow(c.count, 0.55) * 1.4).toFixed(1);
+      const grp = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      grp.setAttribute('class', 'city-marker');
+      grp.style.cursor = 'pointer';
+      const halo = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      halo.setAttribute('cx', x); halo.setAttribute('cy', y); halo.setAttribute('r', r + 2);
+      halo.setAttribute('class', 'map-dot-halo');
+      const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      dot.setAttribute('cx', x); dot.setAttribute('cy', y); dot.setAttribute('r', r);
+      dot.setAttribute('class', 'map-dot');
+      grp.appendChild(halo); grp.appendChild(dot);
+      // Mouse hover (desktop) — transient when nothing is pinned
+      grp.addEventListener('mouseenter', (e) => {
+        if (pinnedCity) return;
+        const rect = mapWrap.getBoundingClientRect();
+        showTooltip(c, e.clientX - rect.left, e.clientY - rect.top);
+      });
+      grp.addEventListener('mousemove', (e) => {
+        if (pinnedCity) return;
+        const rect = mapWrap.getBoundingClientRect();
+        tooltip.style.left = (e.clientX - rect.left) + 'px';
+        tooltip.style.top = (e.clientY - rect.top) + 'px';
+      });
+      grp.addEventListener('mouseleave', () => {
+        if (pinnedCity) return;
+        hideTooltip();
+      });
+      // Tap / click — pin tooltip (works on touch and mouse)
+      grp.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (pinnedCity === c.name) {
+          pinnedCity = null;
+          hideTooltip();
+          return;
+        }
+        pinnedCity = c.name;
+        const wrapRect = mapWrap.getBoundingClientRect();
+        const markerRect = grp.getBoundingClientRect();
+        const cx = markerRect.left + markerRect.width / 2 - wrapRect.left;
+        const cy = markerRect.top + markerRect.height / 2 - wrapRect.top;
+        showTooltip(c, cx, cy);
+      });
+      cityG.appendChild(grp);
+    });
+    // Tap outside any marker → unpin
+    document.addEventListener('click', () => {
+      if (pinnedCity) { pinnedCity = null; hideTooltip(); }
+    });
+  })
+  .catch(err => console.error('Map load failed', err));
+
+// Smooth scroll: clicking the featured player row scrolls to profile
+document.querySelectorAll('[data-broja]').forEach(el => {
+  el.addEventListener('click', () => {
+    document.getElementById('profili').scrollIntoView({behavior:'smooth'});
+  });
+});
+
+// Smooth scroll on header nav
+document.querySelectorAll('header nav a').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) target.scrollIntoView({behavior:'smooth'});
+  });
+});
+
+</script>
+</body>
+</html>
