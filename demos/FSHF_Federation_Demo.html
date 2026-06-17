@@ -57,6 +57,13 @@ body { font-family: 'Inter', system-ui, sans-serif; font-feature-settings: 'cv11
 .row-hover { transition: background 0.15s; }
 .row-hover:hover { background: rgba(228,30,38,0.04); }
 
+/* Clickable player name → opens that player's profile */
+.profile-link { cursor: pointer; transition: color 0.15s; }
+.profile-link:hover { color: var(--fshf-red); }
+.profile-link .pl-arrow { opacity: 0.45; transition: all 0.15s; }
+.profile-link:hover .pl-arrow, tr.row-hover:hover .profile-link .pl-arrow { opacity: 1; transform: translate(1px, -1px); }
+tr.row-hover:hover .profile-link { color: var(--fshf-red); }
+
 .spark-bar { fill: #d1d5db; }
 .spark-bar-active { fill: var(--fshf-red); }
 
@@ -96,6 +103,10 @@ body { font-family: 'Inter', system-ui, sans-serif; font-feature-settings: 'cv11
 .city-marker:hover .map-dot { fill: var(--fshf-red-dark); }
 .map-dot-halo { fill: var(--fshf-red); fill-opacity: 0.18; pointer-events: none; }
 .city-marker:hover .map-dot-halo { fill-opacity: 0.32; }
+/* Prospects layer renders in slate grey to distinguish from current internationals */
+#eu-cities.layer-prospects .map-dot { fill: #6b7280; }
+#eu-cities.layer-prospects .city-marker:hover .map-dot { fill: #4b5563; }
+#eu-cities.layer-prospects .map-dot-halo { fill: #6b7280; }
 .map-tooltip {
   position: absolute; pointer-events: none; background: var(--charcoal); color: white;
   font-size: 11px; padding: 6px 10px; border-radius: 4px; transform: translate(-50%, -130%);
@@ -109,8 +120,6 @@ table.fshf-table { width: 100%; border-collapse: collapse; }
 table.fshf-table thead th { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); text-align: left; padding: 8px 12px 8px 4px; border-bottom: 1px solid var(--border); }
 
 .atlas-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-
-.signal-rail { background: white; border: 1px solid var(--border); }
 
 button.filter-pill {
   padding: 4px 10px; font-size: 11px; font-weight: 500; letter-spacing: 0.04em;
@@ -136,6 +145,107 @@ button.filter-pill.active { background: var(--fshf-red); color: white; border-co
   position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
   font-size: 11px; letter-spacing: 0.16em; color: var(--muted); text-transform: uppercase;
 }
+button.scroll-hint { background: none; border: none; cursor: pointer; transition: color 0.15s; }
+button.scroll-hint:hover { color: var(--fshf-red); }
+
+/* ---- Tab navigation (dark band) ---- */
+.nav-band { background: var(--charcoal); }
+.nav-tab {
+  position: relative; display: flex; align-items: center; gap: 9px;
+  padding: 11px 16px; background: none; border: none; cursor: pointer;
+  white-space: nowrap; transition: background 0.15s;
+}
+.nav-tab:hover { background: rgba(255,255,255,0.06); }
+.nav-tab.active { background: rgba(255,255,255,0.09); }
+.nav-tab.active::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--fshf-red); }
+.nav-tab .tab-num { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 500; color: #6f6a61; display: inline-flex; align-items: center; transition: color 0.15s; }
+.nav-tab:hover .tab-num { color: #cfcabf; }
+.nav-tab.active .tab-num { color: var(--fshf-red); }
+.nav-tab .tab-text { display: flex; flex-direction: column; line-height: 1.05; text-align: left; }
+.nav-tab .tab-name { font-size: 13px; font-weight: 600; color: #a7a299; transition: color 0.15s; }
+.nav-tab:hover .tab-name { color: #ffffff; }
+.nav-tab.active .tab-name { color: #ffffff; }
+.nav-tab .tab-en { font-size: 10px; color: #79746b; font-style: italic; font-weight: 400; margin-top: 1px; }
+#tab-bar { scrollbar-width: none; }
+#tab-bar::-webkit-scrollbar { display: none; }
+
+/* ---- Save as PDF button (on dark band) ---- */
+.save-pdf-btn {
+  display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0;
+  padding: 6px 14px; font-size: 12px; font-weight: 600; letter-spacing: 0.02em;
+  color: #e8e5de; background: transparent; border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 999px; cursor: pointer; transition: all 0.15s; white-space: nowrap;
+}
+.save-pdf-btn:hover { border-color: rgba(255,255,255,0.5); color: #ffffff; background: rgba(255,255,255,0.06); }
+
+/* ---- Squad Planner: pitch + depth chart ---- */
+.formation-toggle { display:inline-flex; border:1px solid var(--border); border-radius:999px; overflow:hidden; background:white; }
+.formation-toggle button { padding:7px 14px; font-size:12px; font-weight:600; font-family:'JetBrains Mono',monospace; color:var(--muted); background:none; border:none; cursor:pointer; transition:all .15s; }
+.formation-toggle button:not(:last-child) { border-right:1px solid var(--border); }
+.formation-toggle button.active { background:var(--charcoal); color:white; }
+
+.team-switcher { display:inline-flex; flex-wrap:wrap; gap:6px; }
+.team-switcher button { padding:8px 16px; font-size:13px; font-weight:600; border:1px solid var(--border); border-radius:999px; background:white; color:var(--muted); cursor:pointer; transition:all .15s; white-space:nowrap; }
+.team-switcher button:hover { border-color:var(--charcoal); color:var(--charcoal); }
+.team-switcher button.active { background:var(--fshf-red); color:white; border-color:var(--fshf-red); }
+
+.pitch-wrap { position:relative; width:100%; max-width:420px; margin:0 auto; aspect-ratio:3/4; border-radius:6px; overflow:hidden; border:1px solid var(--border);
+  background:
+    repeating-linear-gradient(180deg, rgba(255,255,255,0.035) 0 12.5%, rgba(0,0,0,0.02) 12.5% 25%),
+    linear-gradient(160deg, #4f7d5e, #3c6147); }
+.pitch-lines { position:absolute; inset:0; width:100%; height:100%; }
+#pitch-slots { position:absolute; inset:0; }
+.pslot { position:absolute; transform:translate(-50%,-50%); width:74px; padding:5px 5px 6px; border:none; border-radius:8px; cursor:pointer;
+  background:rgba(255,255,255,0.97); box-shadow:0 2px 6px rgba(0,0,0,0.22); text-align:center; transition:box-shadow .12s, transform .12s; }
+.pslot:hover { box-shadow:0 5px 14px rgba(0,0,0,0.32); transform:translate(-50%,-50%) scale(1.05); z-index:3; }
+.pslot.selected { outline:2px solid var(--fshf-red); outline-offset:1px; z-index:4; }
+.pslot-pos { display:block; font-size:9px; font-weight:700; letter-spacing:.08em; color:var(--fshf-red); text-transform:uppercase; }
+.pslot-starter { display:block; font-size:11px; font-weight:600; color:var(--ink); line-height:1.15; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.pslot-backup { display:block; font-size:9.5px; color:var(--muted); line-height:1.25; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.pslot-backup.youth { color:var(--gold); font-weight:600; }
+.pslot-empty { color:#c0392b; font-style:italic; }
+.pslot-gapdot { position:absolute; top:-4px; right:-4px; width:11px; height:11px; border-radius:999px; background:var(--gold); border:2px solid white; }
+.leg-dot { width:9px; height:9px; border-radius:999px; display:inline-block; }
+.leg-chip, .u21-chip { font-size:8px; font-weight:700; color:white; background:var(--gold); border-radius:3px; padding:1px 4px; letter-spacing:.04em; }
+.u21-chip { display:inline-block; vertical-align:middle; }
+
+.depth-row { display:flex; align-items:center; gap:10px; padding:8px 2px; border-bottom:1px solid var(--border); }
+.depth-row:last-child { border-bottom:none; }
+.depth-actions button { font-size:10px; font-weight:600; border:1px solid var(--border); background:white; border-radius:999px; padding:3px 9px; cursor:pointer; transition:all .15s; color:var(--charcoal); }
+.depth-actions button:hover { border-color:var(--charcoal); }
+.depth-actions button.is-start { background:var(--fshf-red); color:white; border-color:var(--fshf-red); }
+.depth-actions button.is-back { background:#6b7280; color:white; border-color:#6b7280; }
+
+@media (max-width: 639px) {
+  .pslot { width:62px; padding:4px; }
+  .pslot-starter { font-size:10px; }
+}
+
+/* ---- Print / Save as PDF: export only the active section, drop the chrome ---- */
+@media print {
+  @page { margin: 12mm; }
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  header, .scroll-hint, #save-pdf-btn { display: none !important; }
+  html, body { background: #ffffff !important; }
+  [data-section].section-hidden { display: none !important; }
+  [data-section] { animation: none !important; }
+  #ballina { min-height: 0 !important; }
+  .section-pad { padding: 0.5rem 0 1.5rem !important; }
+}
+
+/* ---- Section switching ---- */
+[data-section].section-hidden { display: none !important; }
+[data-section].section-anim { animation: sectionIn 0.5s cubic-bezier(0.2,0.8,0.2,1); }
+@keyframes sectionIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+/* ---- Map layer toggle ---- */
+.map-layer-toggle { display: inline-flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; background: white; }
+.map-layer-toggle button {
+  padding: 6px 14px; font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
+  color: var(--muted); background: none; border: none; cursor: pointer; transition: all 0.15s; white-space: nowrap;
+}
+.map-layer-toggle button:not(:last-child) { border-right: 1px solid var(--border); }
+.map-layer-toggle button.active { background: var(--fshf-red); color: white; }
 
 
 /* ============================================================
@@ -166,8 +276,11 @@ button.filter-pill.active { background: var(--fshf-red); color: white; border-co
 
   /* Header */
   header > .container-max { padding-left: 1rem; padding-right: 1rem; }
-  header nav { display: none !important; }
   header .font-mono.flex { display: none !important; }
+  header .container-max.px-8 { padding-left: 0.5rem; padding-right: 0.5rem; }
+  .nav-tab { padding: 8px 11px; gap: 7px; }
+  .nav-tab .tab-en { display: none; }
+  .nav-tab .tab-name { font-size: 12px; }
 
   /* Section openers wrap */
   .section-pad > .container-max > .flex.items-end.justify-between {
@@ -219,12 +332,6 @@ button.filter-pill.active { background: var(--fshf-red); color: white; border-co
 
   /* Tier chips wrap */
   .tier-chip-row { flex-wrap: wrap; gap: 0.5rem !important; }
-
-  /* Signal rail padding */
-  .signal-rail { padding: 1.25rem !important; }
-
-  /* Diaspora hero card silhouette */
-  div.col-span-3 svg[width="180"] { width: 120px; height: 150px; }
 }
 
 /* Tablet: keep some 2-up density */
@@ -240,6 +347,8 @@ button.filter-pill.active { background: var(--fshf-red); color: white; border-co
   .section-pad { padding: 2.25rem 0.875rem; }
   .intro-stat { font-size: 36px !important; }
   .section-title { font-size: 26px !important; }
+  .save-pdf-btn span { display: none; }
+  .save-pdf-btn { padding: 6px 9px; }
 
   .grid.grid-cols-6.gap-3 { grid-template-columns: 1fr 1fr !important; }
   .grid.grid-cols-4.gap-2 { grid-template-columns: 1fr 1fr !important; }
@@ -266,19 +375,27 @@ button.filter-pill.active { background: var(--fshf-red); color: white; border-co
         <!--ALB--><div class="text-[11px] text-[var(--muted)] -mt-0.5">Platforma e Inteligjencës</div>
       </div>
     </div>
-    <nav class="flex items-center gap-8 text-[12px] font-medium text-[var(--charcoal)]">
-      <a href="#pasqyra" class="hover:text-[var(--fshf-red)]"><!--ALB-->Pasqyra</a>
-      <a href="#diaspora" class="hover:text-[var(--fshf-red)]"><!--ALB-->Diaspora</a>
-      <a href="#kabina" class="hover:text-[var(--fshf-red)]"><!--ALB-->Kabina</a>
-      <a href="#atlasi" class="hover:text-[var(--fshf-red)]"><!--ALB-->Atlasi</a>
-      <a href="#profili" class="hover:text-[var(--fshf-red)]"><!--ALB-->Profili</a>
-    </nav>
-    <div class="text-[11px] text-[var(--muted)] font-mono flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500" style="box-shadow: 0 0 0 3px rgba(16,185,129,0.18)"></span><!--ALB--><span>Përditësuar 6 maj · 14:32</span></div>
+    <div class="text-[11px] text-[var(--muted)] font-mono flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500" style="box-shadow: 0 0 0 3px rgba(16,185,129,0.18)"></span><!--ALB--><span id="live-updated">Përditësuar 6 maj · 14:32</span></div>
+  </div>
+  <!-- =================== TAB BAR (section switcher) =================== -->
+  <div class="nav-band">
+    <div class="container-max px-8 flex items-center justify-between gap-3">
+      <nav id="tab-bar" class="flex items-stretch overflow-x-auto" role="tablist" aria-label="Seksionet">
+        <button class="nav-tab active" data-tab="ballina" role="tab"><span class="tab-num"><i data-lucide="home" class="w-3.5 h-3.5"></i></span><span class="tab-text"><!--ALB--><span class="tab-name">Ballina</span><span class="tab-en">Home</span></span></button>
+        <button class="nav-tab" data-tab="pasqyra" role="tab"><span class="tab-num">01</span><span class="tab-text"><!--ALB--><span class="tab-name">Pasqyra</span><span class="tab-en">Dashboard</span></span></button>
+        <button class="nav-tab" data-tab="atlasi" role="tab"><span class="tab-num">02</span><span class="tab-text"><!--ALB--><span class="tab-name">Atlasi</span><span class="tab-en">Atlas</span></span></button>
+        <button class="nav-tab" data-tab="kabina" role="tab"><span class="tab-num">03</span><span class="tab-text"><!--ALB--><span class="tab-name">Kabina</span><span class="tab-en">Cockpit</span></span></button>
+        <button class="nav-tab" data-tab="profili" role="tab"><span class="tab-num">04</span><span class="tab-text"><!--ALB--><span class="tab-name">Profili</span><span class="tab-en">Profile</span></span></button>
+      </nav>
+      <button id="save-pdf-btn" class="save-pdf-btn" title="Ruaj këtë faqe si PDF">
+        <i data-lucide="download" class="w-3.5 h-3.5"></i><!--ALB--><span>Ruaj si PDF</span>
+      </button>
+    </div>
   </div>
 </header>
 
 <!-- =================== SECTION 1: HERO / INTRO =================== -->
-<section class="relative" style="min-height: calc(100vh - 64px); display:flex; align-items:center;">
+<section id="ballina" data-section class="relative" style="min-height: calc(100vh - 64px); display:flex; align-items:center;">
   <div class="container-max grid grid-cols-12 gap-8 section-pad w-full">
     <div class="col-span-7 fade-up" id="hero-text">
       <div class="flex items-center gap-3 mb-12">
@@ -303,11 +420,11 @@ button.filter-pill.active { background: var(--fshf-red); color: white; border-co
       <div style="width:300px; opacity:1;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 316.55933 432.07089"><g transform="translate(-121.72034,-259.18389)"><path style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none" d="m 438.27966,513.38075 c 0,128.51575 -158.31477,177.87402 -158.31477,177.87402 0,0 -158.24455,-49.35827 -158.24455,-177.87402 V 259.18389 h 316.55932 z" /><path style="fill:#e51b24;fill-opacity:1;fill-rule:nonzero;stroke:none" d="m 421.80266,508.24295 c 0,118.52363 -141.90864,164.05512 -141.90864,164.05512 0,0 -141.69685,-45.53149 -141.69685,-164.05512 V 273.88862 h 283.60549 z" /><path style="fill:#df3c78;fill-opacity:1;fill-rule:nonzero;stroke:none" d="m 340.34284,396.73507 v 0 l -0.0354,-0.0354" /><path style="fill:#220000;fill-opacity:1;fill-rule:evenodd;stroke:none" d="m 138.19717,284.802 v 0.2126 c 28.62992,31.78347 89.11418,101.40945 119.33858,135.49607 -3.22441,0.70866 -6.34252,1.52362 -9.28346,2.44488 C 212.60662,384.82956 168.95308,339.2272 138.19717,308.68389 v 1.59449 c 28.48819,31.99606 73.59449,83.83465 101.65748,115.61811 -2.12598,0.8504 -4.14567,1.77166 -6.02362,2.65748 -32.95275,-33.27165 -69.16535,-68.70472 -95.63386,-94.42913 v 2.05512 c 23.49213,27.03543 57.54331,67.92519 84.29528,99.38976 -0.24803,0.2126 -0.49607,0.4252 -0.70866,0.60236 0.24803,-0.17716 0.53149,-0.31889 0.77952,-0.49606 1.70079,2.01968 3.54331,4.1811 5.17323,6.09449 0.81496,2.76378 -2.72834,4.0748 -5.35039,1.45275 -29.05512,-29.23228 -60.05906,-59.52756 -84.18898,-83.01968 v 2.90551 c 21.79134,25.22835 50.77559,59.98819 74.94095,88.47638 0.70866,2.40945 -1.55906,3.72047 -3.89764,2.26772 -24.27165,-24.34252 -49.53543,-49.14567 -71.04331,-70.12205 v 4.85433 c 19.27559,22.57086 42.09449,49.88976 62.07874,73.48819 0.1063,0.2126 0.2126,0.38976 0.24803,0.53149 0.88583,2.69292 -2.40944,4.07481 -5.03149,2.05512 -0.17717,-0.14173 -0.3189,-0.3189 -0.49607,-0.49606 -18.35433,-18.77953 -38.01968,-38.76378 -56.79921,-57.72047 v 11.65748 c 16.61811,19.16929 33.44882,38.51575 48.64961,55.94882 0.0354,0.0354 0.0709,0.1063 0.0709,0.14173 0.28346,0.35433 0.56693,0.77953 0.74409,1.13386 1.13386,2.69291 -2.33858,5.06693 -5.20866,2.94094 -14.10236,-13.85433 -29.55118,-28.87795 -44.25591,-43.22835 v 8.11418 c 10.27559,12.22441 20.83465,24.90945 31.00394,37.09842 -0.77953,2.44489 -1.48819,4.88977 -2.12598,7.37008 -9.67323,-9.42519 -19.38189,-18.77953 -28.87796,-27.92126 v 8.85827 c 8.78741,10.80709 17.68111,21.86221 26.29134,32.42126 -0.38976,2.94095 -0.74409,5.84646 -0.95669,8.71654 -8.43307,-7.75985 -16.90158,-15.41339 -25.33465,-23.10237 v 9.17717 c 8.29134,10.52362 16.54725,21.04724 25.05118,31.32283 0.0709,2.01969 0.17717,4.00394 0.35433,5.91733 -6.62598,-7.44095 -13.14566,-14.52756 -16.58267,-17.75197 -2.94095,-2.79921 -5.88189,-5.56299 -8.82284,-8.32677 v 1.34645 c 0,3.72048 0.16518,7.33465 0.41321,10.91339 9.63779,10.87795 19.03955,21.54331 27.40175,30.75591 0.77953,3.68504 1.66536,7.05118 2.62205,10.06299 -9.85039,-9.95669 -19.39141,-19.59449 -28.67487,-29.30315 0.0709,0.53149 0.1597,1.06299 0.266,1.59449 15.51968,18.85039 35.03485,44.32677 49.59785,59.81102 17.07874,29.58662 47.94094,52.05118 83.79921,53.50394 66.6496,2.69291 104.90354,-52.51378 109.20472,-89.7874 4.34681,-37.36066 -6.05906,-67.88977 -30.22441,-88.61812 -15.34252,-13.14567 -23.88189,-19.62992 -43.65354,-26.7874 -2.01969,-2.33858 -4.07481,-4.7126 -6.12992,-6.98031 -4.25197,-4.7126 -7.97244,-8.78741 -11.55118,-12.68504 l 5.66929,-1.84252 c -2.72835,-0.46063 -5.49213,-0.77953 -8.22047,-0.9567 -27.4252,-29.83464 -36.9567,-38.30315 -72.6378,-72.85039 29.26772,32.38583 23.20866,31.0748 52.22835,63.6378 2.76378,3.08267 5.31496,6.09448 7.97244,9.14173 -2.97638,0.17716 -5.91733,0.42519 -8.82284,0.81496 C 226.46095,374.66027 171.18536,316.86893 138.19717,284.802 Z m 135.5315,135.17717 c 1.48819,0 2.97637,0.0354 4.5,0.1063 2.79921,3.22441 5.77559,6.51968 9.28346,10.13386 -0.81496,2.16141 -5.98819,1.84252 -9,0.38976 -3.04724,-3.29528 -6.41338,-6.90945 -9.67323,-10.41732 1.62992,-0.1063 3.25985,-0.17717 4.88977,-0.2126 z m -15.37796,1.45276 c 1.063,1.20472 2.44489,2.76377 3.43701,3.8622 1.34646,1.52362 2.79921,3.18898 4.21654,4.78346 0.31889,2.37402 -5.95276,3.57874 -9.2126,2.05512 -2.55118,-2.76378 -5.27953,-5.70472 -7.93701,-8.53937 3.08268,-0.88582 6.27165,-1.59449 9.49606,-2.16141 z m -18,5.03149 c 2.09056,2.37402 4.42914,4.99606 6.30709,7.12205 0.95669,2.83464 -3.61417,4.21653 -6.27165,1.55905 -1.98425,-2.01968 -4.07481,-4.0748 -6.09449,-6.12992 1.98425,-0.92126 4.00394,-1.77165 6.05905,-2.55118 z m -68.20866,57.29528 c 2.94095,3.47244 5.88189,6.98031 8.68111,10.31102 0.70866,2.26772 -0.6378,4.3937 -2.83465,3.61418 -0.56693,-0.2126 -1.27559,-0.77953 -1.66535,-1.09843 -2.12599,-2.05512 -4.25197,-4.14567 -6.37796,-6.20079 0.67323,-2.16141 1.41733,-4.2874 2.23229,-6.37795 z m -5.59842,19.80709 c 3.25984,4.00393 6.48425,7.90157 9.63779,11.69291 0.81497,2.26772 -0.46063,4.42913 -2.58661,3.82677 -2.76378,-2.58661 -5.52756,-5.17323 -8.29134,-7.75984 0.3189,-2.58662 0.7441,-5.17323 1.24016,-7.75984 z m -2.12598,24.94488 c 3.3307,4.00393 6.66141,8.07874 10.06299,12.08267 0.60236,1.09843 0.49606,1.91339 -0.4252,2.44489 -0.63779,0.38976 -1.27559,0.28346 -1.94882,-0.2126 -2.33858,-2.76378 -4.88976,-5.70473 -7.44094,-8.5748 -0.1063,-1.91339 -0.2126,-3.82678 -0.24803,-5.74016 z m 2.69291,22.64173 c 3.25984,3.57874 6.37795,7.01575 9.2126,10.06299 2.05512,2.05512 3.40157,3.50788 4.25197,4.6063 0.49606,1.09843 0.10629,1.98425 -0.70867,2.65748 -0.67322,0.56693 -1.77165,0.67323 -2.87007,-0.1063 -2.44489,-2.48031 -4.8189,-4.85433 -7.22835,-7.29921 -1.02756,-3.25984 -1.91339,-6.55512 -2.65748,-9.92126 z" /><path style="fill:#220000;fill-opacity:1;fill-rule:evenodd;stroke:none" d="m 377.51213,423.27444 c 0,0 28.80708,26.53938 41.84645,36.56693 -10.66535,-14.59842 -36.21259,-43.86614 -36.21259,-43.86614 0,0 -5.91733,-1.87795 -8.68111,-2.51575 0.7441,3.50788 3.04725,9.81496 3.04725,9.81496 m -68.42126,-6.16535 c 13.03937,14.63386 24.66142,28.06299 24.66142,28.06299 0,0 7.19291,1.94882 10.55905,2.58662 -0.92126,-3.54331 -3.72047,-9.8504 -3.72047,-9.8504 0,0 -15.62598,-10.73622 -31.5,-20.79921 m 65.40945,-4.11024 c -0.7441,-3.5433 -3.01181,-9.81496 -3.01181,-9.81496 0,0 -28.84252,-26.5748 -41.88189,-36.56693 10.66535,14.59843 36.2126,43.86615 36.2126,43.86615 0,0 5.91732,1.87795 8.6811,2.51574 m -24.30712,15.87402 c -3.22441,-2.87008 -30.47244,-26.92913 -43.15748,-36.28347 10.59449,13.9252 34.83071,40.85434 37.73622,44.04331 l 0.35434,0.35433 c 3.22441,2.83465 30.47244,26.92914 43.15748,36.24804 -10.59449,-13.88977 -34.83071,-40.8189 -37.73622,-44.04331 z m 6.23623,-19.16925 c -6.12992,-5.42126 -43.72441,-38.58662 -61.47637,-51.66142 14.70472,19.34646 47.83464,56.19685 53.64566,62.64567 l 0.95676,1.02753 c 6.12992,5.42126 43.75984,38.58661 61.47637,51.62599 -14.70472,-19.31103 -47.79921,-56.16142 -53.64567,-62.64568 z" /><path style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:none" d="m 284.35859,563.66027 c 14.35039,19.41733 28.13385,38.05512 34.83071,47.48032 -8.64567,-9.17716 -24.73229,-27.38976 -41.49213,-46.34646 1.94882,-0.31889 4.21654,-0.70866 6.66142,-1.13386 z m 17.64567,-3.40157 c 16.72441,22.64173 31.35826,42.16535 31.35826,42.16535 -0.35433,-0.17716 -17.1496,-19.09842 -36.81496,-41.06693 1.87796,-0.38976 3.82678,-0.77952 5.4567,-1.09842 z M 182.34678,539.92012 c 0.67323,0.24803 1.34646,0.53149 1.34646,0.53149 0,0 25.22834,35.39764 34.37007,50.98819 -8.00787,-7.54724 -24.05905,-25.54724 -33.16535,-35.75197 -1.24016,-5.20866 -2.12598,-10.52362 -2.55118,-15.76771 z m 19.94523,-0.75744 c 17.82283,22.74803 41.07052,50.82437 52.12563,66.37949 l -56.05511,-57.68505 z m 5.15473,-23.75149 c 18.99212,27.24803 60.29374,81.87507 75.45909,103.13491 -15.51968,-16.40551 -52.91492,-57.41492 -78.63932,-84.37948 l 3.55665,-8.56146 c 0,0 -0.3942,-7.46136 -0.37642,-10.19397 z m 143.98665,-26.86903 c 0.14173,0.0354 0.2126,0.0354 0.3189,0.0709 -0.1063,4.5 0.0709,9.17716 0.21259,13.7126 -0.31889,-0.35433 -0.60236,-0.70866 -0.92126,-1.06299 0.35434,-4.39371 0.49607,-8.64567 0.38977,-12.72048 z m -54.07087,-20.37401 c 7.29922,11.90551 31.2874,45.46063 48.75591,69.66142 2.16142,-4.46457 3.93307,-9.07087 5.35039,-13.74804 -18.07086,-19.31102 -44.29134,-47.01968 -54.1063,-55.91338 z m -11.37401,-29.44489 c 4.8189,0.0709 9.56693,0.5315 14.24409,1.38189 18.5315,3.29528 36.99213,15.16536 49.88977,28.09843 0,1.06299 0.85039,2.30315 0,2.94094 -0.24804,-0.0354 -0.46063,-0.0709 -0.67323,-0.10629 -0.24803,-1.09843 -0.46063,-2.16142 -0.7441,-3.18898 0,0 -0.3189,-0.14173 -0.60236,-0.24803 -2.63133,-0.24573 -4.84813,0.007 -7.61811,-0.21256 0.0354,0.38976 0.1063,0.77953 0.2126,1.16929 -4.53543,-3.72047 -9.5315,-7.72441 -14.77559,-11.87008 7.79527,10.77166 13.64173,19.06299 17.50393,24.44882 0.94692,4.61602 1.54555,9.47733 1.80709,13.8189 -13.74803,-14.98819 -25.86614,-28.62992 -36.95669,-38.65748 7.19291,11.76378 28.73622,42.05905 44.32677,63.74409 0.17717,0.2126 0.35433,0.46063 0.5315,0.70866 9.56692,13.28741 16.79527,23.20867 16.79527,23.20867 0,0 -7.58268,-8.22048 -17.85827,-19.24016 -1.34645,4.6063 -3.04724,9.4252 -5.13779,14.27953 10.59449,14.66929 18.60236,25.61811 18.60236,25.61811 0,0 -8.64567,-9.4252 -20.26772,-22.00394 -2.01968,4.2874 -4.35826,8.53937 -7.01574,12.64961 10.94882,14.95275 19.41732,26.39763 19.41732,26.39763 0,0 -9.17717,-10.20472 -21.25984,-23.59842 -2.40945,3.47244 -5.06693,6.80315 -7.97244,9.95669 10.06299,13.5 17.5748,23.49213 17.5748,23.49213 0,0 -16.22835,-17.82284 -35.14961,-38.30315 0.14174,-2.48032 0.8504,-5.31496 0.92126,-7.54725 5.98819,8.04331 11.51575,15.44882 16.58268,22.28741 l 1.94882,-6.98032 c 1.48819,-1.59449 2.87008,-3.22441 4.21653,-4.9252 -6.55511,-7.22834 -13.60629,-15.05905 -21.08267,-23.24409 0.15139,-4.15611 0.87677,-6.46713 1.24019,-9.99213 7.61811,10.59449 15.16535,20.97638 22.0748,30.40158 2.79921,-3.75591 5.31496,-7.65355 7.47638,-11.72835 -20.79922,-22.46457 -50.77559,-54.49606 -60.76772,-63.5315 4.35827,7.08662 14.84646,22.00394 26.4685,38.23229 -7.10458,-3.10791 -13.84249,-7.1068 -21.04724,-9.88583 -8.4685,-9.03543 -15.62598,-16.37008 -19.59449,-19.94882 2.12599,3.47244 6.23622,9.35433 11.40945,16.68898 -0.2126,-0.28347 -0.81496,-0.4252 -1.13386,-0.17717 0,-0.21259 0.0709,-0.46063 -0.1063,-0.53149 0,0 -6.92401,5.6756 -8.92913,7.65354 -7.40551,-7.72441 -13.42913,-13.85433 -16.58268,-16.68898 2.33859,3.79134 7.29922,10.94882 13.57087,19.73623 -2.69291,2.72834 -5.17323,5.20866 -7.61811,7.75984 -11.48032,-12.54331 -21.11811,-22.74803 -25.54724,-26.75197 3.437,5.63386 11.69291,17.2559 21.57874,30.8622 -0.0354,0.0354 -0.0709,0.1063 -0.14174,0.14174 -0.60236,1.48819 -2.69291,2.48031 -3.36614,3.8622 0.0354,-0.1063 0.0354,-0.17716 -0.1063,-0.17716 0.0709,1.45275 3.54331,8.39763 7.44095,15.83858 -18.60236,-20.94095 -35.92914,-40.11024 -43.54725,-47.01969 11.26772,18.38977 69.41339,95.20867 86.17323,118.77166 C 283.04759,595.86898 229.01216,534.4989 206.6539,511.92803 l -4.21654,-19.48819 c 0,-0.17716 0.1063,-0.24804 0,0 -4.73806,3.36595 -10.50845,7.58556 -14.52756,10.31102 10.59449,-27.28346 33.51969,-47.30315 59.63386,-57.18897 -1.24629,1.96148 -4.21654,8.39763 -4.21654,8.39763 10.56769,2.56824 24.57129,6.86068 31.00394,8.00784 8.29813,-4.5729 19.53604,-11.23811 24.76771,-14.1378 -0.17716,-0.0354 -0.0354,-0.2126 0.0709,-0.31889 -4.21319,-3.3056 -8.59239,-6.67097 -13.1811,-8.78741 z" /><path style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none" d="m 171.61056,376.78625 h 3.25984 v 27.1063 h -4.64173 v -22.32283 l -4.78347,1.34646 -0.99212,-3.82678" /><path style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none" d="m 190.88615,380.57759 c -3.29528,0 -5.27953,2.23229 -5.27953,5.0315 0,2.83465 2.12599,4.85433 5.45669,4.85433 3.36615,0 5.38583,-2.23228 5.38583,-4.88976 0,-2.83465 -2.16142,-4.99607 -5.56299,-4.99607 m -0.81496,23.77559 c -3.68504,0 -6.27166,-1.34645 -8.53937,-3.25984 l 2.55118,-3.61417 c 2.01968,1.73622 3.82677,2.55118 6.09449,2.55118 3.89764,0 6.27165,-3.50787 6.41338,-8.4685 -1.31102,1.62992 -3.36614,2.87007 -6.23622,2.87007 -5.66929,0 -9.42519,-3.36614 -9.42519,-8.5748 0,-5.31496 4.03937,-9.35433 9.92126,-9.35433 3.36614,0 5.52755,0.95669 7.37007,2.83465 1.98426,2.01968 3.25985,4.96063 3.25985,10.31102 0,8.6811 -4.2874,14.70472 -11.40945,14.70472" /><path style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none" d="m 205.98064,381.07366 v -4.11024 h 17.61023 v 3.54331 l -7.40551,7.68897 c 4.03937,0.5315 7.83071,2.58662 7.83071,7.61811 0,4.99607 -3.82677,8.53937 -9.3189,8.53937 -4.64173,0 -7.93701,-1.98425 -10.20472,-4.74803 l 3.25984,-3.08267 c 1.91339,2.26771 4.03937,3.5433 7.01575,3.5433 2.62205,0 4.6063,-1.59449 4.6063,-4.11023 0,-2.69292 -2.37402,-4.18111 -6.12992,-4.18111 H 211.083 l -0.77953,-2.97637 7.19291,-7.72441" /><path style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none" d="m 240.03182,380.75476 c -4.14567,0 -6.73229,4.25197 -6.73229,9.63779 0,5.38583 2.65748,9.67323 6.80315,9.67323 4.14567,0 6.73229,-4.25197 6.73229,-9.60236 0,-5.35039 -2.65748,-9.70866 -6.80315,-9.70866 m 0,23.59842 c -6.98032,0 -11.55118,-6.16535 -11.55118,-13.88976 0,-7.72441 4.64173,-13.96063 11.62204,-13.96063 7.01575,0 11.55118,6.16535 11.55118,13.88976 0,7.72441 -4.6063,13.96063 -11.62204,13.96063" /><path style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none" d="m 246.7641,366.0146 c -9.77953,0 -19.62992,-3.40157 -27.35433,-10.31102 l 8.3622,-10.063 c 5.81103,4.78347 11.90552,7.83071 19.24016,7.83071 5.81103,0 9.3189,-2.30315 9.3189,-6.05905 v -0.17717 c 0,-3.61417 -2.19685,-5.45669 -12.9685,-8.22047 -13.00394,-3.29527 -21.40158,-6.90945 -21.40158,-19.70079 v -0.17716 c 0,-11.69292 9.4252,-19.45276 22.57087,-19.45276 9.38976,0 17.43307,2.94095 23.95275,8.18504 l -7.37008,10.70079 c -5.70472,-3.96851 -11.33858,-6.34252 -16.75984,-6.34252 -5.42126,0 -8.29134,2.48031 -8.29134,5.59842 v 0.17717 c 0,4.25197 2.76378,5.63386 13.9252,8.50394 13.0748,3.40157 20.44488,8.07874 20.44488,19.34645 v 0.17717 c 0,12.79134 -9.77953,19.98425 -23.66929,19.98425" /><path style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none" d="m 320.81922,365.09334 v -25.90157 h -26.18504 v 25.90157 h -14.17323 v -64.48819 h 14.17323 v 25.51181 h 26.18504 v -25.51181 h 14.17322 v 64.48819" /><path style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none" d="m 210.37434,327.21539 h -30.50788 v -13.7126 h 31.99607 l 1.41732,-12.89764 h -47.58661 v 64.48819 h 14.17322 v -24.98031 h 29.09055" /><path style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none" d="m 392.81921,327.21539 h -30.47244 v -13.7126 h 31.96063 l 1.41733,-12.89764 h -47.55118 v 64.48819 h 14.17322 v -24.98031 h 29.09055" /></g></svg></div>
     </div>
   </div>
-  <div class="scroll-hint"><!--ALB-->Vazhdo ↓</div>
+  <button class="scroll-hint" data-goto="atlasi"><!--ALB-->Hap Atlasin →</button>
 </section>
 
 <!-- =================== SECTION 2: PASQYRA / DASHBOARD =================== -->
-<section id="pasqyra" class="section-pad border-t border-[var(--border)]">
+<section id="pasqyra" data-section class="section-pad border-t border-[var(--border)] section-hidden">
   <div class="container-max">
     <div class="flex items-end justify-between mb-12">
       <div>
@@ -478,38 +595,423 @@ button.filter-pill.active { background: var(--fshf-red); color: white; border-co
   </div>
 </section>
 
-<!-- =================== SECTION 3: DIASPORA HERO =================== -->
-<section id="diaspora" class="section-pad border-t border-[var(--border)]" style="background: linear-gradient(180deg, #faf9f6 0%, #f3f1ec 100%);">
+<!-- =================== SECTION 4: KABINA / COCKPIT =================== -->
+<section id="kabina" data-section class="section-pad border-t border-[var(--border)] section-hidden">
   <div class="container-max">
     <div class="flex items-end justify-between mb-10">
       <div>
         <div class="flex items-center gap-3 mb-3">
           <div class="red-rule"></div>
-          <!--ALB--><span class="eyebrow">Seksioni 02 · Hero</span>
+          <!--ALB--><span class="eyebrow">Seksioni 03</span>
         </div>
-        <!--ALB--><h2 class="section-title">Zbulim i Diasporës</h2>
-        <div class="eyebrow-en mt-1">Diaspora Discovery</div>
+        <!--ALB--><h2 class="section-title">Kabina e Skuadrës Kombëtare</h2>
+        <div class="eyebrow-en mt-1">National Team Cockpit</div>
       </div>
-      <!--ALB--><div class="text-right text-[12px] text-[var(--muted)] uppercase tracking-wider">Modeli v3.1.0 · <span class="eyebrow-en lowercase">top 15 prospekte · prill 2026</span></div>
+      <!--ALB--><div class="text-right text-[12px] text-[var(--muted)] uppercase tracking-wider">Gatishmëria · forma · disponueshmëria</div>
     </div>
 
+    <!-- National team switcher -->
+    <div class="mb-8">
+      <!--ALB--><div class="eyebrow mb-2">Përzgjidh kombëtaren</div>
+      <div class="team-switcher" id="team-switcher">
+        <button data-team="A" class="active"><!--ALB-->Kombëtarja A</button>
+        <button data-team="U21">U21</button>
+        <button data-team="U19">U19</button>
+        <button data-team="U17">U17</button>
+        <button data-team="U16">U16</button>
+      </div>
+    </div>
+
+    <!-- Next fixture countdown (rendered per team) -->
+    <div class="next-fixture-card mb-10" id="fixture-card"></div>
+
+    <div class="grid grid-cols-12 gap-6">
+      <!-- Squad table -->
+      <div class="col-span-8 bg-white border border-[var(--border)]">
+        <div class="px-6 py-4 border-b border-[var(--border)] flex items-center justify-between">
+          <div>
+            <!--ALB--><div class="eyebrow">Skuadra · <span id="squad-count">26</span> lojtarë</div>
+            <!--ALB--><div class="text-[12px] text-[var(--muted)] mt-0.5">Renditur sipas indeksit të gatishmërisë</div>
+          </div>
+          <div class="text-[11px] text-[var(--muted)] flex items-center gap-3">
+            <!--ALB--><span class="flex items-center gap-1"><span class="text-emerald-700">●</span>I disponueshëm</span>
+            <!--ALB--><span class="flex items-center gap-1"><span class="text-amber-600">⚠</span>Karton verdhë</span>
+            <!--ALB--><span class="flex items-center gap-1"><span class="text-rose-700">✕</span>I dëmtuar</span>
+          </div>
+        </div>
+        <table class="fshf-table">
+          <thead>
+            <tr>
+              <!--ALB--><th class="pl-4">Lojtari</th>
+              <!--ALB--><th>Klubi</th>
+              <!--ALB--><th>Forma · 8 ndeshje</th>
+              <!--ALB--><th class="text-right">Vlerësim</th>
+              <!--ALB--><th class="text-center pr-4">Statusi</th>
+            </tr>
+          </thead>
+          <tbody id="squad-body"></tbody>
+        </table>
+      </div>
+      <!-- Right rail: minutes profile -->
+      <div class="col-span-4">
+        <div class="bg-white border border-[var(--border)] p-6">
+          <!--ALB--><div class="eyebrow mb-1">Ngarkesa e lojtarit</div>
+          <div id="load-featured"></div>
+          <div class="mt-6" id="load-chart"></div>
+          <div class="mt-4 grid grid-cols-3 gap-3 pt-4 border-t border-[var(--border)]" id="load-stats"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Squad Planner: formation + depth chart ===== -->
+    <div class="mt-16 pt-12 border-t border-[var(--border)]">
+      <div class="flex items-end justify-between mb-5 gap-4 flex-wrap">
+        <div>
+          <div class="flex items-center gap-3 mb-3">
+            <div class="red-rule"></div>
+            <!--ALB--><span class="eyebrow">Plani i Skuadrës</span>
+          </div>
+          <!--ALB--><h3 class="section-title">Tabela e Formacionit</h3>
+          <div class="eyebrow-en mt-1">Squad Planner · formation & depth chart</div>
+        </div>
+        <div>
+          <!--ALB--><div class="eyebrow mb-2 lg:text-right">Formacioni</div>
+          <div class="formation-toggle" id="formation-toggle">
+            <button data-formation="433" class="active">4-3-3</button>
+            <button data-formation="4231">4-2-3-1</button>
+            <button data-formation="442">4-4-2</button>
+            <button data-formation="352">3-5-2</button>
+          </div>
+        </div>
+      </div>
+
+      <!--ALB--><p class="text-[13px] text-[var(--muted)] max-w-2xl mb-6">Zgjidh formacionin, pastaj kliko çdo pozicion në fushë për të caktuar titullarin dhe rezervën. Pozicionet me thellësi të hollë shënohen si mundësi për lojtarë U21.</p>
+
+      <div class="grid grid-cols-12 gap-6">
+        <!-- Pitch -->
+        <div class="col-span-7">
+          <div class="pitch-wrap" id="pitch-wrap">
+            <svg class="pitch-lines" viewBox="0 0 300 400" preserveAspectRatio="none" aria-hidden="true">
+              <rect x="7" y="7" width="286" height="386" rx="3" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.6"/>
+              <line x1="7" y1="200" x2="293" y2="200" stroke="rgba(255,255,255,0.55)" stroke-width="1.6"/>
+              <circle cx="150" cy="200" r="42" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.6"/>
+              <circle cx="150" cy="200" r="2.5" fill="rgba(255,255,255,0.7)"/>
+              <rect x="70" y="7" width="160" height="52" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.6"/>
+              <rect x="110" y="7" width="80" height="22" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.6"/>
+              <rect x="70" y="341" width="160" height="52" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.6"/>
+              <rect x="110" y="371" width="80" height="22" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.6"/>
+            </svg>
+            <div id="pitch-slots"></div>
+          </div>
+          <div class="flex items-center gap-x-5 gap-y-2 mt-4 text-[11px] text-[var(--muted)] flex-wrap">
+            <div class="flex items-center gap-1.5"><span class="leg-dot" style="background:var(--ink)"></span><!--ALB-->Titullar</div>
+            <div class="flex items-center gap-1.5"><span class="leg-dot" style="background:#9ca3af"></span><!--ALB-->Rezervë</div>
+            <div class="flex items-center gap-1.5"><span class="leg-chip" id="leg-feeder">U21</span><!--ALB-->Lojtar rinor</div>
+            <div class="flex items-center gap-1.5"><span class="leg-dot" style="background:var(--gold)"></span><!--ALB-->Mundësi rinore</div>
+          </div>
+        </div>
+        <!-- Depth manager + youth opportunity summary -->
+        <div class="col-span-5">
+          <div class="bg-white border border-[var(--border)] p-5" id="depth-panel"></div>
+          <div class="bg-white border border-[var(--border)] p-5 mt-4" id="planner-summary"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== SECTION 5: ATLASI / ATLAS =================== -->
+<section id="atlasi" data-section class="section-pad border-t border-[var(--border)] section-hidden" style="background: var(--bg-warm);">
+  <div class="container-max">
+    <div class="flex items-end justify-between mb-10">
+      <div>
+        <div class="flex items-center gap-3 mb-3">
+          <div class="red-rule"></div>
+          <!--ALB--><span class="eyebrow">Seksioni 02</span>
+        </div>
+        <!--ALB--><h2 class="section-title">Atlasi i Lojtarëve</h2>
+        <div class="eyebrow-en mt-1">Player Pool Atlas</div>
+      </div>
+      <!--ALB--><div class="text-right text-[12px] text-[var(--muted)] uppercase tracking-wider">642 lojtarë · 38 vende</div>
+    </div>
+
+    <div class="grid grid-cols-12 gap-6 relative">
+      <!-- Map -->
+      <div class="col-span-7 bg-white border border-[var(--border)] p-6 relative" id="atlas-map-wrap">
+        <div class="flex items-center justify-between mb-4 gap-3 flex-wrap">
+          <!--ALB--><div class="eyebrow">Hartëzim global</div>
+          <div class="map-layer-toggle" id="map-layer-toggle">
+            <!--ALB--><button data-layer="current" class="active">Kombëtarët aktualë</button>
+            <!--ALB--><button data-layer="prospects">Prospektë ≥50%</button>
+          </div>
+        </div>
+        <div style="position:relative;">
+          <svg id="eu-map" viewBox="0 0 800 540" class="eu-map" style="width:100%; height:auto;">
+            <g id="eu-countries"></g>
+            <g id="eu-cities"></g>
+          </svg>
+          <div id="map-tooltip" class="map-tooltip"></div>
+        </div>
+        <div class="mt-6 pt-4 border-t border-[var(--border)]">
+          <div class="flex items-center justify-between gap-3 flex-wrap mb-2">
+            <!--ALB--><div class="text-[12px] text-[var(--charcoal)]">Po shfaqet: <span id="map-active-note" class="font-medium text-fshf">Kombëtarët aktualë</span> · <span id="map-active-count" class="font-mono">—</span> lojtarë</div>
+            <!--ALB--><div class="text-[11px] text-[var(--muted)] font-mono">Lëviz mbi pikat për detaje</div>
+          </div>
+          <div class="flex items-center gap-6 text-[11px] text-[var(--muted)]">
+            <div class="flex items-center gap-2">
+              <svg width="40" height="20" viewBox="0 0 40 20"><circle cx="6" cy="10" r="3" fill="#E41E26"/><circle cx="20" cy="10" r="6" fill="#E41E26"/><circle cx="34" cy="10" r="9" fill="#E41E26"/></svg>
+              <!--ALB--><span>Madhësia ∝ numri i lojtarëve</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3" style="background:rgba(228,30,38,0.16);border:1px solid var(--fshf-red)"></div>
+              <!--ALB--><span>Shqipëri · Kosovë · Maqedoni e V.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filterable card grid -->
+      <div class="col-span-5 bg-white border border-[var(--border)] p-6">
+        <div class="flex items-center justify-between mb-4">
+          <!--ALB--><div class="eyebrow">Lojtarë të identifikuar</div>
+          <!--ALB--><div class="text-[11px] text-[var(--muted)] font-mono"><span id="atlas-count">22</span>/642</div>
+        </div>
+        <!-- Filters -->
+        <div class="flex flex-wrap items-center gap-2 mb-4">
+          <!--ALB--><div class="text-[11px] text-[var(--muted)] mr-2 uppercase tracking-wider">Pozicioni</div>
+          <button class="filter-pill active" data-pos="all"><!--ALB-->Të gjithë</button>
+          <!--ALB--><button class="filter-pill" data-pos="PT" title="Portier">PT</button>
+          <!--ALB--><button class="filter-pill" data-pos="MB" title="Mbrojtës qendror">MB</button>
+          <!--ALB--><button class="filter-pill" data-pos="MA" title="Mbrojtës anësor">MA</button>
+          <!--ALB--><button class="filter-pill" data-pos="MQ" title="Mesfushor">MQ</button>
+          <!--ALB--><button class="filter-pill" data-pos="SK" title="Sulmues krahu">SK</button>
+          <!--ALB--><button class="filter-pill" data-pos="SQ" title="Sulmues qendror">SQ</button>
+        </div>
+        <div class="atlas-grid" id="atlas-grid">
+          
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="SQ" data-country="Angli">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">AB</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Armando Broja</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->24 · SQ · Burnley FC</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="MQ" data-country="Itali">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">KA</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Kristjan Asllani</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->24 · MQ · Inter Milan</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="MB" data-country="Itali">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">BD</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Berat Djimsiti</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->33 · MB · Atalanta</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="MB" data-country="Spanjë">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">MK</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Marash Kumbulla</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->26 · MB · Espanyol</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="MA" data-country="Rusi">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">MM</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Mario Mitaj</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->22 · MA · Lokomotiv Moskva</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="MQ" data-country="Itali">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">NB</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Nedim Bajrami</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->27 · MQ · Sassuolo</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="SK" data-country="Turqi">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">EM</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Ernest Muçi</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->24 · SK · Beşiktaş</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="SK" data-country="Kore e J.">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">JA</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Jasir Asani</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->29 · SK · Gwangju FC</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="SQ" data-country="Rusi">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">MD</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Mirlind Daku</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->28 · SQ · Rubin Kazan</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="MQ" data-country="Zvicër">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">AR</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Agon Rexhaj</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->19 · MQ · FC Basel</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="SQ" data-country="Itali">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">KH</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Klajdi Hoxha</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->18 · SQ · Imolese U18</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="SK" data-country="Itali">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">RG</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Rei Gjurkaj</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->16 · SK · Udinese U15</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="MQ" data-country="Gjermani">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">LH</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Lion Haxhiu</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->19 · MQ · Nürnberg U19</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="SQ" data-country="Gjermani">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">LR</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Leotrim Ramaj</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->17 · SQ · St. Pauli U17</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="PT" data-country="Gjermani">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">DR</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Diant Ramaj</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->25 · PT · Heidenheim</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="SK" data-country="Gjermani">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">LD</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Leon Dajaku</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->25 · SK · Ulm</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="SK" data-country="Gjermani">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">DD</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Drilon Demaj</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->25 · SK · VfB Oldenburg</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="SQ" data-country="Itali">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">DG</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Delis Gjeci</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->17 · SQ · Internazionale U19</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="MQ" data-country="Zvicër">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">DX</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Demir Xhemalija</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->20 · MQ · Luzern</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="MQ" data-country="Shqipëri">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">EM</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Edon Murataj</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->24 · MQ · Vllaznia Shkodër</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="SK" data-country="Gjermani">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">EP</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Ernest Poku</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->22 · SK · Bayer Leverkusen</div>
+            </div>
+          </div>
+        </div>
+        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="MQ" data-country="Angli">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">JF</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">Justin Ferizaj</div>
+              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->21 · MQ · Crawley Town</div>
+            </div>
+          </div>
+        </div>
+        </div>
+        <div class="mt-4 pt-4 border-t border-[var(--border)] text-[11px] text-[var(--muted)] italic">
+          <!--ALB-->Filtra shtesë (mosha, niveli i ligës, statusi i kapsionit) disponohen në versionin e plotë.
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Discovery sub-block (merged from former Diaspora section) ===== -->
+    <div class="mt-16 mb-10 pt-12 border-t border-[var(--border)]">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="red-rule"></div>
+        <!--ALB--><span class="eyebrow">Zbulim i Diasporës</span>
+      </div>
+      <!--ALB--><h3 class="section-title">Prospektët e Diasporës</h3>
+      <div class="eyebrow-en mt-1">Diaspora Discovery · top 15 prospekte · <span id="live-monthyear">prill 2026</span></div>
+    </div>
     <!-- Hero card -->
     <div class="bg-white border border-[var(--border)] mb-8" style="box-shadow: 0 1px 0 rgba(0,0,0,0.02), 0 12px 32px -12px rgba(0,0,0,0.08);">
       <div class="grid grid-cols-12 gap-0">
-        <!-- Avatar/silhouette -->
-        <div class="col-span-3 bg-[var(--bg-warm)] flex items-center justify-center" style="min-height: 360px; position: relative;">
-          <svg width="180" height="220" viewBox="0 0 180 220" style="opacity: 0.55;">
-            <defs>
-              <linearGradient id="silg" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stop-color="#1a1a1a" stop-opacity="0.7"/>
-                <stop offset="1" stop-color="#1a1a1a" stop-opacity="0.3"/>
-              </linearGradient>
-            </defs>
-            <circle cx="90" cy="60" r="40" fill="url(#silg)"/>
-            <path d="M30 220 C 30 160, 60 120, 90 120 C 120 120, 150 160, 150 220 Z" fill="url(#silg)"/>
-          </svg>
+        <!-- Avatar -->
+        <div class="col-span-3 bg-[var(--bg-warm)] flex items-center justify-center" style="min-height: 360px; position: relative; overflow: hidden;">
+          <img src="https://img.a.transfermarkt.technology/portrait/header/1015815-1764843867.jpg?lm=1" alt="Agon Rexhaj" referrerpolicy="no-referrer" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center top;">
+          <div class="absolute inset-x-0 bottom-0" style="height:90px; background:linear-gradient(180deg, transparent, rgba(0,0,0,0.55));"></div>
           <div class="absolute" style="bottom: 16px; left: 16px;">
-            <!--ALB--><div class="text-[10px] uppercase tracking-wider text-[var(--muted)] font-mono">AR · 24.03.2007</div>
+            <!--ALB--><div class="text-[10px] uppercase tracking-wider font-mono" style="color:rgba(255,255,255,0.9)">AR · 24.03.2007</div>
           </div>
         </div>
         <!-- Profile content -->
@@ -759,474 +1261,6 @@ button.filter-pill.active { background: var(--fshf-red); color: white; border-co
       </table>
     </div>
     <!--ALB--><div class="text-[11px] text-[var(--muted)] mt-3 italic">Modeli ka identifikuar 1 358 lojtarë të mundshëm. Këtu janë 15 prej top-prospekteve me veprim të rekomanduar.</div>
-  </div>
-</section>
-
-<!-- =================== SECTION 4: KABINA / COCKPIT =================== -->
-<section id="kabina" class="section-pad border-t border-[var(--border)]">
-  <div class="container-max">
-    <div class="flex items-end justify-between mb-10">
-      <div>
-        <div class="flex items-center gap-3 mb-3">
-          <div class="red-rule"></div>
-          <!--ALB--><span class="eyebrow">Seksioni 03</span>
-        </div>
-        <!--ALB--><h2 class="section-title">Kabina e Skuadrës Kombëtare</h2>
-        <div class="eyebrow-en mt-1">National Team Cockpit</div>
-      </div>
-      <!--ALB--><div class="text-right text-[12px] text-[var(--muted)] uppercase tracking-wider">Gatishmëria · forma · disponueshmëria</div>
-    </div>
-
-    <!-- Next fixture countdown -->
-    <div class="next-fixture-card mb-10">
-      <div>
-        <!--ALB--><div class="text-[11px] tracking-[0.16em] uppercase opacity-70">Ndeshja e ardhshme</div>
-        <div class="font-serif text-4xl mt-2"><!--ALB-->Shqipëri vs. Belarus</div>
-        <!--ALB--><div class="text-[12px] opacity-70 mt-1">Air Albania Stadium · Tiranë · 19:45 CET</div>
-      </div>
-      <div class="text-right">
-        <!--ALB--><div class="text-[11px] tracking-[0.16em] uppercase opacity-70">Data</div>
-        <div class="font-serif text-3xl mt-2"><!--ALB-->26 Shtator 2026</div>
-        <!--ALB--><div class="text-[12px] opacity-70 mt-1">UEFA Nations League · Liga C · Grupi I</div>
-      </div>
-      <div class="text-right">
-        <!--ALB--><div class="text-[11px] tracking-[0.16em] uppercase opacity-70">Numërimi</div>
-        <div class="display-num text-fshf mt-2" style="font-size:56px; line-height:1">142</div>
-        <!--ALB--><div class="text-[12px] opacity-70">ditë</div>
-      </div>
-      <div class="border-l border-white/15 pl-6">
-        <!--ALB--><div class="text-[11px] tracking-[0.16em] uppercase opacity-70 mb-2">Statusi i grumbullimit</div>
-        <!--ALB--><div class="text-[12px] flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> 23 të disponueshëm</div>
-        <!--ALB--><div class="text-[12px] flex items-center gap-2 mt-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> 2 me karton verdhë</div>
-        <!--ALB--><div class="text-[12px] flex items-center gap-2 mt-1"><span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span> 1 i dëmtuar</div>
-      </div>
-    </div>
-
-    <div class="grid grid-cols-12 gap-6">
-      <!-- Squad table -->
-      <div class="col-span-8 bg-white border border-[var(--border)]">
-        <div class="px-6 py-4 border-b border-[var(--border)] flex items-center justify-between">
-          <div>
-            <!--ALB--><div class="eyebrow">Skuadra · 26 lojtarë</div>
-            <!--ALB--><div class="text-[12px] text-[var(--muted)] mt-0.5">Renditur sipas indeksit të gatishmërisë</div>
-          </div>
-          <div class="text-[11px] text-[var(--muted)] flex items-center gap-3">
-            <!--ALB--><span class="flex items-center gap-1"><span class="text-emerald-700">●</span>I disponueshëm</span>
-            <!--ALB--><span class="flex items-center gap-1"><span class="text-amber-600">⚠</span>Karton verdhë</span>
-            <!--ALB--><span class="flex items-center gap-1"><span class="text-rose-700">✕</span>I dëmtuar</span>
-          </div>
-        </div>
-        <table class="fshf-table">
-          <thead>
-            <tr>
-              <!--ALB--><th class="pl-4">Lojtari</th>
-              <!--ALB--><th>Klubi</th>
-              <!--ALB--><th>Forma · 8 ndeshje</th>
-              <!--ALB--><th class="text-right">Vlerësim</th>
-              <!--ALB--><th class="text-center pr-4">Statusi</th>
-            </tr>
-          </thead>
-          <tbody>
-            
-        <tr class="row-hover border-b border-[var(--border)]">
-          <td class="py-3 pl-1 pr-3"><div class="font-medium">Kristjan Asllani</div><div class="text-xs text-[var(--muted)]">24 vjeç · MQ</div></td>
-          <td class="py-3 pr-3 text-sm">Inter Milan<div class="text-xs text-[var(--muted)]">Serie A</div></td>
-          <td class="py-3 pr-3"><svg viewBox="0 0 64 30" width="80" height="30"><rect class="spark-bar-active" x="0" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="8" y="4.5" width="6" height="25.5" rx="1"/><rect class="spark-bar-active" x="16" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="24" y="9.900000000000002" width="6" height="20.099999999999998" rx="1"/><rect class="spark-bar-active" x="32" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="40" y="6.600000000000001" width="6" height="23.4" rx="1"/><rect class="spark-bar-active" x="48" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="56" y="3.0" width="6" height="27.0" rx="1"/></svg></td>
-          <td class="py-3 pr-3 text-right"><span class="font-mono font-medium" style="color:#15803d">7.6</span></td>
-          <td class="py-3 pr-1 text-center"><span class="text-emerald-700 text-xs font-medium">●</span></td>
-        </tr>
-        <tr class="row-hover border-b border-[var(--border)] cursor-pointer" data-broja="1">
-          <td class="py-3 pl-1 pr-3"><div class="font-medium">Armando Broja</div><div class="text-xs text-[var(--muted)]">24 vjeç · SQ</div></td>
-          <td class="py-3 pr-3 text-sm">Burnley FC<div class="text-xs text-[var(--muted)]">Premier League</div></td>
-          <td class="py-3 pr-3"><svg viewBox="0 0 64 30" width="80" height="30"><rect class="spark-bar" x="0" y="13.5" width="6" height="16.5" rx="1"/><rect class="spark-bar" x="8" y="28" width="6" height="2" rx="1"/><rect class="spark-bar-active" x="16" y="8.400000000000002" width="6" height="21.599999999999998" rx="1"/><rect class="spark-bar-active" x="24" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="32" y="9.900000000000002" width="6" height="20.099999999999998" rx="1"/><rect class="spark-bar" x="40" y="28" width="6" height="2" rx="1"/><rect class="spark-bar-active" x="48" y="3.6000000000000014" width="6" height="26.4" rx="1"/><rect class="spark-bar-active" x="56" y="10.5" width="6" height="19.5" rx="1"/></svg></td>
-          <td class="py-3 pr-3 text-right"><span class="font-mono font-medium" style="color:#a16207">6.9</span></td>
-          <td class="py-3 pr-1 text-center"><span class="text-emerald-700 text-xs font-medium">●</span></td>
-        </tr>
-        <tr class="row-hover border-b border-[var(--border)]">
-          <td class="py-3 pl-1 pr-3"><div class="font-medium">Thomas Strakosha</div><div class="text-xs text-[var(--muted)]">31 vjeç · PT</div></td>
-          <td class="py-3 pr-3 text-sm">Brentford<div class="text-xs text-[var(--muted)]">Premier League</div></td>
-          <td class="py-3 pr-3"><svg viewBox="0 0 64 30" width="80" height="30"><rect class="spark-bar" x="0" y="28" width="6" height="2" rx="1"/><rect class="spark-bar" x="8" y="28" width="6" height="2" rx="1"/><rect class="spark-bar-active" x="16" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="24" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="32" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="40" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="48" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar" x="56" y="28" width="6" height="2" rx="1"/></svg></td>
-          <td class="py-3 pr-3 text-right"><span class="font-mono font-medium" style="color:#a16207">7.1</span></td>
-          <td class="py-3 pr-1 text-center"><span class="text-emerald-700 text-xs font-medium">●</span></td>
-        </tr>
-        <tr class="row-hover border-b border-[var(--border)]">
-          <td class="py-3 pl-1 pr-3"><div class="font-medium">Berat Djimsiti</div><div class="text-xs text-[var(--muted)]">33 vjeç · MB</div></td>
-          <td class="py-3 pr-3 text-sm">Atalanta<div class="text-xs text-[var(--muted)]">Serie A</div></td>
-          <td class="py-3 pr-3"><svg viewBox="0 0 64 30" width="80" height="30"><rect class="spark-bar-active" x="0" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="8" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="16" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="24" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar" x="32" y="28" width="6" height="2" rx="1"/><rect class="spark-bar-active" x="40" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="48" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="56" y="3.0" width="6" height="27.0" rx="1"/></svg></td>
-          <td class="py-3 pr-3 text-right"><span class="font-mono font-medium" style="color:#15803d">7.4</span></td>
-          <td class="py-3 pr-1 text-center"><span class="text-amber-600 text-xs font-medium" title="Një karton nga pezullimi">⚠</span></td>
-        </tr>
-        <tr class="row-hover border-b border-[var(--border)]">
-          <td class="py-3 pl-1 pr-3"><div class="font-medium">Elseid Hysaj</div><div class="text-xs text-[var(--muted)]">32 vjeç · MA</div></td>
-          <td class="py-3 pr-3 text-sm">Lazio<div class="text-xs text-[var(--muted)]">Serie A</div></td>
-          <td class="py-3 pr-3"><svg viewBox="0 0 64 30" width="80" height="30"><rect class="spark-bar-active" x="0" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="8" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar" x="16" y="28" width="6" height="2" rx="1"/><rect class="spark-bar-active" x="24" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="32" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="40" y="9.900000000000002" width="6" height="20.099999999999998" rx="1"/><rect class="spark-bar" x="48" y="28" width="6" height="2" rx="1"/><rect class="spark-bar-active" x="56" y="3.0" width="6" height="27.0" rx="1"/></svg></td>
-          <td class="py-3 pr-3 text-right"><span class="font-mono font-medium" style="color:#a16207">6.8</span></td>
-          <td class="py-3 pr-1 text-center"><span class="text-emerald-700 text-xs font-medium">●</span></td>
-        </tr>
-        <tr class="row-hover border-b border-[var(--border)]">
-          <td class="py-3 pl-1 pr-3"><div class="font-medium">Marash Kumbulla</div><div class="text-xs text-[var(--muted)]">26 vjeç · MB</div></td>
-          <td class="py-3 pr-3 text-sm">Espanyol<div class="text-xs text-[var(--muted)]">La Liga</div></td>
-          <td class="py-3 pr-3"><svg viewBox="0 0 64 30" width="80" height="30"><rect class="spark-bar-active" x="0" y="6.600000000000001" width="6" height="23.4" rx="1"/><rect class="spark-bar-active" x="8" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="16" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="24" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="32" y="9.900000000000002" width="6" height="20.099999999999998" rx="1"/><rect class="spark-bar-active" x="40" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar" x="48" y="28" width="6" height="2" rx="1"/><rect class="spark-bar-active" x="56" y="3.0" width="6" height="27.0" rx="1"/></svg></td>
-          <td class="py-3 pr-3 text-right"><span class="font-mono font-medium" style="color:#a16207">7.0</span></td>
-          <td class="py-3 pr-1 text-center"><span class="text-emerald-700 text-xs font-medium">●</span></td>
-        </tr>
-        <tr class="row-hover border-b border-[var(--border)]">
-          <td class="py-3 pl-1 pr-3"><div class="font-medium">Mario Mitaj</div><div class="text-xs text-[var(--muted)]">22 vjeç · MA</div></td>
-          <td class="py-3 pr-3 text-sm">Lokomotiv Moskva<div class="text-xs text-[var(--muted)]">Premier Liga</div></td>
-          <td class="py-3 pr-3"><svg viewBox="0 0 64 30" width="80" height="30"><rect class="spark-bar-active" x="0" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="8" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="16" y="9.900000000000002" width="6" height="20.099999999999998" rx="1"/><rect class="spark-bar-active" x="24" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="32" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="40" y="6.600000000000001" width="6" height="23.4" rx="1"/><rect class="spark-bar-active" x="48" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="56" y="3.0" width="6" height="27.0" rx="1"/></svg></td>
-          <td class="py-3 pr-3 text-right"><span class="font-mono font-medium" style="color:#a16207">7.2</span></td>
-          <td class="py-3 pr-1 text-center"><span class="text-emerald-700 text-xs font-medium">●</span></td>
-        </tr>
-        <tr class="row-hover border-b border-[var(--border)]">
-          <td class="py-3 pl-1 pr-3"><div class="font-medium">Nedim Bajrami</div><div class="text-xs text-[var(--muted)]">27 vjeç · MQ</div></td>
-          <td class="py-3 pr-3 text-sm">Sassuolo<div class="text-xs text-[var(--muted)]">Serie B</div></td>
-          <td class="py-3 pr-3"><svg viewBox="0 0 64 30" width="80" height="30"><rect class="spark-bar-active" x="0" y="9.900000000000002" width="6" height="20.099999999999998" rx="1"/><rect class="spark-bar-active" x="8" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="16" y="6.600000000000001" width="6" height="23.4" rx="1"/><rect class="spark-bar" x="24" y="28" width="6" height="2" rx="1"/><rect class="spark-bar-active" x="32" y="6.600000000000001" width="6" height="23.4" rx="1"/><rect class="spark-bar-active" x="40" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="48" y="9.900000000000002" width="6" height="20.099999999999998" rx="1"/><rect class="spark-bar-active" x="56" y="3.0" width="6" height="27.0" rx="1"/></svg></td>
-          <td class="py-3 pr-3 text-right"><span class="font-mono font-medium" style="color:#15803d">7.3</span></td>
-          <td class="py-3 pr-1 text-center"><span class="text-emerald-700 text-xs font-medium">●</span></td>
-        </tr>
-        <tr class="row-hover border-b border-[var(--border)]">
-          <td class="py-3 pl-1 pr-3"><div class="font-medium">Ylber Ramadani</div><div class="text-xs text-[var(--muted)]">30 vjeç · MQ</div></td>
-          <td class="py-3 pr-3 text-sm">Lecce<div class="text-xs text-[var(--muted)]">Serie A</div></td>
-          <td class="py-3 pr-3"><svg viewBox="0 0 64 30" width="80" height="30"><rect class="spark-bar-active" x="0" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="8" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="16" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="24" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="32" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="40" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="48" y="9.900000000000002" width="6" height="20.099999999999998" rx="1"/><rect class="spark-bar-active" x="56" y="3.0" width="6" height="27.0" rx="1"/></svg></td>
-          <td class="py-3 pr-3 text-right"><span class="font-mono font-medium" style="color:#15803d">7.5</span></td>
-          <td class="py-3 pr-1 text-center"><span class="text-emerald-700 text-xs font-medium">●</span></td>
-        </tr>
-        <tr class="row-hover border-b border-[var(--border)]">
-          <td class="py-3 pl-1 pr-3"><div class="font-medium">Ernest Muçi</div><div class="text-xs text-[var(--muted)]">24 vjeç · SK</div></td>
-          <td class="py-3 pr-3 text-sm">Beşiktaş<div class="text-xs text-[var(--muted)]">Süper Lig</div></td>
-          <td class="py-3 pr-3"><svg viewBox="0 0 64 30" width="80" height="30"><rect class="spark-bar-active" x="0" y="6.600000000000001" width="6" height="23.4" rx="1"/><rect class="spark-bar-active" x="8" y="9.900000000000002" width="6" height="20.099999999999998" rx="1"/><rect class="spark-bar-active" x="16" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="24" y="6.600000000000001" width="6" height="23.4" rx="1"/><rect class="spark-bar-active" x="32" y="3.6000000000000014" width="6" height="26.4" rx="1"/><rect class="spark-bar-active" x="40" y="9.900000000000002" width="6" height="20.099999999999998" rx="1"/><rect class="spark-bar-active" x="48" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="56" y="6.600000000000001" width="6" height="23.4" rx="1"/></svg></td>
-          <td class="py-3 pr-3 text-right"><span class="font-mono font-medium" style="color:#15803d">7.4</span></td>
-          <td class="py-3 pr-1 text-center"><span class="text-emerald-700 text-xs font-medium">●</span></td>
-        </tr>
-        <tr class="row-hover border-b border-[var(--border)]">
-          <td class="py-3 pl-1 pr-3"><div class="font-medium">Jasir Asani</div><div class="text-xs text-[var(--muted)]">29 vjeç · SK</div></td>
-          <td class="py-3 pr-3 text-sm">Gwangju FC<div class="text-xs text-[var(--muted)]">K League 1</div></td>
-          <td class="py-3 pr-3"><svg viewBox="0 0 64 30" width="80" height="30"><rect class="spark-bar-active" x="0" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="8" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="16" y="6.600000000000001" width="6" height="23.4" rx="1"/><rect class="spark-bar-active" x="24" y="9.900000000000002" width="6" height="20.099999999999998" rx="1"/><rect class="spark-bar-active" x="32" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="40" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="48" y="6.600000000000001" width="6" height="23.4" rx="1"/><rect class="spark-bar-active" x="56" y="3.0" width="6" height="27.0" rx="1"/></svg></td>
-          <td class="py-3 pr-3 text-right"><span class="font-mono font-medium" style="color:#15803d">7.7</span></td>
-          <td class="py-3 pr-1 text-center"><span class="text-emerald-700 text-xs font-medium">●</span></td>
-        </tr>
-        <tr class="row-hover border-b border-[var(--border)]">
-          <td class="py-3 pl-1 pr-3"><div class="font-medium">Rey Manaj</div><div class="text-xs text-[var(--muted)]">28 vjeç · SQ</div></td>
-          <td class="py-3 pr-3 text-sm">Sivasspor<div class="text-xs text-[var(--muted)]">Süper Lig</div></td>
-          <td class="py-3 pr-3"><svg viewBox="0 0 64 30" width="80" height="30"><rect class="spark-bar-active" x="0" y="6.600000000000001" width="6" height="23.4" rx="1"/><rect class="spark-bar" x="8" y="28" width="6" height="2" rx="1"/><rect class="spark-bar-active" x="16" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="24" y="6.600000000000001" width="6" height="23.4" rx="1"/><rect class="spark-bar-active" x="32" y="9.900000000000002" width="6" height="20.099999999999998" rx="1"/><rect class="spark-bar-active" x="40" y="6.600000000000001" width="6" height="23.4" rx="1"/><rect class="spark-bar-active" x="48" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="56" y="6.600000000000001" width="6" height="23.4" rx="1"/></svg></td>
-          <td class="py-3 pr-3 text-right"><span class="font-mono font-medium" style="color:#a16207">6.7</span></td>
-          <td class="py-3 pr-1 text-center"><span class="text-rose-700 text-xs font-medium" title="I dëmtuar">✕</span></td>
-        </tr>
-        <tr class="row-hover border-b border-[var(--border)]">
-          <td class="py-3 pl-1 pr-3"><div class="font-medium">Mirlind Daku</div><div class="text-xs text-[var(--muted)]">28 vjeç · SQ</div></td>
-          <td class="py-3 pr-3 text-sm">Rubin Kazan<div class="text-xs text-[var(--muted)]">Premier Liga</div></td>
-          <td class="py-3 pr-3"><svg viewBox="0 0 64 30" width="80" height="30"><rect class="spark-bar-active" x="0" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="8" y="6.600000000000001" width="6" height="23.4" rx="1"/><rect class="spark-bar-active" x="16" y="9.900000000000002" width="6" height="20.099999999999998" rx="1"/><rect class="spark-bar-active" x="24" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="32" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="40" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="48" y="6.600000000000001" width="6" height="23.4" rx="1"/><rect class="spark-bar-active" x="56" y="9.900000000000002" width="6" height="20.099999999999998" rx="1"/></svg></td>
-          <td class="py-3 pr-3 text-right"><span class="font-mono font-medium" style="color:#a16207">7.1</span></td>
-          <td class="py-3 pr-1 text-center"><span class="text-emerald-700 text-xs font-medium">●</span></td>
-        </tr>
-        <tr class="row-hover border-b border-[var(--border)]">
-          <td class="py-3 pl-1 pr-3"><div class="font-medium">Klaus Gjasula</div><div class="text-xs text-[var(--muted)]">36 vjeç · MQ</div></td>
-          <td class="py-3 pr-3 text-sm">Cesena<div class="text-xs text-[var(--muted)]">Serie B</div></td>
-          <td class="py-3 pr-3"><svg viewBox="0 0 64 30" width="80" height="30"><rect class="spark-bar-active" x="0" y="9.900000000000002" width="6" height="20.099999999999998" rx="1"/><rect class="spark-bar-active" x="8" y="6.600000000000001" width="6" height="23.4" rx="1"/><rect class="spark-bar-active" x="16" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="24" y="6.600000000000001" width="6" height="23.4" rx="1"/><rect class="spark-bar-active" x="32" y="9.900000000000002" width="6" height="20.099999999999998" rx="1"/><rect class="spark-bar-active" x="40" y="3.0" width="6" height="27.0" rx="1"/><rect class="spark-bar-active" x="48" y="9.900000000000002" width="6" height="20.099999999999998" rx="1"/><rect class="spark-bar-active" x="56" y="6.600000000000001" width="6" height="23.4" rx="1"/></svg></td>
-          <td class="py-3 pr-3 text-right"><span class="font-mono font-medium" style="color:#a16207">6.9</span></td>
-          <td class="py-3 pr-1 text-center"><span class="text-amber-600 text-xs font-medium" title="Një karton nga pezullimi">⚠</span></td>
-        </tr>
-          </tbody>
-        </table>
-      </div>
-      <!-- Right rail: minutes profile -->
-      <div class="col-span-4">
-        <div class="bg-white border border-[var(--border)] p-6">
-          <!--ALB--><div class="eyebrow mb-1">Ngarkesa e lojtarit</div>
-          <div class="font-serif text-2xl">Armando Broja</div>
-          <!--ALB--><div class="text-[12px] text-[var(--muted)] mt-0.5">12 javët e fundit · Burnley FC</div>
-          <div class="mt-6">
-            <svg viewBox="0 0 600 180" class="w-full"><g><line x1="20" x2="25" y1="150.0" y2="150.0" stroke="#d1d5db"/><text x="18" y="153.0" text-anchor="end" font-size="9" font-family="JetBrains Mono, monospace" fill="#9ca3af">0'</text></g><g><line x1="20" x2="25" y1="90.0" y2="90.0" stroke="#d1d5db"/><text x="18" y="93.0" text-anchor="end" font-size="9" font-family="JetBrains Mono, monospace" fill="#9ca3af">45'</text></g><g><line x1="20" x2="25" y1="30.0" y2="30.0" stroke="#d1d5db"/><text x="18" y="33.0" text-anchor="end" font-size="9" font-family="JetBrains Mono, monospace" fill="#9ca3af">90'</text></g><rect x="32.0" y="150.0" width="42.7" height="0.0" fill="#d1d5db" rx="2"/><rect x="78.7" y="110.0" width="42.7" height="40.0" fill="#d1d5db" rx="2"/><rect x="125.3" y="150.0" width="42.7" height="0.0" fill="#d1d5db" rx="2"/><rect x="172.0" y="76.7" width="42.7" height="73.3" fill="#d1d5db" rx="2"/><rect x="218.7" y="60.7" width="42.7" height="89.3" fill="#E41E26" rx="2"/><rect x="265.3" y="54.0" width="42.7" height="96.0" fill="#E41E26" rx="2"/><rect x="312.0" y="30.0" width="42.7" height="120.0" fill="#E41E26" rx="2"/><rect x="358.7" y="150.0" width="42.7" height="0.0" fill="#d1d5db" rx="2"/><rect x="405.3" y="32.7" width="42.7" height="117.3" fill="#E41E26" rx="2"/><rect x="452.0" y="63.3" width="42.7" height="86.7" fill="#E41E26" rx="2"/><rect x="498.7" y="30.0" width="42.7" height="120.0" fill="#E41E26" rx="2"/><rect x="545.3" y="46.0" width="42.7" height="104.0" fill="#E41E26" rx="2"/><polyline points="100.0,54.0 193.3,49.5 240.0,46.5 286.7,45.0 333.3,39.0 426.7,40.5 473.3,48.0 520.0,37.5 566.7,42.0" fill="none" stroke="#1a1a1a" stroke-width="1.5" stroke-dasharray="3 3"/><circle cx="100.0" cy="54.0" r="2.5" fill="#1a1a1a"/><circle cx="193.3" cy="49.5" r="2.5" fill="#1a1a1a"/><circle cx="240.0" cy="46.5" r="2.5" fill="#1a1a1a"/><circle cx="286.7" cy="45.0" r="2.5" fill="#1a1a1a"/><circle cx="333.3" cy="39.0" r="2.5" fill="#1a1a1a"/><circle cx="426.7" cy="40.5" r="2.5" fill="#1a1a1a"/><circle cx="473.3" cy="48.0" r="2.5" fill="#1a1a1a"/><circle cx="520.0" cy="37.5" r="2.5" fill="#1a1a1a"/><circle cx="566.7" cy="42.0" r="2.5" fill="#1a1a1a"/><text x="53.3" y="170" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="#9ca3af">J1</text><text x="100.0" y="170" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="#9ca3af">J2</text><text x="146.7" y="170" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="#9ca3af">J3</text><text x="193.3" y="170" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="#9ca3af">J4</text><text x="240.0" y="170" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="#9ca3af">J5</text><text x="286.7" y="170" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="#9ca3af">J6</text><text x="333.3" y="170" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="#9ca3af">J7</text><text x="380.0" y="170" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="#9ca3af">J8</text><text x="426.7" y="170" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="#9ca3af">J9</text><text x="473.3" y="170" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="#9ca3af">J10</text><text x="520.0" y="170" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="#9ca3af">J11</text><text x="566.7" y="170" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="#9ca3af">J12</text></svg>
-          </div>
-          <div class="mt-4 grid grid-cols-3 gap-3 pt-4 border-t border-[var(--border)]">
-            <div>
-              <!--ALB--><div class="eyebrow">Minuta totale</div>
-              <div class="font-mono font-medium text-lg">635'</div>
-            </div>
-            <div>
-              <!--ALB--><div class="eyebrow">Mesatarja</div>
-              <div class="font-mono font-medium text-lg">53'</div>
-            </div>
-            <div>
-              <!--ALB--><div class="eyebrow">Vlerësim mes.</div>
-              <div class="font-mono font-medium text-lg" style="color:#a16207">6.9</div>
-            </div>
-          </div>
-          <div class="mt-4 pt-4 border-t border-[var(--border)] text-[11px] text-[var(--muted)] flex items-center justify-between">
-            <!--ALB--><span>Klikoni mbi rreshtin e Brojës për profilin</span>
-            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- =================== SECTION 5: ATLASI / ATLAS =================== -->
-<section id="atlasi" class="section-pad border-t border-[var(--border)]" style="background: var(--bg-warm);">
-  <div class="container-max">
-    <div class="flex items-end justify-between mb-10">
-      <div>
-        <div class="flex items-center gap-3 mb-3">
-          <div class="red-rule"></div>
-          <!--ALB--><span class="eyebrow">Seksioni 04</span>
-        </div>
-        <!--ALB--><h2 class="section-title">Atlasi i Lojtarëve</h2>
-        <div class="eyebrow-en mt-1">Player Pool Atlas</div>
-      </div>
-      <!--ALB--><div class="text-right text-[12px] text-[var(--muted)] uppercase tracking-wider">642 lojtarë · 38 vende</div>
-    </div>
-
-    <div class="grid grid-cols-12 gap-6 relative">
-      <!-- Map -->
-      <div class="col-span-7 bg-white border border-[var(--border)] p-6 relative" id="atlas-map-wrap">
-        <div class="flex items-center justify-between mb-4">
-          <!--ALB--><div class="eyebrow">Hartëzim global</div>
-          <!--ALB--><div class="text-[11px] text-[var(--muted)] font-mono">Lëviz mbi pikat për detaje</div>
-        </div>
-        <div style="position:relative;">
-          <svg id="eu-map" viewBox="0 0 800 540" class="eu-map" style="width:100%; height:auto;">
-            <g id="eu-countries"></g>
-            <g id="eu-cities"></g>
-          </svg>
-          <div id="map-tooltip" class="map-tooltip"></div>
-        </div>
-        <div class="flex items-center gap-6 mt-6 pt-4 border-t border-[var(--border)] text-[11px] text-[var(--muted)]">
-          <div class="flex items-center gap-2">
-            <svg width="40" height="20" viewBox="0 0 40 20"><circle cx="6" cy="10" r="3" fill="#E41E26"/><circle cx="20" cy="10" r="6" fill="#E41E26"/><circle cx="34" cy="10" r="9" fill="#E41E26"/></svg>
-            <!--ALB--><span>Madhësia ∝ numri i lojtarëve</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <div class="w-3 h-3" style="background:rgba(228,30,38,0.16);border:1px solid var(--fshf-red)"></div>
-            <!--ALB--><span>Shqipëri · Kosovë · Maqedoni e V.</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Filterable card grid -->
-      <div class="col-span-5 bg-white border border-[var(--border)] p-6">
-        <div class="flex items-center justify-between mb-4">
-          <!--ALB--><div class="eyebrow">Lojtarë të identifikuar</div>
-          <!--ALB--><div class="text-[11px] text-[var(--muted)] font-mono"><span id="atlas-count">22</span>/642</div>
-        </div>
-        <!-- Filters -->
-        <div class="flex flex-wrap items-center gap-2 mb-4">
-          <!--ALB--><div class="text-[11px] text-[var(--muted)] mr-2 uppercase tracking-wider">Pozicioni</div>
-          <button class="filter-pill active" data-pos="all"><!--ALB-->Të gjithë</button>
-          <!--ALB--><button class="filter-pill" data-pos="PT" title="Portier">PT</button>
-          <!--ALB--><button class="filter-pill" data-pos="MB" title="Mbrojtës qendror">MB</button>
-          <!--ALB--><button class="filter-pill" data-pos="MA" title="Mbrojtës anësor">MA</button>
-          <!--ALB--><button class="filter-pill" data-pos="MQ" title="Mesfushor">MQ</button>
-          <!--ALB--><button class="filter-pill" data-pos="SK" title="Sulmues krahu">SK</button>
-          <!--ALB--><button class="filter-pill" data-pos="SQ" title="Sulmues qendror">SQ</button>
-        </div>
-        <div class="atlas-grid" id="atlas-grid">
-          
-        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="SQ" data-country="Angli">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">AB</div>
-            <div class="flex-1 min-w-0">
-              <div class="font-medium text-sm truncate">Armando Broja</div>
-              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->24 · SQ · Burnley FC</div>
-            </div>
-          </div>
-        </div>
-        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="MQ" data-country="Itali">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">KA</div>
-            <div class="flex-1 min-w-0">
-              <div class="font-medium text-sm truncate">Kristjan Asllani</div>
-              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->24 · MQ · Inter Milan</div>
-            </div>
-          </div>
-        </div>
-        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="MB" data-country="Itali">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">BD</div>
-            <div class="flex-1 min-w-0">
-              <div class="font-medium text-sm truncate">Berat Djimsiti</div>
-              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->33 · MB · Atalanta</div>
-            </div>
-          </div>
-        </div>
-        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="MB" data-country="Spanjë">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">MK</div>
-            <div class="flex-1 min-w-0">
-              <div class="font-medium text-sm truncate">Marash Kumbulla</div>
-              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->26 · MB · Espanyol</div>
-            </div>
-          </div>
-        </div>
-        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="MA" data-country="Rusi">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">MM</div>
-            <div class="flex-1 min-w-0">
-              <div class="font-medium text-sm truncate">Mario Mitaj</div>
-              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->22 · MA · Lokomotiv Moskva</div>
-            </div>
-          </div>
-        </div>
-        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="MQ" data-country="Itali">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">NB</div>
-            <div class="flex-1 min-w-0">
-              <div class="font-medium text-sm truncate">Nedim Bajrami</div>
-              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->27 · MQ · Sassuolo</div>
-            </div>
-          </div>
-        </div>
-        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="SK" data-country="Turqi">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">EM</div>
-            <div class="flex-1 min-w-0">
-              <div class="font-medium text-sm truncate">Ernest Muçi</div>
-              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->24 · SK · Beşiktaş</div>
-            </div>
-          </div>
-        </div>
-        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="SK" data-country="Kore e J.">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">JA</div>
-            <div class="flex-1 min-w-0">
-              <div class="font-medium text-sm truncate">Jasir Asani</div>
-              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->29 · SK · Gwangju FC</div>
-            </div>
-          </div>
-        </div>
-        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="SQ" data-country="Rusi">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">MD</div>
-            <div class="flex-1 min-w-0">
-              <div class="font-medium text-sm truncate">Mirlind Daku</div>
-              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->28 · SQ · Rubin Kazan</div>
-            </div>
-          </div>
-        </div>
-        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="MQ" data-country="Zvicër">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">AR</div>
-            <div class="flex-1 min-w-0">
-              <div class="font-medium text-sm truncate">Agon Rexhaj</div>
-              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->19 · MQ · FC Basel</div>
-            </div>
-          </div>
-        </div>
-        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="SQ" data-country="Itali">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">KH</div>
-            <div class="flex-1 min-w-0">
-              <div class="font-medium text-sm truncate">Klajdi Hoxha</div>
-              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->18 · SQ · Imolese U18</div>
-            </div>
-          </div>
-        </div>
-        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="SK" data-country="Itali">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">RG</div>
-            <div class="flex-1 min-w-0">
-              <div class="font-medium text-sm truncate">Rei Gjurkaj</div>
-              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->16 · SK · Udinese U15</div>
-            </div>
-          </div>
-        </div>
-        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="MQ" data-country="Gjermani">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">LH</div>
-            <div class="flex-1 min-w-0">
-              <div class="font-medium text-sm truncate">Lion Haxhiu</div>
-              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->19 · MQ · Nürnberg U19</div>
-            </div>
-          </div>
-        </div>
-        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="SQ" data-country="Gjermani">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">LR</div>
-            <div class="flex-1 min-w-0">
-              <div class="font-medium text-sm truncate">Leotrim Ramaj</div>
-              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->17 · SQ · St. Pauli U17</div>
-            </div>
-          </div>
-        </div>
-        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="PT" data-country="Gjermani">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">DR</div>
-            <div class="flex-1 min-w-0">
-              <div class="font-medium text-sm truncate">Diant Ramaj</div>
-              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->25 · PT · Heidenheim</div>
-            </div>
-          </div>
-        </div>
-        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="SK" data-country="Gjermani">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">LD</div>
-            <div class="flex-1 min-w-0">
-              <div class="font-medium text-sm truncate">Leon Dajaku</div>
-              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->25 · SK · Ulm</div>
-            </div>
-          </div>
-        </div>
-        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="SK" data-country="Gjermani">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">DD</div>
-            <div class="flex-1 min-w-0">
-              <div class="font-medium text-sm truncate">Drilon Demaj</div>
-              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->25 · SK · VfB Oldenburg</div>
-            </div>
-          </div>
-        </div>
-        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="SQ" data-country="Itali">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">DG</div>
-            <div class="flex-1 min-w-0">
-              <div class="font-medium text-sm truncate">Delis Gjeci</div>
-              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->17 · SQ · Internazionale U19</div>
-            </div>
-          </div>
-        </div>
-        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="MQ" data-country="Zvicër">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">DX</div>
-            <div class="flex-1 min-w-0">
-              <div class="font-medium text-sm truncate">Demir Xhemalija</div>
-              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->20 · MQ · Luzern</div>
-            </div>
-          </div>
-        </div>
-        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="MQ" data-country="Shqipëri">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">EM</div>
-            <div class="flex-1 min-w-0">
-              <div class="font-medium text-sm truncate">Edon Murataj</div>
-              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->24 · MQ · Vllaznia Shkodër</div>
-            </div>
-          </div>
-        </div>
-        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="SK" data-country="Gjermani">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">EP</div>
-            <div class="flex-1 min-w-0">
-              <div class="font-medium text-sm truncate">Ernest Poku</div>
-              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->22 · SK · Bayer Leverkusen</div>
-            </div>
-          </div>
-        </div>
-        <div class="atlas-card bg-white border border-[var(--border)] p-3 transition-colors hover:border-[var(--charcoal)]" data-pos="MQ" data-country="Angli">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-[var(--bg-warm)] flex items-center justify-center font-mono text-sm font-medium text-[var(--charcoal)]">JF</div>
-            <div class="flex-1 min-w-0">
-              <div class="font-medium text-sm truncate">Justin Ferizaj</div>
-              <div class="text-xs text-[var(--muted)] truncate"><!--ALB-->21 · MQ · Crawley Town</div>
-            </div>
-          </div>
-        </div>
-        </div>
-        <div class="mt-4 pt-4 border-t border-[var(--border)] text-[11px] text-[var(--muted)] italic">
-          <!--ALB-->Filtra shtesë (mosha, niveli i ligës, statusi i kapsionit) disponohen në versionin e plotë.
-        </div>
-      </div>
-    </div>
-
     <div class="mt-8 text-center">
       <!--ALB--><div class="font-serif text-3xl text-[var(--charcoal)]">642+ lojtarë <span class="text-[var(--muted)]">·</span> 38 vende <span class="text-[var(--muted)]">·</span> 122 klube</div>
       <!--ALB--><div class="text-[12px] text-[var(--muted)] mt-1">Të identifikuar dhe të vlerësuar nga federata. Çdo javë.</div>
@@ -1235,13 +1269,13 @@ button.filter-pill.active { background: var(--fshf-red); color: white; border-co
 </section>
 
 <!-- =================== SECTION 6: PROFILI / BROJA =================== -->
-<section id="profili" class="section-pad border-t border-[var(--border)]" style="background: var(--bg);">
+<section id="profili" data-section class="section-pad border-t border-[var(--border)] section-hidden" style="background: var(--bg);">
   <div class="container-max">
     <div class="flex items-end justify-between mb-10">
       <div>
         <div class="flex items-center gap-3 mb-3">
           <div class="red-rule"></div>
-          <!--ALB--><span class="eyebrow">Seksioni 05</span>
+          <!--ALB--><span class="eyebrow">Seksioni 04</span>
         </div>
         <!--ALB--><h2 class="section-title">Profili i Lojtarit</h2>
         <div class="eyebrow-en mt-1">Player Profile · single source of truth</div>
@@ -1269,7 +1303,7 @@ button.filter-pill.active { background: var(--fshf-red); color: white; border-co
             <!--ALB--><span class="pill">1.91 m · Këmba e djathtë</span>
           </div>
           <h3 class="font-serif text-6xl leading-none mb-2">Armando Broja</h3>
-          <div class="text-[14px] text-[var(--muted)]"><!--ALB-->Burnley FC · Premier League · #18</div>
+          <div class="text-[14px] text-[var(--muted)]"><!--ALB-->Burnley FC · Premier League</div>
           <div class="grid grid-cols-4 gap-6 mt-10 pt-6 border-t border-[var(--border)]">
             <div>
               <!--ALB--><div class="eyebrow">Ndeshje për kombëtaren</div>
@@ -1292,15 +1326,12 @@ button.filter-pill.active { background: var(--fshf-red); color: white; border-co
         <!-- Eligibility -->
         <div class="col-span-3 p-10 flex flex-col justify-center" style="background: linear-gradient(180deg, #faf9f6, #ece9e0);">
           <!--ALB--><div class="eyebrow mb-3">Statusi i përzgjedhjes</div>
-          <div class="flex items-center gap-3 mb-4">
+          <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-full bg-[var(--fshf-red)] flex items-center justify-center"><i data-lucide="check" class="w-5 h-5 text-white"></i></div>
             <div>
               <!--ALB--><div class="font-serif text-xl leading-tight">I përzgjedhur</div>
               <!--ALB--><div class="text-[11px] text-[var(--muted)]">Debutoi 12.10.2020 v. Andorra</div>
             </div>
-          </div>
-          <div class="text-[12px] text-[var(--muted)] leading-relaxed">
-            <!--ALB-->I përzgjedhur përfundimisht për Shqipërinë sipas neneve të FIFA-s. Pjesë e listës bazë për Nations League · 26 Shtator v. Belarus (Grupi I).
           </div>
         </div>
       </div>
@@ -1308,14 +1339,14 @@ button.filter-pill.active { background: var(--fshf-red); color: white; border-co
 
     <!-- Club stats + Signals row -->
     <div class="grid grid-cols-12 gap-6 mb-6">
-      <div class="col-span-8 space-y-6">
+      <div class="col-span-12">
         <div class="bg-white border border-[var(--border)] p-6">
           <div class="flex items-center justify-between mb-5">
             <div>
               <!--ALB--><div class="eyebrow">Statistikat e klubit · 12 muaj</div>
               <!--ALB--><div class="text-[12px] text-[var(--muted)] mt-0.5">Burnley FC · sezoni 2025/26</div>
             </div>
-            <!--ALB--><div class="text-[11px] text-[var(--muted)] font-mono">përditësuar 6 maj</div>
+            <!--ALB--><div class="text-[11px] text-[var(--muted)] font-mono" id="live-updated-date">përditësuar 6 maj</div>
           </div>
           <div class="grid grid-cols-4 gap-2">
         <div class="p-4 bg-white border border-[var(--border)]">
@@ -1323,12 +1354,6 @@ button.filter-pill.active { background: var(--fshf-red); color: white; border-co
           <div class="display-num mt-1" style="font-size: 32px; line-height:1; color:var(--charcoal)">1 847'</div>
           
           <div class="text-[11px] text-[var(--muted)] mt-1"><!--ALB-->Burnley FC · 28 ndeshje</div>
-        </div>
-        <div class="p-4 bg-white border border-[var(--border)]">
-          <!--ALB--><div class="eyebrow">% e minutave të klubit</div>
-          <div class="display-num mt-1" style="font-size: 32px; line-height:1; color:var(--charcoal)">64%</div>
-          <div class="prob-bar mt-2"><div class="prob-bar-fill" style="width:64%"></div></div>
-          <div class="text-[11px] text-[var(--muted)] mt-1"><!--ALB-->vs. mesatarja e ekipit</div>
         </div>
         <div class="p-4 bg-white border border-[var(--border)]">
           <!--ALB--><div class="eyebrow">Minuta · 2 muaj</div>
@@ -1366,54 +1391,6 @@ button.filter-pill.active { background: var(--fshf-red); color: white; border-co
           
           <div class="text-[11px] text-[var(--muted)] mt-1"><!--ALB-->4 kartona verdhë · 0 të kuq</div>
         </div></div>
-        </div>
-      </div>
-      <div class="col-span-4 signal-rail p-6">
-        <!--ALB--><div class="eyebrow mb-2">Sinjalet e javës</div>
-        <div class="flex items-start gap-3 py-3 border-b border-[var(--border)] last:border-b-0">
-          <div class="w-8 h-8 rounded-full bg-[var(--bg-warm)] flex items-center justify-center text-[var(--fshf-red)] flex-shrink-0">
-            <i data-lucide="trending-up" class="w-4 h-4"></i>
-          </div>
-          <div class="flex-1">
-            <!--ALB--><div class="font-medium text-sm">Forma në rritje</div>
-            <!--ALB--><div class="text-xs text-[var(--muted)] mt-0.5">5 ndeshje rresht me >65 minuta</div>
-          </div>
-        </div>
-        <div class="flex items-start gap-3 py-3 border-b border-[var(--border)] last:border-b-0">
-          <div class="w-8 h-8 rounded-full bg-[var(--bg-warm)] flex items-center justify-center text-[var(--fshf-red)] flex-shrink-0">
-            <i data-lucide="shield-check" class="w-4 h-4"></i>
-          </div>
-          <div class="flex-1">
-            <!--ALB--><div class="font-medium text-sm">Pa kartonë</div>
-            <!--ALB--><div class="text-xs text-[var(--muted)] mt-0.5">Pa kartonë në 5 ndeshjet e fundit me kombëtaren</div>
-          </div>
-        </div>
-        <div class="flex items-start gap-3 py-3 border-b border-[var(--border)] last:border-b-0">
-          <div class="w-8 h-8 rounded-full bg-[var(--bg-warm)] flex items-center justify-center text-[var(--fshf-red)] flex-shrink-0">
-            <i data-lucide="activity" class="w-4 h-4"></i>
-          </div>
-          <div class="flex-1">
-            <!--ALB--><div class="font-medium text-sm">I disponueshëm për shtator</div>
-            <!--ALB--><div class="text-xs text-[var(--muted)] mt-0.5">Konkurron me Manaj për pikën e numrit 9</div>
-          </div>
-        </div>
-        <div class="flex items-start gap-3 py-3 border-b border-[var(--border)] last:border-b-0">
-          <div class="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center text-amber-700 flex-shrink-0">
-            <i data-lucide="alert-circle" class="w-4 h-4"></i>
-          </div>
-          <div class="flex-1">
-            <!--ALB--><div class="font-medium text-sm">Konkurrenca brenda klubit</div>
-            <!--ALB--><div class="text-xs text-[var(--muted)] mt-0.5">Foster e nis ndeshjet — Broja sub në 11 nga 28</div>
-          </div>
-        </div>
-        <div class="flex items-start gap-3 py-3 last:border-b-0">
-          <div class="w-8 h-8 rounded-full bg-[var(--bg-warm)] flex items-center justify-center text-[var(--charcoal)] flex-shrink-0">
-            <i data-lucide="file-text" class="w-4 h-4"></i>
-          </div>
-          <div class="flex-1">
-            <!--ALB--><div class="font-medium text-sm">Kontrata e qëndrueshme</div>
-            <!--ALB--><div class="text-xs text-[var(--muted)] mt-0.5">Burnley FC deri 30.06.2028 — pa rrezik kalimi</div>
-          </div>
         </div>
       </div>
     </div>
@@ -1532,21 +1509,10 @@ button.filter-pill.active { background: var(--fshf-red); color: white; border-co
           <div class="text-[11px] text-[var(--muted)] mt-1"><!--ALB-->asnjë në sezonin aktual</div>
         </div>
         </div>
-        <div class="grid grid-cols-2 gap-2">
-          
         <div class="p-4 bg-white border border-[var(--border)]">
           <!--ALB--><div class="eyebrow">Pezullime · 12 muaj</div>
           <div class="display-num mt-1" style="font-size: 32px; line-height:1; color:var(--charcoal)">0</div>
-          
-          
-        </div>
-          
-        <div class="p-4 bg-white border border-[var(--border)]">
-          <!--ALB--><div class="eyebrow">Kontrata e klubit</div>
-          <div class="display-num mt-1" style="font-size: 32px; line-height:1; color:var(--charcoal)">30.06.2028</div>
-          
-          <div class="text-[11px] text-[var(--muted)] mt-1"><!--ALB-->2 vite e gjysmë</div>
-        </div>
+          <div class="text-[11px] text-[var(--muted)] mt-1"><!--ALB-->asnjë në 12 muajt e fundit</div>
         </div>
         <div class="p-3 bg-white border border-[var(--border)]">
           <!--ALB--><div class="eyebrow mb-1">Dëmtime · 12 muaj</div>
@@ -1809,11 +1775,11 @@ button.filter-pill.active { background: var(--fshf-red); color: white; border-co
       <div class="w-10 h-12"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 316.55933 432.07089"><g transform="translate(-121.72034,-259.18389)"><path style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none" d="m 438.27966,513.38075 c 0,128.51575 -158.31477,177.87402 -158.31477,177.87402 0,0 -158.24455,-49.35827 -158.24455,-177.87402 V 259.18389 h 316.55932 z" /><path style="fill:#e51b24;fill-opacity:1;fill-rule:nonzero;stroke:none" d="m 421.80266,508.24295 c 0,118.52363 -141.90864,164.05512 -141.90864,164.05512 0,0 -141.69685,-45.53149 -141.69685,-164.05512 V 273.88862 h 283.60549 z" /><path style="fill:#df3c78;fill-opacity:1;fill-rule:nonzero;stroke:none" d="m 340.34284,396.73507 v 0 l -0.0354,-0.0354" /><path style="fill:#220000;fill-opacity:1;fill-rule:evenodd;stroke:none" d="m 138.19717,284.802 v 0.2126 c 28.62992,31.78347 89.11418,101.40945 119.33858,135.49607 -3.22441,0.70866 -6.34252,1.52362 -9.28346,2.44488 C 212.60662,384.82956 168.95308,339.2272 138.19717,308.68389 v 1.59449 c 28.48819,31.99606 73.59449,83.83465 101.65748,115.61811 -2.12598,0.8504 -4.14567,1.77166 -6.02362,2.65748 -32.95275,-33.27165 -69.16535,-68.70472 -95.63386,-94.42913 v 2.05512 c 23.49213,27.03543 57.54331,67.92519 84.29528,99.38976 -0.24803,0.2126 -0.49607,0.4252 -0.70866,0.60236 0.24803,-0.17716 0.53149,-0.31889 0.77952,-0.49606 1.70079,2.01968 3.54331,4.1811 5.17323,6.09449 0.81496,2.76378 -2.72834,4.0748 -5.35039,1.45275 -29.05512,-29.23228 -60.05906,-59.52756 -84.18898,-83.01968 v 2.90551 c 21.79134,25.22835 50.77559,59.98819 74.94095,88.47638 0.70866,2.40945 -1.55906,3.72047 -3.89764,2.26772 -24.27165,-24.34252 -49.53543,-49.14567 -71.04331,-70.12205 v 4.85433 c 19.27559,22.57086 42.09449,49.88976 62.07874,73.48819 0.1063,0.2126 0.2126,0.38976 0.24803,0.53149 0.88583,2.69292 -2.40944,4.07481 -5.03149,2.05512 -0.17717,-0.14173 -0.3189,-0.3189 -0.49607,-0.49606 -18.35433,-18.77953 -38.01968,-38.76378 -56.79921,-57.72047 v 11.65748 c 16.61811,19.16929 33.44882,38.51575 48.64961,55.94882 0.0354,0.0354 0.0709,0.1063 0.0709,0.14173 0.28346,0.35433 0.56693,0.77953 0.74409,1.13386 1.13386,2.69291 -2.33858,5.06693 -5.20866,2.94094 -14.10236,-13.85433 -29.55118,-28.87795 -44.25591,-43.22835 v 8.11418 c 10.27559,12.22441 20.83465,24.90945 31.00394,37.09842 -0.77953,2.44489 -1.48819,4.88977 -2.12598,7.37008 -9.67323,-9.42519 -19.38189,-18.77953 -28.87796,-27.92126 v 8.85827 c 8.78741,10.80709 17.68111,21.86221 26.29134,32.42126 -0.38976,2.94095 -0.74409,5.84646 -0.95669,8.71654 -8.43307,-7.75985 -16.90158,-15.41339 -25.33465,-23.10237 v 9.17717 c 8.29134,10.52362 16.54725,21.04724 25.05118,31.32283 0.0709,2.01969 0.17717,4.00394 0.35433,5.91733 -6.62598,-7.44095 -13.14566,-14.52756 -16.58267,-17.75197 -2.94095,-2.79921 -5.88189,-5.56299 -8.82284,-8.32677 v 1.34645 c 0,3.72048 0.16518,7.33465 0.41321,10.91339 9.63779,10.87795 19.03955,21.54331 27.40175,30.75591 0.77953,3.68504 1.66536,7.05118 2.62205,10.06299 -9.85039,-9.95669 -19.39141,-19.59449 -28.67487,-29.30315 0.0709,0.53149 0.1597,1.06299 0.266,1.59449 15.51968,18.85039 35.03485,44.32677 49.59785,59.81102 17.07874,29.58662 47.94094,52.05118 83.79921,53.50394 66.6496,2.69291 104.90354,-52.51378 109.20472,-89.7874 4.34681,-37.36066 -6.05906,-67.88977 -30.22441,-88.61812 -15.34252,-13.14567 -23.88189,-19.62992 -43.65354,-26.7874 -2.01969,-2.33858 -4.07481,-4.7126 -6.12992,-6.98031 -4.25197,-4.7126 -7.97244,-8.78741 -11.55118,-12.68504 l 5.66929,-1.84252 c -2.72835,-0.46063 -5.49213,-0.77953 -8.22047,-0.9567 -27.4252,-29.83464 -36.9567,-38.30315 -72.6378,-72.85039 29.26772,32.38583 23.20866,31.0748 52.22835,63.6378 2.76378,3.08267 5.31496,6.09448 7.97244,9.14173 -2.97638,0.17716 -5.91733,0.42519 -8.82284,0.81496 C 226.46095,374.66027 171.18536,316.86893 138.19717,284.802 Z m 135.5315,135.17717 c 1.48819,0 2.97637,0.0354 4.5,0.1063 2.79921,3.22441 5.77559,6.51968 9.28346,10.13386 -0.81496,2.16141 -5.98819,1.84252 -9,0.38976 -3.04724,-3.29528 -6.41338,-6.90945 -9.67323,-10.41732 1.62992,-0.1063 3.25985,-0.17717 4.88977,-0.2126 z m -15.37796,1.45276 c 1.063,1.20472 2.44489,2.76377 3.43701,3.8622 1.34646,1.52362 2.79921,3.18898 4.21654,4.78346 0.31889,2.37402 -5.95276,3.57874 -9.2126,2.05512 -2.55118,-2.76378 -5.27953,-5.70472 -7.93701,-8.53937 3.08268,-0.88582 6.27165,-1.59449 9.49606,-2.16141 z m -18,5.03149 c 2.09056,2.37402 4.42914,4.99606 6.30709,7.12205 0.95669,2.83464 -3.61417,4.21653 -6.27165,1.55905 -1.98425,-2.01968 -4.07481,-4.0748 -6.09449,-6.12992 1.98425,-0.92126 4.00394,-1.77165 6.05905,-2.55118 z m -68.20866,57.29528 c 2.94095,3.47244 5.88189,6.98031 8.68111,10.31102 0.70866,2.26772 -0.6378,4.3937 -2.83465,3.61418 -0.56693,-0.2126 -1.27559,-0.77953 -1.66535,-1.09843 -2.12599,-2.05512 -4.25197,-4.14567 -6.37796,-6.20079 0.67323,-2.16141 1.41733,-4.2874 2.23229,-6.37795 z m -5.59842,19.80709 c 3.25984,4.00393 6.48425,7.90157 9.63779,11.69291 0.81497,2.26772 -0.46063,4.42913 -2.58661,3.82677 -2.76378,-2.58661 -5.52756,-5.17323 -8.29134,-7.75984 0.3189,-2.58662 0.7441,-5.17323 1.24016,-7.75984 z m -2.12598,24.94488 c 3.3307,4.00393 6.66141,8.07874 10.06299,12.08267 0.60236,1.09843 0.49606,1.91339 -0.4252,2.44489 -0.63779,0.38976 -1.27559,0.28346 -1.94882,-0.2126 -2.33858,-2.76378 -4.88976,-5.70473 -7.44094,-8.5748 -0.1063,-1.91339 -0.2126,-3.82678 -0.24803,-5.74016 z m 2.69291,22.64173 c 3.25984,3.57874 6.37795,7.01575 9.2126,10.06299 2.05512,2.05512 3.40157,3.50788 4.25197,4.6063 0.49606,1.09843 0.10629,1.98425 -0.70867,2.65748 -0.67322,0.56693 -1.77165,0.67323 -2.87007,-0.1063 -2.44489,-2.48031 -4.8189,-4.85433 -7.22835,-7.29921 -1.02756,-3.25984 -1.91339,-6.55512 -2.65748,-9.92126 z" /><path style="fill:#220000;fill-opacity:1;fill-rule:evenodd;stroke:none" d="m 377.51213,423.27444 c 0,0 28.80708,26.53938 41.84645,36.56693 -10.66535,-14.59842 -36.21259,-43.86614 -36.21259,-43.86614 0,0 -5.91733,-1.87795 -8.68111,-2.51575 0.7441,3.50788 3.04725,9.81496 3.04725,9.81496 m -68.42126,-6.16535 c 13.03937,14.63386 24.66142,28.06299 24.66142,28.06299 0,0 7.19291,1.94882 10.55905,2.58662 -0.92126,-3.54331 -3.72047,-9.8504 -3.72047,-9.8504 0,0 -15.62598,-10.73622 -31.5,-20.79921 m 65.40945,-4.11024 c -0.7441,-3.5433 -3.01181,-9.81496 -3.01181,-9.81496 0,0 -28.84252,-26.5748 -41.88189,-36.56693 10.66535,14.59843 36.2126,43.86615 36.2126,43.86615 0,0 5.91732,1.87795 8.6811,2.51574 m -24.30712,15.87402 c -3.22441,-2.87008 -30.47244,-26.92913 -43.15748,-36.28347 10.59449,13.9252 34.83071,40.85434 37.73622,44.04331 l 0.35434,0.35433 c 3.22441,2.83465 30.47244,26.92914 43.15748,36.24804 -10.59449,-13.88977 -34.83071,-40.8189 -37.73622,-44.04331 z m 6.23623,-19.16925 c -6.12992,-5.42126 -43.72441,-38.58662 -61.47637,-51.66142 14.70472,19.34646 47.83464,56.19685 53.64566,62.64567 l 0.95676,1.02753 c 6.12992,5.42126 43.75984,38.58661 61.47637,51.62599 -14.70472,-19.31103 -47.79921,-56.16142 -53.64567,-62.64568 z" /><path style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:none" d="m 284.35859,563.66027 c 14.35039,19.41733 28.13385,38.05512 34.83071,47.48032 -8.64567,-9.17716 -24.73229,-27.38976 -41.49213,-46.34646 1.94882,-0.31889 4.21654,-0.70866 6.66142,-1.13386 z m 17.64567,-3.40157 c 16.72441,22.64173 31.35826,42.16535 31.35826,42.16535 -0.35433,-0.17716 -17.1496,-19.09842 -36.81496,-41.06693 1.87796,-0.38976 3.82678,-0.77952 5.4567,-1.09842 z M 182.34678,539.92012 c 0.67323,0.24803 1.34646,0.53149 1.34646,0.53149 0,0 25.22834,35.39764 34.37007,50.98819 -8.00787,-7.54724 -24.05905,-25.54724 -33.16535,-35.75197 -1.24016,-5.20866 -2.12598,-10.52362 -2.55118,-15.76771 z m 19.94523,-0.75744 c 17.82283,22.74803 41.07052,50.82437 52.12563,66.37949 l -56.05511,-57.68505 z m 5.15473,-23.75149 c 18.99212,27.24803 60.29374,81.87507 75.45909,103.13491 -15.51968,-16.40551 -52.91492,-57.41492 -78.63932,-84.37948 l 3.55665,-8.56146 c 0,0 -0.3942,-7.46136 -0.37642,-10.19397 z m 143.98665,-26.86903 c 0.14173,0.0354 0.2126,0.0354 0.3189,0.0709 -0.1063,4.5 0.0709,9.17716 0.21259,13.7126 -0.31889,-0.35433 -0.60236,-0.70866 -0.92126,-1.06299 0.35434,-4.39371 0.49607,-8.64567 0.38977,-12.72048 z m -54.07087,-20.37401 c 7.29922,11.90551 31.2874,45.46063 48.75591,69.66142 2.16142,-4.46457 3.93307,-9.07087 5.35039,-13.74804 -18.07086,-19.31102 -44.29134,-47.01968 -54.1063,-55.91338 z m -11.37401,-29.44489 c 4.8189,0.0709 9.56693,0.5315 14.24409,1.38189 18.5315,3.29528 36.99213,15.16536 49.88977,28.09843 0,1.06299 0.85039,2.30315 0,2.94094 -0.24804,-0.0354 -0.46063,-0.0709 -0.67323,-0.10629 -0.24803,-1.09843 -0.46063,-2.16142 -0.7441,-3.18898 0,0 -0.3189,-0.14173 -0.60236,-0.24803 -2.63133,-0.24573 -4.84813,0.007 -7.61811,-0.21256 0.0354,0.38976 0.1063,0.77953 0.2126,1.16929 -4.53543,-3.72047 -9.5315,-7.72441 -14.77559,-11.87008 7.79527,10.77166 13.64173,19.06299 17.50393,24.44882 0.94692,4.61602 1.54555,9.47733 1.80709,13.8189 -13.74803,-14.98819 -25.86614,-28.62992 -36.95669,-38.65748 7.19291,11.76378 28.73622,42.05905 44.32677,63.74409 0.17717,0.2126 0.35433,0.46063 0.5315,0.70866 9.56692,13.28741 16.79527,23.20867 16.79527,23.20867 0,0 -7.58268,-8.22048 -17.85827,-19.24016 -1.34645,4.6063 -3.04724,9.4252 -5.13779,14.27953 10.59449,14.66929 18.60236,25.61811 18.60236,25.61811 0,0 -8.64567,-9.4252 -20.26772,-22.00394 -2.01968,4.2874 -4.35826,8.53937 -7.01574,12.64961 10.94882,14.95275 19.41732,26.39763 19.41732,26.39763 0,0 -9.17717,-10.20472 -21.25984,-23.59842 -2.40945,3.47244 -5.06693,6.80315 -7.97244,9.95669 10.06299,13.5 17.5748,23.49213 17.5748,23.49213 0,0 -16.22835,-17.82284 -35.14961,-38.30315 0.14174,-2.48032 0.8504,-5.31496 0.92126,-7.54725 5.98819,8.04331 11.51575,15.44882 16.58268,22.28741 l 1.94882,-6.98032 c 1.48819,-1.59449 2.87008,-3.22441 4.21653,-4.9252 -6.55511,-7.22834 -13.60629,-15.05905 -21.08267,-23.24409 0.15139,-4.15611 0.87677,-6.46713 1.24019,-9.99213 7.61811,10.59449 15.16535,20.97638 22.0748,30.40158 2.79921,-3.75591 5.31496,-7.65355 7.47638,-11.72835 -20.79922,-22.46457 -50.77559,-54.49606 -60.76772,-63.5315 4.35827,7.08662 14.84646,22.00394 26.4685,38.23229 -7.10458,-3.10791 -13.84249,-7.1068 -21.04724,-9.88583 -8.4685,-9.03543 -15.62598,-16.37008 -19.59449,-19.94882 2.12599,3.47244 6.23622,9.35433 11.40945,16.68898 -0.2126,-0.28347 -0.81496,-0.4252 -1.13386,-0.17717 0,-0.21259 0.0709,-0.46063 -0.1063,-0.53149 0,0 -6.92401,5.6756 -8.92913,7.65354 -7.40551,-7.72441 -13.42913,-13.85433 -16.58268,-16.68898 2.33859,3.79134 7.29922,10.94882 13.57087,19.73623 -2.69291,2.72834 -5.17323,5.20866 -7.61811,7.75984 -11.48032,-12.54331 -21.11811,-22.74803 -25.54724,-26.75197 3.437,5.63386 11.69291,17.2559 21.57874,30.8622 -0.0354,0.0354 -0.0709,0.1063 -0.14174,0.14174 -0.60236,1.48819 -2.69291,2.48031 -3.36614,3.8622 0.0354,-0.1063 0.0354,-0.17716 -0.1063,-0.17716 0.0709,1.45275 3.54331,8.39763 7.44095,15.83858 -18.60236,-20.94095 -35.92914,-40.11024 -43.54725,-47.01969 11.26772,18.38977 69.41339,95.20867 86.17323,118.77166 C 283.04759,595.86898 229.01216,534.4989 206.6539,511.92803 l -4.21654,-19.48819 c 0,-0.17716 0.1063,-0.24804 0,0 -4.73806,3.36595 -10.50845,7.58556 -14.52756,10.31102 10.59449,-27.28346 33.51969,-47.30315 59.63386,-57.18897 -1.24629,1.96148 -4.21654,8.39763 -4.21654,8.39763 10.56769,2.56824 24.57129,6.86068 31.00394,8.00784 8.29813,-4.5729 19.53604,-11.23811 24.76771,-14.1378 -0.17716,-0.0354 -0.0354,-0.2126 0.0709,-0.31889 -4.21319,-3.3056 -8.59239,-6.67097 -13.1811,-8.78741 z" /><path style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none" d="m 171.61056,376.78625 h 3.25984 v 27.1063 h -4.64173 v -22.32283 l -4.78347,1.34646 -0.99212,-3.82678" /><path style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none" d="m 190.88615,380.57759 c -3.29528,0 -5.27953,2.23229 -5.27953,5.0315 0,2.83465 2.12599,4.85433 5.45669,4.85433 3.36615,0 5.38583,-2.23228 5.38583,-4.88976 0,-2.83465 -2.16142,-4.99607 -5.56299,-4.99607 m -0.81496,23.77559 c -3.68504,0 -6.27166,-1.34645 -8.53937,-3.25984 l 2.55118,-3.61417 c 2.01968,1.73622 3.82677,2.55118 6.09449,2.55118 3.89764,0 6.27165,-3.50787 6.41338,-8.4685 -1.31102,1.62992 -3.36614,2.87007 -6.23622,2.87007 -5.66929,0 -9.42519,-3.36614 -9.42519,-8.5748 0,-5.31496 4.03937,-9.35433 9.92126,-9.35433 3.36614,0 5.52755,0.95669 7.37007,2.83465 1.98426,2.01968 3.25985,4.96063 3.25985,10.31102 0,8.6811 -4.2874,14.70472 -11.40945,14.70472" /><path style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none" d="m 205.98064,381.07366 v -4.11024 h 17.61023 v 3.54331 l -7.40551,7.68897 c 4.03937,0.5315 7.83071,2.58662 7.83071,7.61811 0,4.99607 -3.82677,8.53937 -9.3189,8.53937 -4.64173,0 -7.93701,-1.98425 -10.20472,-4.74803 l 3.25984,-3.08267 c 1.91339,2.26771 4.03937,3.5433 7.01575,3.5433 2.62205,0 4.6063,-1.59449 4.6063,-4.11023 0,-2.69292 -2.37402,-4.18111 -6.12992,-4.18111 H 211.083 l -0.77953,-2.97637 7.19291,-7.72441" /><path style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none" d="m 240.03182,380.75476 c -4.14567,0 -6.73229,4.25197 -6.73229,9.63779 0,5.38583 2.65748,9.67323 6.80315,9.67323 4.14567,0 6.73229,-4.25197 6.73229,-9.60236 0,-5.35039 -2.65748,-9.70866 -6.80315,-9.70866 m 0,23.59842 c -6.98032,0 -11.55118,-6.16535 -11.55118,-13.88976 0,-7.72441 4.64173,-13.96063 11.62204,-13.96063 7.01575,0 11.55118,6.16535 11.55118,13.88976 0,7.72441 -4.6063,13.96063 -11.62204,13.96063" /><path style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none" d="m 246.7641,366.0146 c -9.77953,0 -19.62992,-3.40157 -27.35433,-10.31102 l 8.3622,-10.063 c 5.81103,4.78347 11.90552,7.83071 19.24016,7.83071 5.81103,0 9.3189,-2.30315 9.3189,-6.05905 v -0.17717 c 0,-3.61417 -2.19685,-5.45669 -12.9685,-8.22047 -13.00394,-3.29527 -21.40158,-6.90945 -21.40158,-19.70079 v -0.17716 c 0,-11.69292 9.4252,-19.45276 22.57087,-19.45276 9.38976,0 17.43307,2.94095 23.95275,8.18504 l -7.37008,10.70079 c -5.70472,-3.96851 -11.33858,-6.34252 -16.75984,-6.34252 -5.42126,0 -8.29134,2.48031 -8.29134,5.59842 v 0.17717 c 0,4.25197 2.76378,5.63386 13.9252,8.50394 13.0748,3.40157 20.44488,8.07874 20.44488,19.34645 v 0.17717 c 0,12.79134 -9.77953,19.98425 -23.66929,19.98425" /><path style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none" d="m 320.81922,365.09334 v -25.90157 h -26.18504 v 25.90157 h -14.17323 v -64.48819 h 14.17323 v 25.51181 h 26.18504 v -25.51181 h 14.17322 v 64.48819" /><path style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none" d="m 210.37434,327.21539 h -30.50788 v -13.7126 h 31.99607 l 1.41732,-12.89764 h -47.58661 v 64.48819 h 14.17322 v -24.98031 h 29.09055" /><path style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none" d="m 392.81921,327.21539 h -30.47244 v -13.7126 h 31.96063 l 1.41733,-12.89764 h -47.55118 v 64.48819 h 14.17322 v -24.98031 h 29.09055" /></g></svg></div>
       <div>
         <!--ALB--><div class="text-[10px] tracking-[0.16em] font-semibold">FEDERATA SHQIPTARE E FUTBOLLIT</div>
-        <!--ALB--><div class="text-[11px] text-[var(--muted)]">Platforma e Inteligjencës · v0.1 · Maj 2026</div>
+        <!--ALB--><div class="text-[11px] text-[var(--muted)]">Platforma e Inteligjencës · v0.1 · <span id="live-monthyear-cap">Maj 2026</span></div>
       </div>
     </div>
     <div class="text-center">
-      <!--ALB--><a href="mailto:aurel@twentyfirstgroup.com
+      <!--ALB--><a href="mailto:aurel.nazmiu@icloud.com
       .com" class="font-serif text-2xl hover:text-[var(--fshf-red)]">Vazhdoni bisedën →</a>
       <div class="text-[11px] text-[var(--muted)] mt-1 italic">aurel.nazmiu@icloud.com</div>
     </div>
@@ -1823,6 +1789,22 @@ button.filter-pill.active { background: var(--fshf-red); color: white; border-co
 <script>
 // Lucide icons
 lucide.createIcons();
+
+// Live dates/times — computed when the page is opened (Albanian month names)
+const MONTHS_AL = ['janar','shkurt','mars','prill','maj','qershor','korrik','gusht','shtator','tetor','nëntor','dhjetor'];
+function updateLiveDates() {
+  const now = new Date();
+  const d = now.getDate(), mo = MONTHS_AL[now.getMonth()], yr = now.getFullYear();
+  const hh = String(now.getHours()).padStart(2, '0'), mm = String(now.getMinutes()).padStart(2, '0');
+  const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+  const set = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+  set('live-updated', `Përditësuar ${d} ${mo} · ${hh}:${mm}`);
+  set('live-updated-date', `përditësuar ${d} ${mo}`);
+  set('live-monthyear', `${mo} ${yr}`);
+  set('live-monthyear-cap', `${cap(mo)} ${yr}`);
+}
+updateLiveDates();
+setInterval(updateLiveDates, 30000); // keep the clock fresh while the page stays open
 
 // Hero fade-in
 window.addEventListener('load', () => {
@@ -1861,40 +1843,71 @@ document.querySelectorAll('.filter-pill').forEach(btn => {
 });
 
 // Atlas map: render Europe via d3 + topojson (world-atlas)
-const FSHF_CITIES = [
-  {name:"Tirana", lon:19.82, lat:41.33, count:32},
-  {name:"Prishtinë", lon:21.16, lat:42.67, count:18},
-  {name:"Shkup", lon:21.43, lat:41.99, count:12},
-  {name:"Milano", lon:9.19, lat:45.46, count:23},
-  {name:"Romë", lon:12.50, lat:41.90, count:8},
-  {name:"Napoli", lon:14.27, lat:40.85, count:6},
-  {name:"Firence", lon:11.26, lat:43.77, count:5},
-  {name:"Londër", lon:-0.13, lat:51.51, count:14},
-  {name:"Mançester", lon:-2.24, lat:53.48, count:6},
-  {name:"Mynih", lon:11.58, lat:48.14, count:11},
-  {name:"Berlin", lon:13.40, lat:52.52, count:9},
-  {name:"Frankfurt", lon:8.68, lat:50.11, count:8},
-  {name:"Hamburg", lon:9.99, lat:53.55, count:4},
-  {name:"Shtutgart", lon:9.18, lat:48.78, count:7},
-  {name:"Cyrih", lon:8.55, lat:47.38, count:17},
-  {name:"Bernë", lon:7.45, lat:46.95, count:9},
-  {name:"Gjenevë", lon:6.14, lat:46.20, count:6},
-  {name:"Vjenë", lon:16.37, lat:48.21, count:12},
-  {name:"Salzburg", lon:13.05, lat:47.81, count:5},
-  {name:"Bruksel", lon:4.35, lat:50.85, count:7},
-  {name:"Antwerp", lon:4.40, lat:51.22, count:4},
-  {name:"Paris", lon:2.35, lat:48.86, count:6},
-  {name:"Lion", lon:4.84, lat:45.76, count:4},
-  {name:"Madrid", lon:-3.70, lat:40.42, count:5},
-  {name:"Barcelonë", lon:2.17, lat:41.39, count:4},
-  {name:"Lisbonë", lon:-9.14, lat:38.72, count:3},
-  {name:"Stamboll", lon:28.98, lat:41.01, count:9},
-  {name:"Athinë", lon:23.73, lat:37.98, count:6},
-  {name:"Stokholm", lon:18.07, lat:59.33, count:5},
-  {name:"Kopenhagë", lon:12.57, lat:55.68, count:3},
-  {name:"Amsterdam", lon:4.90, lat:52.37, count:4},
-  {name:"Dublin", lon:-6.27, lat:53.35, count:2},
-];
+// Two map layers — coordinates shared, counts differ per layer.
+// "current"   = lojtarë me kombësi shqiptare aktive (baza ekzistuese senior)
+// "prospects" = lojtarë me probabilitet kombëtar shqiptar ≥ 50% (zbulim diaspore)
+const CITY_LAYERS = {
+  current: {
+    label: "Kombëtarët aktualë",
+    cities: [
+      {name:"Tirana", lon:19.82, lat:41.33, count:16},
+      {name:"Prishtinë", lon:21.16, lat:42.67, count:11},
+      {name:"Shkup", lon:21.43, lat:41.99, count:6},
+      {name:"Milano", lon:9.19, lat:45.46, count:9},
+      {name:"Romë", lon:12.50, lat:41.90, count:5},
+      {name:"Napoli", lon:14.27, lat:40.85, count:3},
+      {name:"Firence", lon:11.26, lat:43.77, count:2},
+      {name:"Londër", lon:-0.13, lat:51.51, count:7},
+      {name:"Mançester", lon:-2.24, lat:53.48, count:4},
+      {name:"Mynih", lon:11.58, lat:48.14, count:5},
+      {name:"Berlin", lon:13.40, lat:52.52, count:4},
+      {name:"Frankfurt", lon:8.68, lat:50.11, count:4},
+      {name:"Shtutgart", lon:9.18, lat:48.78, count:3},
+      {name:"Cyrih", lon:8.55, lat:47.38, count:6},
+      {name:"Bernë", lon:7.45, lat:46.95, count:3},
+      {name:"Vjenë", lon:16.37, lat:48.21, count:5},
+      {name:"Bruksel", lon:4.35, lat:50.85, count:3},
+      {name:"Paris", lon:2.35, lat:48.86, count:4},
+      {name:"Madrid", lon:-3.70, lat:40.42, count:4},
+      {name:"Barcelonë", lon:2.17, lat:41.39, count:3},
+      {name:"Stamboll", lon:28.98, lat:41.01, count:8},
+      {name:"Athinë", lon:23.73, lat:37.98, count:4},
+      {name:"Stokholm", lon:18.07, lat:59.33, count:3},
+      {name:"Amsterdam", lon:4.90, lat:52.37, count:3},
+    ],
+  },
+  prospects: {
+    label: "Prospektë ≥50%",
+    cities: [
+      {name:"Cyrih", lon:8.55, lat:47.38, count:14},
+      {name:"Bernë", lon:7.45, lat:46.95, count:8},
+      {name:"Gjenevë", lon:6.14, lat:46.20, count:6},
+      {name:"Mynih", lon:11.58, lat:48.14, count:9},
+      {name:"Shtutgart", lon:9.18, lat:48.78, count:8},
+      {name:"Frankfurt", lon:8.68, lat:50.11, count:6},
+      {name:"Berlin", lon:13.40, lat:52.52, count:7},
+      {name:"Hamburg", lon:9.99, lat:53.55, count:5},
+      {name:"Milano", lon:9.19, lat:45.46, count:13},
+      {name:"Romë", lon:12.50, lat:41.90, count:4},
+      {name:"Napoli", lon:14.27, lat:40.85, count:4},
+      {name:"Firence", lon:11.26, lat:43.77, count:4},
+      {name:"Vjenë", lon:16.37, lat:48.21, count:9},
+      {name:"Salzburg", lon:13.05, lat:47.81, count:6},
+      {name:"Bruksel", lon:4.35, lat:50.85, count:6},
+      {name:"Antwerp", lon:4.40, lat:51.22, count:5},
+      {name:"Londër", lon:-0.13, lat:51.51, count:9},
+      {name:"Mançester", lon:-2.24, lat:53.48, count:4},
+      {name:"Lion", lon:4.84, lat:45.76, count:5},
+      {name:"Paris", lon:2.35, lat:48.86, count:4},
+      {name:"Stokholm", lon:18.07, lat:59.33, count:6},
+      {name:"Kopenhagë", lon:12.57, lat:55.68, count:4},
+      {name:"Amsterdam", lon:4.90, lat:52.37, count:5},
+      {name:"Prishtinë", lon:21.16, lat:42.67, count:14},
+      {name:"Tirana", lon:19.82, lat:41.33, count:12},
+      {name:"Shkup", lon:21.43, lat:41.99, count:9},
+    ],
+  },
+};
 
 const ALBANIAN_HIGHLIGHT = new Set(['Albania','Kosovo','Republic of Kosovo']);
 const NMK_HIGHLIGHT = new Set(['North Macedonia','Macedonia','The former Yugoslav Republic of Macedonia']);
@@ -1934,54 +1947,75 @@ fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
       tooltip.classList.add('visible');
     }
     function hideTooltip() { tooltip.classList.remove('visible'); }
-    FSHF_CITIES.forEach(c => {
-      const xy = projection([c.lon, c.lat]);
-      if (!xy) return;
-      const [x, y] = xy;
-      const r = +(3 + Math.pow(c.count, 0.55) * 1.4).toFixed(1);
-      const grp = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-      grp.setAttribute('class', 'city-marker');
-      grp.style.cursor = 'pointer';
-      const halo = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-      halo.setAttribute('cx', x); halo.setAttribute('cy', y); halo.setAttribute('r', r + 2);
-      halo.setAttribute('class', 'map-dot-halo');
-      const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-      dot.setAttribute('cx', x); dot.setAttribute('cy', y); dot.setAttribute('r', r);
-      dot.setAttribute('class', 'map-dot');
-      grp.appendChild(halo); grp.appendChild(dot);
-      // Mouse hover (desktop) — transient when nothing is pinned
-      grp.addEventListener('mouseenter', (e) => {
-        if (pinnedCity) return;
-        const rect = mapWrap.getBoundingClientRect();
-        showTooltip(c, e.clientX - rect.left, e.clientY - rect.top);
-      });
-      grp.addEventListener('mousemove', (e) => {
-        if (pinnedCity) return;
-        const rect = mapWrap.getBoundingClientRect();
-        tooltip.style.left = (e.clientX - rect.left) + 'px';
-        tooltip.style.top = (e.clientY - rect.top) + 'px';
-      });
-      grp.addEventListener('mouseleave', () => {
-        if (pinnedCity) return;
-        hideTooltip();
-      });
-      // Tap / click — pin tooltip (works on touch and mouse)
-      grp.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (pinnedCity === c.name) {
-          pinnedCity = null;
+
+    // (Re)draw the dots for a given list of cities
+    function renderCities(cities) {
+      pinnedCity = null;
+      hideTooltip();
+      cityG.innerHTML = '';
+      cities.forEach(c => {
+        const xy = projection([c.lon, c.lat]);
+        if (!xy) return;
+        const [x, y] = xy;
+        const r = +(3 + Math.pow(c.count, 0.55) * 1.4).toFixed(1);
+        const grp = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        grp.setAttribute('class', 'city-marker');
+        grp.style.cursor = 'pointer';
+        const halo = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        halo.setAttribute('cx', x); halo.setAttribute('cy', y); halo.setAttribute('r', r + 2);
+        halo.setAttribute('class', 'map-dot-halo');
+        const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        dot.setAttribute('cx', x); dot.setAttribute('cy', y); dot.setAttribute('r', r);
+        dot.setAttribute('class', 'map-dot');
+        grp.appendChild(halo); grp.appendChild(dot);
+        // Mouse hover (desktop) — transient when nothing is pinned
+        grp.addEventListener('mouseenter', (e) => {
+          if (pinnedCity) return;
+          const rect = mapWrap.getBoundingClientRect();
+          showTooltip(c, e.clientX - rect.left, e.clientY - rect.top);
+        });
+        grp.addEventListener('mousemove', (e) => {
+          if (pinnedCity) return;
+          const rect = mapWrap.getBoundingClientRect();
+          tooltip.style.left = (e.clientX - rect.left) + 'px';
+          tooltip.style.top = (e.clientY - rect.top) + 'px';
+        });
+        grp.addEventListener('mouseleave', () => {
+          if (pinnedCity) return;
           hideTooltip();
-          return;
-        }
-        pinnedCity = c.name;
-        const wrapRect = mapWrap.getBoundingClientRect();
-        const markerRect = grp.getBoundingClientRect();
-        const cx = markerRect.left + markerRect.width / 2 - wrapRect.left;
-        const cy = markerRect.top + markerRect.height / 2 - wrapRect.top;
-        showTooltip(c, cx, cy);
+        });
+        // Tap / click — pin tooltip (works on touch and mouse)
+        grp.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (pinnedCity === c.name) { pinnedCity = null; hideTooltip(); return; }
+          pinnedCity = c.name;
+          const wrapRect = mapWrap.getBoundingClientRect();
+          const markerRect = grp.getBoundingClientRect();
+          const cx = markerRect.left + markerRect.width / 2 - wrapRect.left;
+          const cy = markerRect.top + markerRect.height / 2 - wrapRect.top;
+          showTooltip(c, cx, cy);
+        });
+        cityG.appendChild(grp);
       });
-      cityG.appendChild(grp);
-    });
+    }
+
+    // Layer toggle: flip the map between current internationals and ≥50% prospects
+    const noteEl = document.getElementById('map-active-note');
+    const countEl = document.getElementById('map-active-count');
+    function setLayer(key) {
+      const layer = CITY_LAYERS[key];
+      if (!layer) return;
+      renderCities(layer.cities);
+      cityG.classList.toggle('layer-prospects', key === 'prospects');
+      if (noteEl) { noteEl.textContent = layer.label; noteEl.style.color = key === 'prospects' ? '#6b7280' : 'var(--fshf-red)'; }
+      if (countEl) countEl.textContent = layer.cities.reduce((s, c) => s + c.count, 0);
+      document.querySelectorAll('#map-layer-toggle button').forEach(b =>
+        b.classList.toggle('active', b.dataset.layer === key));
+    }
+    document.querySelectorAll('#map-layer-toggle button').forEach(b =>
+      b.addEventListener('click', () => setLayer(b.dataset.layer)));
+    setLayer('current');
+
     // Tap outside any marker → unpin
     document.addEventListener('click', () => {
       if (pinnedCity) { pinnedCity = null; hideTooltip(); }
@@ -1989,21 +2023,432 @@ fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
   })
   .catch(err => console.error('Map load failed', err));
 
-// Smooth scroll: clicking the Broja cockpit row scrolls to profile
-document.querySelectorAll('[data-broja]').forEach(el => {
-  el.addEventListener('click', () => {
-    document.getElementById('profili').scrollIntoView({behavior:'smooth'});
+// ---- Tab navigation: show one section at a time ----
+const SECTION_IDS = ['ballina','pasqyra','atlasi','kabina','profili'];
+function switchTab(id) {
+  if (!SECTION_IDS.includes(id)) return;
+  document.querySelectorAll('[data-section]').forEach(s => {
+    if (s.id === id) {
+      s.classList.remove('section-hidden', 'section-anim');
+      void s.offsetWidth; // reflow to restart the enter animation
+      s.classList.add('section-anim');
+    } else {
+      s.classList.add('section-hidden');
+    }
   });
+  document.querySelectorAll('.nav-tab').forEach(t =>
+    t.classList.toggle('active', t.dataset.tab === id));
+  window.scrollTo({ top: 0, behavior: 'auto' });
+}
+document.querySelectorAll('.nav-tab').forEach(t =>
+  t.addEventListener('click', () => switchTab(t.dataset.tab)));
+
+// Save as PDF — exports the currently active section via the browser print dialog
+document.getElementById('save-pdf-btn').addEventListener('click', () => window.print());
+
+// data-goto jumps to a tab (hero CTA); the cockpit Broja row opens the profile
+document.querySelectorAll('[data-goto]').forEach(el =>
+  el.addEventListener('click', () => switchTab(el.dataset.goto)));
+// Delegated: any [data-broja] (incl. dynamically rendered squad/load) opens the profile
+document.addEventListener('click', e => { if (e.target.closest('[data-broja]')) switchTab('profili'); });
+
+// ============ Squad Planner: formation + depth chart ============
+// ---- National teams: per-team fixture, roster (table + planner), featured load player ----
+// Player fields: c=position code (PT/MB/MA/MQ/SK/SQ), r=rating (also drives planner order),
+// st=status, y=1 marks a feeder player (age group below), ld=featured 12-week minutes.
+// pos[] (planner eligibility) is derived from c unless given explicitly.
+const POSF = { PT:['GK'], MB:['CB'], MA:['FB'], MQ:['CM','DM','AM'], SK:['W','AM'], SQ:['ST'] };
+const TEAMS = {
+  A: {
+    label:'Kombëtarja A', feederLabel:'U21', profileId:'broja', featuredId:'broja',
+    fixture:{ title:'Shqipëri vs. Belarus', venue:'Air Albania Stadium · Tiranë · 19:45 CET', date:'26 Shtator 2026', comp:'UEFA Nations League · Liga C · Grupi I', countdown:142, avail:{ok:23,yellow:2,injured:1} },
+    pool:[
+      {id:'asllani', n:'Kristjan Asllani', s:'Asllani', age:24, c:'MQ', club:'Inter Milan', lg:'Serie A', r:7.6, st:'ok', pos:['DM','CM']},
+      {id:'broja', n:'Armando Broja', s:'Broja', age:24, c:'SQ', club:'Burnley FC', lg:'Premier League', r:6.9, st:'ok', pos:['ST'], ld:[0,40,0,55,70,72,80,0,75,68,90,85]},
+      {id:'strakosha', n:'Thomas Strakosha', s:'Strakosha', age:31, c:'PT', club:'Brentford', lg:'Premier League', r:7.1, st:'ok', pos:['GK']},
+      {id:'berisha', n:'Etrit Berisha', s:'Berisha', age:35, c:'PT', club:'Empoli', lg:'Serie A', r:6.8, st:'ok', pos:['GK']},
+      {id:'djimsiti', n:'Berat Djimsiti', s:'Djimsiti', age:33, c:'MB', club:'Atalanta', lg:'Serie A', r:7.4, st:'yellow', pos:['CB']},
+      {id:'kumbulla', n:'Marash Kumbulla', s:'Kumbulla', age:26, c:'MB', club:'Espanyol', lg:'La Liga', r:7.0, st:'ok', pos:['CB']},
+      {id:'ismajli', n:'Ardian Ismajli', s:'Ismajli', age:28, c:'MB', club:'Empoli', lg:'Serie A', r:7.0, st:'ok', pos:['CB']},
+      {id:'hysaj', n:'Elseid Hysaj', s:'Hysaj', age:32, c:'MA', club:'Lazio', lg:'Serie A', r:6.8, st:'ok', pos:['FB']},
+      {id:'mitaj', n:'Mario Mitaj', s:'Mitaj', age:22, c:'MA', club:'Lokomotiv Moskva', lg:'Premier Liga', r:7.2, st:'ok', pos:['FB']},
+      {id:'balliu', n:'Iván Balliu', s:'Balliu', age:32, c:'MA', club:'Rayo Vallecano', lg:'La Liga', r:6.9, st:'ok', pos:['FB']},
+      {id:'ramadani', n:'Ylber Ramadani', s:'Ramadani', age:30, c:'MQ', club:'Lecce', lg:'Serie A', r:7.5, st:'ok', pos:['DM','CM']},
+      {id:'bajrami', n:'Nedim Bajrami', s:'Bajrami', age:27, c:'MQ', club:'Sassuolo', lg:'Serie B', r:7.3, st:'ok', pos:['CM','AM']},
+      {id:'laci', n:'Qazim Laçi', s:'Laçi', age:27, c:'MQ', club:'Sheriff', lg:'Liga e Moldavisë', r:6.9, st:'ok', pos:['CM','AM']},
+      {id:'gjasula', n:'Klaus Gjasula', s:'Gjasula', age:36, c:'MQ', club:'Cesena', lg:'Serie B', r:6.9, st:'yellow', pos:['DM','CM']},
+      {id:'muci', n:'Ernest Muçi', s:'Muçi', age:24, c:'SK', club:'Beşiktaş', lg:'Süper Lig', r:7.4, st:'ok', pos:['W','AM']},
+      {id:'asani', n:'Jasir Asani', s:'Asani', age:29, c:'SK', club:'Gwangju FC', lg:'K League 1', r:7.7, st:'ok', pos:['W']},
+      {id:'manaj', n:'Rey Manaj', s:'Manaj', age:28, c:'SQ', club:'Sivasspor', lg:'Süper Lig', r:6.7, st:'injured', pos:['ST']},
+      {id:'daku', n:'Mirlind Daku', s:'Daku', age:28, c:'SQ', club:'Rubin Kazan', lg:'Premier Liga', r:7.1, st:'ok', pos:['ST']},
+      {id:'simoni', n:'Simon Simoni', s:'Simoni', age:19, c:'PT', club:'Lecce', lg:'Serie A', r:6.4, y:1},
+      {id:'arapi', n:'Kristjan Arapi', s:'Arapi', age:19, c:'MB', club:'Partizani', lg:'Kat. Superiore', r:6.2, y:1},
+      {id:'lleshi', n:'Marko Lleshi', s:'Lleshi', age:20, c:'MA', club:'KF Tirana', lg:'Kat. Superiore', r:6.1, y:1},
+      {id:'rexhaj', n:'Agon Rexhaj', s:'Rexhaj', age:19, c:'MQ', club:'FC Basel', lg:'Super League', r:6.6, y:1, pos:['CM','AM','W']},
+      {id:'haxhiu', n:'Lion Haxhiu', s:'Haxhiu', age:19, c:'MQ', club:'Nürnberg II', lg:'Regionalliga', r:6.3, y:1, pos:['CM','DM']},
+      {id:'hoxha', n:'Klajdi Hoxha', s:'Hoxha', age:18, c:'SQ', club:'Imolese', lg:'Serie C', r:6.2, y:1},
+      {id:'lramaj', n:'Leotrim Ramaj', s:'L. Ramaj', age:17, c:'SQ', club:'St. Pauli U19', lg:'Gjermani', r:6.0, y:1},
+      {id:'gjurkaj', n:'Rei Gjurkaj', s:'Gjurkaj', age:16, c:'SK', club:'Udinese U18', lg:'Itali', r:5.9, y:1},
+    ],
+  },
+  U21: {
+    label:'Kombëtarja U21', feederLabel:'U19', profileId:null, featuredId:'rexhaj',
+    fixture:{ title:'Shqipëri U21 vs. Ukraina U21', venue:'Elbasan Arena · Elbasan · 18:00 CET', date:'10 Tetor 2026', comp:'Kualifikuese · Euro U21 2027 · Grupi G', countdown:156, avail:{ok:21,yellow:1,injured:1} },
+    pool:[
+      {id:'simoni', n:'Simon Simoni', s:'Simoni', age:19, c:'PT', club:'Lecce', lg:'Serie A', r:6.6, st:'ok'},
+      {id:'arapi', n:'Kristjan Arapi', s:'Arapi', age:19, c:'MB', club:'Partizani', lg:'Kat. Superiore', r:6.3, st:'ok'},
+      {id:'nikolli', n:'Endrit Nikolli', s:'Nikolli', age:20, c:'MB', club:'Egnatia', lg:'Kat. Superiore', r:6.2, st:'ok'},
+      {id:'lleshi', n:'Marko Lleshi', s:'Lleshi', age:20, c:'MA', club:'KF Tirana', lg:'Kat. Superiore', r:6.3, st:'ok'},
+      {id:'bregu', n:'Aldo Bregu', s:'Bregu', age:19, c:'MA', club:'Vllaznia', lg:'Kat. Superiore', r:6.1, st:'yellow'},
+      {id:'haxhiu', n:'Lion Haxhiu', s:'Haxhiu', age:19, c:'MQ', club:'Nürnberg II', lg:'Regionalliga', r:6.5, st:'ok', pos:['CM','DM']},
+      {id:'rexhaj', n:'Agon Rexhaj', s:'Rexhaj', age:19, c:'MQ', club:'FC Basel', lg:'Super League', r:6.9, st:'ok', pos:['CM','AM','W'], ld:[70,90,65,90,0,88,90,76,90,84,90,90]},
+      {id:'cekici', n:'Endri Çekiçi', s:'Çekiçi', age:20, c:'MQ', club:'Dinamo City', lg:'Kat. Superiore', r:6.3, st:'ok'},
+      {id:'mara', n:'Klaudio Mara', s:'Mara', age:18, c:'SK', club:'Sampdoria U20', lg:'Primavera', r:6.2, st:'ok'},
+      {id:'hoxha', n:'Klajdi Hoxha', s:'Hoxha', age:18, c:'SQ', club:'Imolese', lg:'Serie C', r:6.5, st:'ok'},
+      {id:'lramaj', n:'Leotrim Ramaj', s:'L. Ramaj', age:17, c:'SQ', club:'St. Pauli U19', lg:'Gjermani', r:6.1, st:'ok'},
+      {id:'gjurkaj', n:'Rei Gjurkaj', s:'Gjurkaj', age:16, c:'SK', club:'Udinese U18', lg:'Itali', r:6.0, st:'ok'},
+      {id:'doci', n:'Ardit Doçi', s:'Doçi', age:17, c:'PT', club:'Akademia FSHF', lg:'U19', r:5.9, y:1},
+      {id:'kola', n:'Endrit Kola', s:'Kola', age:17, c:'MB', club:'KF Tirana U19', lg:'U19', r:5.8, y:1},
+      {id:'hyseni', n:'Besnik Hyseni', s:'Hyseni', age:16, c:'MQ', club:'Egnatia U19', lg:'U19', r:5.9, y:1},
+      {id:'lala', n:'Marvin Lala', s:'Lala', age:17, c:'SK', club:'Partizani U19', lg:'U19', r:5.8, y:1},
+      {id:'prendi', n:'Noel Prendi', s:'Prendi', age:16, c:'SQ', club:'Vllaznia U19', lg:'U19', r:5.7, y:1},
+    ],
+  },
+  U19: {
+    label:'Kombëtarja U19', feederLabel:'U17', profileId:null, featuredId:'rrahmani',
+    fixture:{ title:'Shqipëri U19 vs. Sllovenia U19', venue:'Stadiumi Loro Boriçi · Shkodër · 15:00 CET', date:'13 Nëntor 2026', comp:'Raundi Cilësues · Euro U19 2027', countdown:190, avail:{ok:18,yellow:1,injured:1} },
+    pool:[
+      {id:'gjoka', n:'Eris Gjoka', s:'Gjoka', age:18, c:'PT', club:'KF Tirana U19', lg:'U19 Elite', r:6.1, st:'ok'},
+      {id:'dema', n:'Klevis Dema', s:'Dema', age:18, c:'MB', club:'Partizani U19', lg:'U19 Elite', r:6.0, st:'ok'},
+      {id:'shtylla', n:'Aron Shtylla', s:'Shtylla', age:17, c:'MB', club:'Teuta U19', lg:'U19 Elite', r:5.9, st:'ok'},
+      {id:'bilali', n:'Denis Bilali', s:'Bilali', age:18, c:'MA', club:'Egnatia U19', lg:'U19 Elite', r:6.0, st:'ok'},
+      {id:'vata', n:'Endrit Vata', s:'Vata', age:17, c:'MA', club:'Vllaznia U19', lg:'U19 Elite', r:5.8, st:'yellow'},
+      {id:'rrahmani', n:'Marco Rrahmani', s:'Rrahmani', age:18, c:'MQ', club:'Empoli U18', lg:'Primavera', r:6.3, st:'ok', ld:[90,90,75,90,90,0,84,90,90,68,90,90]},
+      {id:'kurti', n:'Liam Kurti', s:'Kurti', age:18, c:'MQ', club:'KF Tirana U19', lg:'U19 Elite', r:6.1, st:'ok'},
+      {id:'spahiu', n:'Olsi Spahiu', s:'Spahiu', age:17, c:'MQ', club:'Dinamo City U19', lg:'U19 Elite', r:5.9, st:'ok'},
+      {id:'gega', n:'Florent Gega', s:'Gega', age:17, c:'SK', club:'Lugano U18', lg:'Zvicër', r:6.2, st:'ok'},
+      {id:'doda', n:'Rei Doda', s:'Doda', age:18, c:'SQ', club:'Partizani U19', lg:'U19 Elite', r:6.2, st:'ok'},
+      {id:'meta', n:'Klaus Meta', s:'Meta', age:17, c:'SK', club:'Laçi U19', lg:'U19 Elite', r:5.9, st:'ok'},
+      {id:'hoxhallari', n:'Ued Hoxhallari', s:'Hoxhallari', age:16, c:'PT', club:'Akademia FSHF', lg:'U17', r:5.6, y:1},
+      {id:'cani', n:'Aldi Çani', s:'Çani', age:16, c:'MB', club:'KF Tirana U17', lg:'U17', r:5.6, y:1},
+      {id:'leka', n:'Joel Leka', s:'Leka', age:15, c:'SQ', club:'Partizani U17', lg:'U17', r:5.7, y:1},
+    ],
+  },
+  U17: {
+    label:'Kombëtarja U17', feederLabel:'U16', profileId:null, featuredId:'ahmeti',
+    fixture:{ title:'Shqipëri U17 vs. Maqedonia e V. U17', venue:'Elbasan Arena · Elbasan · 14:00 CET', date:'20 Shtator 2026', comp:'Raundi Cilësues · Euro U17 2027', countdown:95, avail:{ok:19,yellow:0,injured:1} },
+    pool:[
+      {id:'selmani', n:'Noah Selmani', s:'Selmani', age:16, c:'PT', club:'Inter U17', lg:'Itali', r:6.0, st:'ok'},
+      {id:'hoxha17', n:'Eldi Hoxha', s:'Hoxha', age:16, c:'MB', club:'KF Tirana U17', lg:'U17 Elite', r:5.9, st:'ok'},
+      {id:'bardhi', n:'Kristjan Bardhi', s:'Bardhi', age:16, c:'MB', club:'Partizani U17', lg:'U17 Elite', r:5.8, st:'ok'},
+      {id:'dervishaj', n:'Endri Dervishaj', s:'Dervishaj', age:16, c:'MA', club:'Teuta U17', lg:'U17 Elite', r:5.8, st:'ok'},
+      {id:'kaja', n:'Erion Kaja', s:'Kaja', age:15, c:'MA', club:'Vllaznia U17', lg:'U17 Elite', r:5.7, st:'ok'},
+      {id:'ahmeti', n:'Leon Ahmeti', s:'Ahmeti', age:16, c:'MQ', club:'Como U17', lg:'Itali', r:6.2, st:'ok', ld:[80,90,90,72,90,90,85,0,90,90,78,90]},
+      {id:'lushi', n:'Andi Lushi', s:'Lushi', age:16, c:'MQ', club:'Egnatia U17', lg:'U17 Elite', r:5.9, st:'ok'},
+      {id:'prek', n:'Mateo Prek', s:'Prek', age:15, c:'MQ', club:'KF Tirana U17', lg:'U17 Elite', r:5.8, st:'ok'},
+      {id:'nako', n:'Geri Nako', s:'Nako', age:16, c:'SK', club:'Dinamo City U17', lg:'U17 Elite', r:6.0, st:'ok'},
+      {id:'dushku', n:'Redi Dushku', s:'Dushku', age:16, c:'SQ', club:'Partizani U17', lg:'U17 Elite', r:6.1, st:'ok'},
+      {id:'gjini', n:'Sael Gjini', s:'Gjini', age:15, c:'SK', club:'Laçi U17', lg:'U17 Elite', r:5.8, st:'ok'},
+      {id:'malo', n:'Tedi Malo', s:'Malo', age:15, c:'PT', club:'Akademia FSHF', lg:'U16', r:5.5, y:1},
+      {id:'toska', n:'Aleks Toska', s:'Toska', age:15, c:'MB', club:'KF Tirana U16', lg:'U16', r:5.6, y:1},
+      {id:'beqiri', n:'Lis Beqiri', s:'Beqiri', age:14, c:'SQ', club:'Partizani U16', lg:'U16', r:5.6, y:1},
+    ],
+  },
+  U16: {
+    label:'Kombëtarja U16', feederLabel:'Akademi', profileId:null, featuredId:'bregasi',
+    fixture:{ title:'Shqipëri U16 vs. Kosova U16 (miqësore)', venue:'Qendra Kombëtare · Durrës · 11:00 CET', date:'5 Tetor 2026', comp:'Turne zhvillimi UEFA', countdown:110, avail:{ok:21,yellow:0,injured:1} },
+    pool:[
+      {id:'rama', n:'Joel Rama', s:'Rama', age:15, c:'PT', club:'KF Tirana U16', lg:'U16 Elite', r:5.8, st:'ok'},
+      {id:'hasani', n:'Drin Hasani', s:'Hasani', age:15, c:'MB', club:'Partizani U16', lg:'U16 Elite', r:5.7, st:'ok'},
+      {id:'collaku', n:'Ened Çollaku', s:'Çollaku', age:15, c:'MB', club:'Teuta U16', lg:'U16 Elite', r:5.6, st:'ok'},
+      {id:'musai', n:'Aleks Musai', s:'Musai', age:15, c:'MA', club:'Egnatia U16', lg:'U16 Elite', r:5.6, st:'ok'},
+      {id:'xhafa', n:'Noel Xhafa', s:'Xhafa', age:14, c:'MA', club:'Vllaznia U16', lg:'U16 Elite', r:5.5, st:'ok'},
+      {id:'bregasi', n:'Mattia Bregasi', s:'Bregasi', age:15, c:'MQ', club:'Atalanta U16', lg:'Itali', r:6.0, st:'ok', ld:[90,75,90,90,84,90,0,90,88,90,90,80]},
+      {id:'lika', n:'Roni Lika', s:'Lika', age:15, c:'MQ', club:'KF Tirana U16', lg:'U16 Elite', r:5.8, st:'ok'},
+      {id:'daja', n:'Eros Daja', s:'Daja', age:14, c:'MQ', club:'Dinamo City U16', lg:'U16 Elite', r:5.6, st:'ok'},
+      {id:'shala', n:'Liam Shala', s:'Shala', age:15, c:'SK', club:'Luzern U16', lg:'Zvicër', r:5.9, st:'ok'},
+      {id:'pjetri', n:'Gabriel Pjetri', s:'Pjetri', age:15, c:'SQ', club:'Partizani U16', lg:'U16 Elite', r:5.9, st:'ok'},
+      {id:'markaj', n:'Deni Markaj', s:'Markaj', age:14, c:'SK', club:'Laçi U16', lg:'U16 Elite', r:5.7, st:'ok'},
+      {id:'guri', n:'Tedi Guri', s:'Guri', age:14, c:'PT', club:'Akademia U15', lg:'Akademi', r:5.4, y:1},
+      {id:'nuhiu', n:'Aron Nuhiu', s:'Nuhiu', age:14, c:'MB', club:'Akademia U15', lg:'Akademi', r:5.5, y:1},
+      {id:'berani', n:'Sid Berani', s:'Berani', age:13, c:'SQ', club:'Akademia U15', lg:'Akademi', r:5.5, y:1},
+    ],
+  },
+};
+// Normalize: derive planner eligibility positions + youth flag
+Object.values(TEAMS).forEach(t => t.pool.forEach(p => { p.pos = p.pos || POSF[p.c] || []; p.youth = !!p.y; }));
+let SQUAD = [], PMAP = {}, FEEDER_LABEL = 'U21', TEAM = TEAMS.A;
+const ACCEPT = { GK:['GK'], CB:['CB'], FB:['FB'], WB:['FB','W'], DM:['DM','CM'], CM:['CM','DM','AM'], AM:['AM','CM','W'], W:['W','AM'], ST:['ST'] };
+const ROLE_NAME = { PT:'Portier', MB:'Mbrojtës qendror', MA:'Mbrojtës anësor', MQ:'Mesfushor', SK:'Sulmues krahu', SQ:'Sulmues qendror' };
+const FORMATIONS = {
+  '433': [
+    {id:'gk',label:'PT',acc:'GK',x:50,y:90},
+    {id:'lb',label:'MA',acc:'FB',x:15,y:72},{id:'lcb',label:'MB',acc:'CB',x:38,y:77},{id:'rcb',label:'MB',acc:'CB',x:62,y:77},{id:'rb',label:'MA',acc:'FB',x:85,y:72},
+    {id:'dm',label:'MQ',acc:'DM',x:50,y:58},{id:'lcm',label:'MQ',acc:'CM',x:30,y:45},{id:'rcm',label:'MQ',acc:'CM',x:70,y:45},
+    {id:'lw',label:'SK',acc:'W',x:18,y:23},{id:'st',label:'SQ',acc:'ST',x:50,y:15},{id:'rw',label:'SK',acc:'W',x:82,y:23},
+  ],
+  '4231': [
+    {id:'gk',label:'PT',acc:'GK',x:50,y:90},
+    {id:'lb',label:'MA',acc:'FB',x:15,y:73},{id:'lcb',label:'MB',acc:'CB',x:38,y:78},{id:'rcb',label:'MB',acc:'CB',x:62,y:78},{id:'rb',label:'MA',acc:'FB',x:85,y:73},
+    {id:'ldm',label:'MQ',acc:'DM',x:37,y:60},{id:'rdm',label:'MQ',acc:'DM',x:63,y:60},
+    {id:'lam',label:'SK',acc:'AM',x:20,y:40},{id:'cam',label:'MQ',acc:'AM',x:50,y:35},{id:'ram',label:'SK',acc:'AM',x:80,y:40},
+    {id:'st',label:'SQ',acc:'ST',x:50,y:15},
+  ],
+  '442': [
+    {id:'gk',label:'PT',acc:'GK',x:50,y:90},
+    {id:'lb',label:'MA',acc:'FB',x:15,y:74},{id:'lcb',label:'MB',acc:'CB',x:38,y:78},{id:'rcb',label:'MB',acc:'CB',x:62,y:78},{id:'rb',label:'MA',acc:'FB',x:85,y:74},
+    {id:'lm',label:'SK',acc:'W',x:16,y:50},{id:'lcm',label:'MQ',acc:'CM',x:40,y:52},{id:'rcm',label:'MQ',acc:'CM',x:60,y:52},{id:'rm',label:'SK',acc:'W',x:84,y:50},
+    {id:'lst',label:'SQ',acc:'ST',x:38,y:18},{id:'rst',label:'SQ',acc:'ST',x:62,y:18},
+  ],
+  '352': [
+    {id:'gk',label:'PT',acc:'GK',x:50,y:90},
+    {id:'lcb',label:'MB',acc:'CB',x:28,y:79},{id:'ccb',label:'MB',acc:'CB',x:50,y:81},{id:'rcb',label:'MB',acc:'CB',x:72,y:79},
+    {id:'lwb',label:'MA',acc:'WB',x:12,y:56},{id:'rwb',label:'MA',acc:'WB',x:88,y:56},
+    {id:'lcm',label:'MQ',acc:'CM',x:33,y:50},{id:'ccm',label:'MQ',acc:'DM',x:50,y:55},{id:'rcm',label:'MQ',acc:'CM',x:67,y:50},
+    {id:'lst',label:'SQ',acc:'ST',x:40,y:17},{id:'rst',label:'SQ',acc:'ST',x:60,y:17},
+  ],
+};
+
+let curFormation = '433';
+let lineup = {};            // slotId -> { starter, backup }
+let selectedSlot = null;
+
+const eligible = (p, slot) => p.pos.some(g => ACCEPT[slot.acc].includes(g));
+const isGap = (slot, e) => {
+  const st = PMAP[e.starter], bk = PMAP[e.backup];
+  if (!e.starter || !e.backup) return true;          // missing starter or no cover
+  if (st && st.age >= 31) return true;               // aging starter — succession need
+  if (bk && bk.youth && st && st.age >= 29) return true; // only youth cover behind an older starter
+  return false;
+};
+
+function autoFill(formId) {
+  const slots = FORMATIONS[formId];
+  const used = new Set(); const lu = {};
+  // Prefer players whose primary position fits the slot, then by rating
+  const best = slot => {
+    const acc = ACCEPT[slot.acc];
+    const score = p => (acc.includes(p.pos[0]) ? 1000 : 0) + p.r;
+    return SQUAD.filter(p => eligible(p, slot) && !used.has(p.id)).sort((a, b) => score(b) - score(a))[0] || null;
+  };
+  slots.forEach(s => { lu[s.id] = { starter: null, backup: null }; });
+  // Pass 1 — assign every starter before any backup, so symmetric roles share senior depth
+  slots.forEach(s => { const p = best(s); if (p) { used.add(p.id); lu[s.id].starter = p.id; } });
+  // Pass 2 — fill backups from what's left
+  slots.forEach(s => { const p = best(s); if (p) { used.add(p.id); lu[s.id].backup = p.id; } });
+  return lu;
+}
+
+function removeEverywhere(pid) {
+  Object.values(lineup).forEach(e => { if (e.starter === pid) e.starter = null; if (e.backup === pid) e.backup = null; });
+}
+function setRole(slotId, pid, role) {
+  removeEverywhere(pid);
+  const e = lineup[slotId];
+  if (role === 'starter') { if (e.starter && e.starter !== pid) e.backup = e.starter; e.starter = pid; }
+  else { e.backup = pid; }
+  renderPitch(); renderPanel(); renderSummary();
+}
+
+function renderPitch() {
+  const wrap = document.getElementById('pitch-slots');
+  wrap.innerHTML = FORMATIONS[curFormation].map(slot => {
+    const e = lineup[slot.id]; const st = PMAP[e.starter], bk = PMAP[e.backup];
+    return `<button class="pslot${selectedSlot === slot.id ? ' selected' : ''}" style="left:${slot.x}%;top:${slot.y}%" data-slot="${slot.id}">
+      ${isGap(slot, e) ? '<span class="pslot-gapdot" title="Mundësi rinore — thellësi e hollë"></span>' : ''}
+      <span class="pslot-pos">${slot.label}</span>
+      <span class="pslot-starter">${st ? st.s : '<span class="pslot-empty">+ shto</span>'}</span>
+      <span class="pslot-backup${bk && bk.youth ? ' youth' : ''}">${bk ? bk.s : '—'}</span>
+    </button>`;
+  }).join('');
+}
+
+function renderPanel() {
+  const panel = document.getElementById('depth-panel');
+  if (!selectedSlot) {
+    panel.innerHTML = `<div class="eyebrow mb-2">Menaxho thellësinë</div>
+      <p class="text-[13px] text-[var(--muted)]">Kliko një pozicion në fushë për të caktuar titullarin, rezervën dhe për të parë opsionet rinore.</p>`;
+    return;
+  }
+  const slot = FORMATIONS[curFormation].find(s => s.id === selectedSlot);
+  const e = lineup[selectedSlot]; const st = PMAP[e.starter], bk = PMAP[e.backup];
+  const elig = SQUAD.filter(p => eligible(p, slot)).sort((a, b) => b.r - a.r);
+  const card = (lbl, p) => `<div class="border border-[var(--border)] rounded p-2">
+      <div class="eyebrow">${lbl}</div>
+      <div class="text-sm font-medium mt-0.5">${p ? p.n + (p.youth ? ` <span class="u21-chip">${FEEDER_LABEL}</span>` : '') : '<span class="pslot-empty">— bosh —</span>'}</div>
+      <div class="text-[11px] text-[var(--muted)]">${p ? p.age + ' vjeç · ' + p.club : ''}</div>
+    </div>`;
+  panel.innerHTML = `
+    <div class="flex items-center justify-between mb-1">
+      <div class="eyebrow">Pozicioni · ${slot.label}</div>
+      ${isGap(slot, e) ? `<span class="u21-chip">Mundësi ${FEEDER_LABEL}</span>` : ''}
+    </div>
+    <h4 class="font-serif text-xl mb-3">${ROLE_NAME[slot.label] || ''}</h4>
+    <div class="grid grid-cols-2 gap-3 mb-4">${card('Titullar', st)}${card('Rezervë', bk)}</div>
+    <div class="eyebrow mb-1">Lojtarë të disponueshëm</div>
+    <div style="max-height:256px; overflow-y:auto;">
+      ${elig.map(p => {
+        const isS = e.starter === p.id, isB = e.backup === p.id;
+        return `<div class="depth-row">
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-medium truncate">${p.n} ${p.youth ? `<span class="u21-chip">${FEEDER_LABEL}</span>` : ''}</div>
+            <div class="text-[11px] text-[var(--muted)] truncate">${p.age} vjeç · ${p.club}</div>
+          </div>
+          <div class="depth-actions flex gap-1.5 flex-shrink-0">
+            <button data-act="starter" data-pid="${p.id}" class="${isS ? 'is-start' : ''}">Titullar</button>
+            <button data-act="backup" data-pid="${p.id}" class="${isB ? 'is-back' : ''}">Rezervë</button>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+function renderSummary() {
+  const el = document.getElementById('planner-summary');
+  const slots = FORMATIONS[curFormation];
+  const gapSlots = slots.filter(s => isGap(s, lineup[s.id]));
+  const youth = new Set();
+  slots.forEach(s => ['starter', 'backup'].forEach(r => { const p = PMAP[lineup[s.id][r]]; if (p && p.youth) youth.add(p.id); }));
+  const rows = gapSlots.map(s => {
+    const e = lineup[s.id]; const st = PMAP[e.starter], bk = PMAP[e.backup];
+    const cand = SQUAD.filter(p => p.youth && eligible(p, s)).sort((a, b) => b.r - a.r)[0];
+    const reason = !e.starter ? 'pa titullar' : !e.backup ? 'pa rezervë' : (bk && bk.youth) ? `vetëm mbulim ${FEEDER_LABEL}` : (st && st.age >= 31) ? `titullari ${st.age} vjeç` : 'thellësi e hollë';
+    return `<div class="flex items-center justify-between text-[12px] py-1.5 border-b border-[var(--border)] last:border-0">
+      <div><span class="font-mono font-semibold">${s.label}</span> <span class="text-[var(--muted)]">· ${reason}</span></div>
+      <div class="text-right">${cand ? `→ <span class="font-medium">${cand.s}</span> <span class="u21-chip">${FEEDER_LABEL}</span>` : '<span class="text-[var(--muted)]">—</span>'}</div>
+    </div>`;
+  }).join('');
+  el.innerHTML = `
+    <div class="flex items-center gap-3 mb-3">
+      <div class="display-num text-fshf" style="font-size:34px; line-height:1">${gapSlots.length}</div>
+      <div class="text-[12px] text-[var(--charcoal)] leading-snug">pozicione me thellësi të hollë<br><span class="text-[var(--muted)]">${youth.size} lojtarë ${FEEDER_LABEL} në thellësi</span></div>
+    </div>
+    <div class="eyebrow mb-1">Ku mund të luajë rinia</div>
+    ${rows || '<p class="text-[12px] text-[var(--muted)] py-1">Çdo pozicion ka thellësi të mjaftueshme.</p>'}`;
+}
+
+function renderPlanner() { renderPitch(); renderPanel(); renderSummary(); }
+
+document.getElementById('pitch-slots').addEventListener('click', e => {
+  const btn = e.target.closest('.pslot'); if (!btn) return;
+  selectedSlot = btn.dataset.slot; renderPitch(); renderPanel();
+});
+document.getElementById('depth-panel').addEventListener('click', e => {
+  const btn = e.target.closest('button[data-act]'); if (!btn) return;
+  setRole(selectedSlot, btn.dataset.pid, btn.dataset.act);
+});
+document.getElementById('formation-toggle').addEventListener('click', e => {
+  const btn = e.target.closest('button[data-formation]'); if (!btn) return;
+  curFormation = btn.dataset.formation; selectedSlot = null;
+  lineup = autoFill(curFormation);
+  document.querySelectorAll('#formation-toggle button').forEach(b => b.classList.toggle('active', b.dataset.formation === curFormation));
+  renderPlanner();
 });
 
-// Smooth scroll on header nav
-document.querySelectorAll('header nav a').forEach(a => {
-  a.addEventListener('click', e => {
-    e.preventDefault();
-    const target = document.querySelector(a.getAttribute('href'));
-    if (target) target.scrollIntoView({behavior:'smooth'});
+// ---- Per-team rendering: fixture card, squad table, load chart ----
+const RATING_C = r => r >= 7.2 ? '#15803d' : r >= 6.5 ? '#a16207' : '#6b7280';
+const SPARK_JIT = [0.10, -0.06, 0.08, -0.12, 0.05, 0.0, 0.12, -0.08];
+function sparkline(r, seed) {
+  let bars = '';
+  for (let i = 0; i < 8; i++) {
+    const v = Math.max(0.06, Math.min(1, r / 10 - 0.12 + SPARK_JIT[(i + seed) % 8]));
+    const h = +(2 + v * 26).toFixed(1), y = +(30 - h).toFixed(1);
+    bars += `<rect class="${v >= 0.62 ? 'spark-bar-active' : 'spark-bar'}" x="${i * 8}" y="${y}" width="6" height="${h}" rx="1"/>`;
+  }
+  return `<svg viewBox="0 0 64 30" width="80" height="30">${bars}</svg>`;
+}
+function statusIcon(st) {
+  if (st === 'yellow') return '<span class="text-amber-600 text-xs font-medium" title="Një karton nga pezullimi">⚠</span>';
+  if (st === 'injured') return '<span class="text-rose-700 text-xs font-medium" title="I dëmtuar">✕</span>';
+  return '<span class="text-emerald-700 text-xs font-medium">●</span>';
+}
+function loadChart(ld) {
+  let g = [[150, "0'"], [90, "45'"], [30, "90'"]].map(([y, l]) =>
+    `<g><line x1="20" x2="25" y1="${y}" y2="${y}" stroke="#d1d5db"/><text x="18" y="${y + 3}" text-anchor="end" font-size="9" font-family="JetBrains Mono, monospace" fill="#9ca3af">${l}</text></g>`).join('');
+  ld.forEach((v, i) => {
+    const x = 32 + i * 46.7, top = 150 - (v / 90) * 120, h = 150 - top;
+    g += `<rect x="${x.toFixed(1)}" y="${top.toFixed(1)}" width="42.7" height="${h.toFixed(1)}" fill="${v > 0 ? '#E41E26' : '#d1d5db'}" rx="2"/>`;
+    g += `<text x="${(x + 21).toFixed(1)}" y="170" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="#9ca3af">J${i + 1}</text>`;
   });
+  return `<svg viewBox="0 0 600 180" class="w-full">${g}</svg>`;
+}
+function renderFixture(t) {
+  const f = t.fixture;
+  document.getElementById('fixture-card').innerHTML = `
+    <div>
+      <div class="text-[11px] tracking-[0.16em] uppercase opacity-70">Ndeshja e ardhshme</div>
+      <div class="font-serif text-4xl mt-2">${f.title}</div>
+      <div class="text-[12px] opacity-70 mt-1">${f.venue}</div>
+    </div>
+    <div class="text-right">
+      <div class="text-[11px] tracking-[0.16em] uppercase opacity-70">Data</div>
+      <div class="font-serif text-3xl mt-2">${f.date}</div>
+      <div class="text-[12px] opacity-70 mt-1">${f.comp}</div>
+    </div>
+    <div class="text-right">
+      <div class="text-[11px] tracking-[0.16em] uppercase opacity-70">Numërimi</div>
+      <div class="display-num text-fshf mt-2" style="font-size:56px; line-height:1">${f.countdown}</div>
+      <div class="text-[12px] opacity-70">ditë</div>
+    </div>
+    <div class="border-l border-white/15 pl-6">
+      <div class="text-[11px] tracking-[0.16em] uppercase opacity-70 mb-2">Statusi i grumbullimit</div>
+      <div class="text-[12px] flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> ${f.avail.ok} të disponueshëm</div>
+      <div class="text-[12px] flex items-center gap-2 mt-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> ${f.avail.yellow} me karton verdhë</div>
+      <div class="text-[12px] flex items-center gap-2 mt-1"><span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span> ${f.avail.injured} i dëmtuar</div>
+    </div>`;
+}
+function renderSquadTable(t) {
+  const core = t.pool.filter(p => !p.youth);
+  document.getElementById('squad-count').textContent = core.length;
+  document.getElementById('squad-body').innerHTML = core.map((p, i) => {
+    const prof = t.profileId && p.id === t.profileId;
+    const name = prof
+      ? `<div class="font-medium profile-link inline-flex items-center gap-1.5">${p.n} <i data-lucide="arrow-up-right" class="pl-arrow w-3.5 h-3.5"></i></div>`
+      : `<div class="font-medium">${p.n}</div>`;
+    return `<tr class="row-hover border-b border-[var(--border)]${prof ? ' cursor-pointer' : ''}"${prof ? ' data-broja="1" title="Hap profilin e plotë të Armando Brojas"' : ''}>
+      <td class="py-3 pl-1 pr-3">${name}<div class="text-xs text-[var(--muted)]">${p.age} vjeç · ${p.c}</div></td>
+      <td class="py-3 pr-3 text-sm">${p.club}<div class="text-xs text-[var(--muted)]">${p.lg}</div></td>
+      <td class="py-3 pr-3">${sparkline(p.r, i)}</td>
+      <td class="py-3 pr-3 text-right"><span class="font-mono font-medium" style="color:${RATING_C(p.r)}">${p.r.toFixed(1)}</span></td>
+      <td class="py-3 pr-1 text-center">${statusIcon(p.st)}</td>
+    </tr>`;
+  }).join('');
+  if (window.lucide) lucide.createIcons();
+}
+function renderLoad(t) {
+  const p = PMAP[t.featuredId] || t.pool[0];
+  const prof = t.profileId && p.id === t.profileId;
+  document.getElementById('load-featured').innerHTML = prof
+    ? `<div class="font-serif text-2xl profile-link inline-flex items-center gap-2" data-broja="1" title="Hap profilin e plotë të Armando Brojas">${p.n} <i data-lucide="arrow-up-right" class="pl-arrow w-4 h-4"></i></div>
+       <button class="profile-link text-[11px] text-[var(--fshf-red)] font-medium mt-1 flex items-center gap-1" data-broja="1" style="background:none;border:none;padding:0;">Shiko profilin e plotë →</button>
+       <div class="text-[12px] text-[var(--muted)] mt-0.5">12 javët e fundit · ${p.club}</div>`
+    : `<div class="font-serif text-2xl">${p.n}</div>
+       <div class="text-[12px] text-[var(--muted)] mt-0.5">12 javët e fundit · ${p.club}</div>`;
+  const ld = p.ld || [60, 70, 0, 75, 80, 65, 90, 0, 78, 82, 70, 85];
+  document.getElementById('load-chart').innerHTML = loadChart(ld);
+  const total = ld.reduce((a, b) => a + b, 0), avg = Math.round(total / ld.length);
+  document.getElementById('load-stats').innerHTML = `
+    <div><div class="eyebrow">Minuta totale</div><div class="font-mono font-medium text-lg">${total}'</div></div>
+    <div><div class="eyebrow">Mesatarja</div><div class="font-mono font-medium text-lg">${avg}'</div></div>
+    <div><div class="eyebrow">Vlerësim mes.</div><div class="font-mono font-medium text-lg" style="color:${RATING_C(p.r)}">${p.r.toFixed(1)}</div></div>`;
+  if (window.lucide) lucide.createIcons();
+}
+function setTeam(key) {
+  const t = TEAMS[key]; if (!t) return;
+  TEAM = t; SQUAD = t.pool; PMAP = Object.fromEntries(SQUAD.map(p => [p.id, p])); FEEDER_LABEL = t.feederLabel;
+  renderFixture(t); renderSquadTable(t); renderLoad(t);
+  selectedSlot = null;
+  lineup = autoFill(curFormation);
+  renderPlanner();
+  document.querySelectorAll('#team-switcher button').forEach(b => b.classList.toggle('active', b.dataset.team === key));
+  const lf = document.getElementById('leg-feeder'); if (lf) lf.textContent = FEEDER_LABEL;
+}
+document.getElementById('team-switcher').addEventListener('click', e => {
+  const btn = e.target.closest('button[data-team]'); if (!btn) return;
+  setTeam(btn.dataset.team);
 });
+
+setTeam('A');
 
 </script>
 </body>
